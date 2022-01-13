@@ -1,0 +1,9 @@
+# libgoods
+setuptools
+numpy
+netCDF4
+
+
+# for development
+pytest
+
