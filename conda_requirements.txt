@@ -2,6 +2,7 @@
 setuptools
 numpy
 netCDF4
+requests
 
 
 # for development
