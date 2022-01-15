@@ -13,6 +13,7 @@ class roms(curv_model.curv):
     """
          
     def get_dimensions(self,var_map=None,get_time=True,get_xy=True):
+    
         if var_map is None:
             tvar = 'ocean_time'
         else:
@@ -41,7 +42,10 @@ class roms(curv_model.curv):
         Note: some of these input params aren't used at present; trying to have same params as other grid types
         
         '''      
-        
+        if var_map is not None:
+            #allow some default variable name overriding
+            pass
+            
         nc_in = self.Dataset
         nc_in.set_auto_maskandscale(False)
         if self.GridDataset is not None:

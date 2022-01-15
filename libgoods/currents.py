@@ -28,6 +28,8 @@ def get_currents(model_name,
     with open(model_file, 'r') as f:
         model_info = json.load(f)
         
+        
+    print(model_info)
     url = model_info['url']
     var_map = model_info['var_map']
     grid_type = model_info['grid_type']

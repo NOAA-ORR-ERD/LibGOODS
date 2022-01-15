@@ -8,7 +8,6 @@ with open('..\\libgoods\\currents\\tbofs.json', 'r') as f:
   model_info = json.load(f)
 
 url = model_info['url']
-var_map = model_info['var_map']
 
 tbofs = roms_model.roms(url)
 
@@ -19,7 +18,7 @@ subset_box = [ #south lat, west lon, north lat, east lon
     -82.607
 ]
 
-tbofs.get_dimensions(var_map['time'])
+tbofs.get_dimensions()
 tbofs.when()
 
 
