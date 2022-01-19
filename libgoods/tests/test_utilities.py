@@ -32,8 +32,18 @@ def test_check_check_valid_longitude_invalid(lat):
 
 
 def test_polygon2bbox_good():
-    
-    bounds = [(-130,45), (-130,50), (-125,50), (-125,45)]
+    bounds = [(-130, 45), (-130, 50), (-125, 50), (-125, 45)]
     bbox = utilities.polygon2bbox(bounds)
     assert bbox == [45, -130, 50, -125]
-    
+
+
+@pytest.mark.parametrize('bounds', [
+    [(-130, 45), (-130, 50), (-125, 50)],
+    [(-130, 45), (-130, 50), (-125, 50), (-125, 45), (-125, 45)],
+    [(-130, 45), (-130, 50), (-125), (-125, 45)],
+     ])  # noqa
+def test_polygon2bbox_bad(bounds):
+
+    with pytest.raises(ValueError) as err:
+        bbox = utilities.polygon2bbox(bounds)
+
