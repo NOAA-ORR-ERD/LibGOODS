@@ -30,11 +30,11 @@ class Shoreline(DataSource):
 
 class Currents(DataSource):
     """
-    class that represents a gridded currents
+    class that represents a gridded current
     """
 
 
 class Winds(DataSource):
     """
-    cclass that represents a gridded winds
+    class that represents a gridded wind
     """
