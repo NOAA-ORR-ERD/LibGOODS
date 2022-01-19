@@ -1,6 +1,7 @@
 """
 assorted utilities useful for libgoods
 """
+import numpy as np
 
 def check_valid_latitude(lat):
 
@@ -43,4 +44,13 @@ def detect_lon_coords(coords, system):
      - 0 -- 360
     """
 
+def polygon2bbox(bounds):
 
+    if len(bounds) != 4:
+        raise ValueError('Bounding box must be 4 points')
+        
+    bounds = np.asarray(bounds)
+    min_lon, min_lat = bounds.min(axis=0)
+    max_lon, max_lat = bounds.max(axis=0)
+    
+    return [min_lat, min_lon, max_lat, max_lon]

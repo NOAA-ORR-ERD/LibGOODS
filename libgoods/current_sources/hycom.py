@@ -4,9 +4,10 @@ HYCOM global ocean model
 import os
 from ..data_models import Currents
 from .. import rect_model, roms_model, temp_files_dir, currents_dir
+from ..utilities import polygon2bbox
 
 # fixme: we probably don't want actual HTML in there
-#        but if so -- some sanitiation needs to be done.
+#        but if so -- some sanitation needs to be done.
 INFO_TEXT = """The global HYbrid Coordinate Ocean Model (HYCOM)
 nowcast/forecast system is a demonstration product of the
 <a href = "http://www.hycom.org" target="_blank">HYCOM Consortium</a>
@@ -46,25 +47,28 @@ class HYCOM(Currents):
         pass
 
     def get_data(self,
-                 north_lat,
-                 south_lat,
-                 west_lon,
-                 east_lon,
+                 bounds,
                  cross_dateline,
                  max_filesize):
 
-
+            '''
+            :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...] 
+            
+            '''
+            try:
+                bounding_box = polygon2bbox(bounds)
+            except ValueError:
+                raise NotImplementedError('Only rectangular bounds are supported')
+                
+            #bounds = [south_lat,west_lon,north_lat,east_lon]
             url = self.url
             var_map = self.var_map
-            grid_type = self.grid_type
 
-            if grid_type == "roms":
-                model = roms_model.roms(url)
-            elif grid_type == "rect":
-                model = rect_model.rect(url)
+            model = rect_model.rect(url)
 
             model.get_dimensions(var_map)
-            model.subset([south_lat,west_lon,north_lat,east_lon])
+            
+            model.subset(bounding_box)
 
             #until I add time selection -- return last 10 time steps
             tlen = len(model.time)

@@ -29,3 +29,11 @@ def test_check_check_valid_longitude_invalid(lat):
 
     with pytest.raises(ValueError):
         utilities.check_valid_longitude(lat)
+
+
+def test_polygon2bbox_good():
+    
+    bounds = [(-130,45), (-130,50), (-125,50), (-125,45)]
+    bbox = utilities.polygon2bbox(bounds)
+    assert bbox == [45, -130, 50, -125]
+    
