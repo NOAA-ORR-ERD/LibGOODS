@@ -8,7 +8,8 @@ __version__ = "0.0.1"
 import os
 
 temp_files_dir = os.path.join(os.path.split(__file__)[0], "temp_files")
-currents_dir = os.path.join(os.path.split(__file__)[0], "currents")
+currents_dir = os.path.join(os.path.split(__file__)[0], "current_sources")
 if not os.path.exists(temp_files_dir):
     os.mkdir(temp_files_dir)
+
 

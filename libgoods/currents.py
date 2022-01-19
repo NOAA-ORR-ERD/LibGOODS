@@ -1,18 +1,21 @@
 import os
 import json
-from libgoods import rect_model, roms_model, temp_files_dir, currents_dir
+from . import rect_model, roms_model, temp_files_dir, currents_dir
+
 
 def list_models():
     '''
     list all available models
     '''
     pass
-    
+
+
 def get_all_boundaries():
     '''
     get boundaries from all models
     '''
     pass
+
 
 def get_currents(model_name,
             north_lat,
@@ -23,6 +26,8 @@ def get_currents(model_name,
             max_filesize=None,
             ):
             
+#    model = currents.all_currents(model_name)
+
     model_file = os.path.join(currents_dir, model_name + '.json')
     
     with open(model_file, 'r') as f:
