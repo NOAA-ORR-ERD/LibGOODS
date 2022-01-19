@@ -1,10 +1,9 @@
 import json
 import os
 from libgoods import rect_model, temp_files_dir
-from importlib import reload
-reload(rect_model)
 
-with open('..\\libgoods\\currents\\hycom.json', 'r') as f:
+
+with open('..\\libgoods\\current_sources\\hycom.json', 'r') as f:
   model_info = json.load(f)
 
 url = model_info['url']
