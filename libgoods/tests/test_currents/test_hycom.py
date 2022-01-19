@@ -31,9 +31,8 @@ def test_get_currents():
     print(filename)
     print(filepath)
 
-    # If these got retturned, then we're good.
+    # If these got returned, then we're good.
     assert filename == 'hycom.nc'
-    assert filepath
     assert Path(filepath).is_file()
 
 
