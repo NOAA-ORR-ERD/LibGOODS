@@ -27,9 +27,7 @@ def get_currents(model_name,
     
     with open(model_file, 'r') as f:
         model_info = json.load(f)
-        
-        
-    print(model_info)
+         
     url = model_info['url']
     var_map = model_info['var_map']
     grid_type = model_info['grid_type']
@@ -49,6 +47,5 @@ def get_currents(model_name,
     fp = os.path.join(temp_files_dir,fn)
     model.write_nc(var_map,fp,t_index=[tlen-10,tlen,1])
     
-    #maybe i can just return the filename then move it to the session directory?
     return fn,fp
     
