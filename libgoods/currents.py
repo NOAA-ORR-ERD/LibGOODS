@@ -1,6 +1,6 @@
 from pathlib import Path
 from .current_sources import all_currents
-
+from . import utilities
 
 MODEL_TYPES = {'currents', 'winds'}
 
@@ -36,10 +36,7 @@ def get_currents(model_name,
     # probably need to update the API to use bounds
     # but converting here.
 
-    bounds = [(west_lon, north_lat),
-              (east_lon, north_lat),
-              (east_lon, south_lat),
-              (west_lon, south_lat)]
+    bounds = utilities.bbox2polygon((south_lat, west_lon, north_lat, east_lon))
 
     filepath = source.get_data(bounds,
                                cross_dateline,

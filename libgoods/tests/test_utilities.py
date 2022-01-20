@@ -1,5 +1,5 @@
 """
-tests  for the libgoods.utilities package
+Tests  for the libgoods.utilities package
 """
 
 from libgoods import utilities
@@ -34,7 +34,7 @@ def test_check_check_valid_longitude_invalid(lat):
 def test_polygon2bbox_good():
     bounds = [(-130, 45), (-130, 50), (-125, 50), (-125, 45)]
     bbox = utilities.polygon2bbox(bounds)
-    assert bbox == [45, -130, 50, -125]
+    assert bbox == (45, -130, 50, -125)
 
 
 @pytest.mark.parametrize('bounds', [
@@ -45,5 +45,18 @@ def test_polygon2bbox_good():
 def test_polygon2bbox_bad(bounds):
 
     with pytest.raises(ValueError):
-        bbox = utilities.polygon2bbox(bounds). # noqa
+        bbox = utilities.polygon2bbox(bounds)  # noqa
+
+
+def test_bbox2polygon():
+    """
+    Converts four points in the form:
+    (min_lat, min_lon, max_lat, max_lon)
+
+    To a four point polygon:
+    """
+    bbox = (23, -88, 24, -87)
+    bounds = utilities.bbox2polygon(bbox)
+
+    assert bounds == [(-88, 24), (-87, 24), (-87, 23), (-88, 23)]
 

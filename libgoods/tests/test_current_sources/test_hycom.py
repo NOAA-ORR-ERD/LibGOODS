@@ -16,9 +16,11 @@ def test_init():
 
 
 def test_get_metadata():
-    md = HYCOM.get_metadata()
+    md = HYCOM().get_metadata()
 
-    assert False
+    # could check more, but why?
+    assert md['data_type'] == 'currents'
+    assert md['name'] == HYCOM.name
 
 
 def test_get_currents():
@@ -34,9 +36,6 @@ def test_get_currents():
         cross_dateline=False,
         max_filesize=None,
         )
-
-    print(filename)
-    print(filepath)
 
     # If these got returned, then we're good.
     assert filename == 'hycom.nc'
