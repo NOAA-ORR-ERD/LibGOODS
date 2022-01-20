@@ -55,7 +55,7 @@ class HYCOM(Currents, rect_model.rect):
         # example:
         # note: if want to get the time range, it would be dynamic
         # so this would not be a classmethod, and the object would not
-        meta_data["time_range": ('2022-01-17T22:00Z', '2022-01-20T22:00Z')]
+        meta_data["time_range"] = ('2022-01-17T22:00Z', '2022-01-20T22:00Z')
         return meta_data
 
     def get_data(self,
@@ -67,7 +67,7 @@ class HYCOM(Currents, rect_model.rect):
         right before querying the data
         """
         self.open_nc(FileName=self.url)
-        filepath = super().get_data(self, bounds, cross_dateline, max_filesize)
+        filepath = super().get_data(bounds, cross_dateline, max_filesize)
 
         return filepath
 

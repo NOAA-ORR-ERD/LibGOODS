@@ -15,7 +15,7 @@ class nc():
                  'ice_v',
                  'ice_thickness',
                  'ice_fraction']
-    
+
     def open_nc(self,FileName=None,GridFileName=None):
         '''
         Load from OpenDAP URL or local netCDF file
@@ -28,7 +28,7 @@ class nc():
                 self.Dataset = Dataset(FileName)
         else:
             self.Dataset = None
-            
+
         if GridFileName is not None:
             self.GridFileName = GridFileName
             self.GridDataset = Dataset(GridFileName)
@@ -41,22 +41,22 @@ class nc():
                  max_filesize):
 
         '''
-        NOTE: This "does it all" -- i.e. it assumes you are already happy with the subset selection 
+        NOTE: This "does it all" -- i.e. it assumes you are already happy with the subset selection
         box -- often we want to check the size of a subset before we do the download
-        
-        :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...] 
-        
+
+        :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...]
+
         '''
         try:
             bounding_box = polygon2bbox(bounds)
         except ValueError:
             raise NotImplementedError('Only rectangular bounds are supported')
-            
+
         #bounds = [south_lat,west_lon,north_lat,east_lon]
         url = self.url
         var_map = self.var_map
 
-        self.get_dimensions(var_map)        
+        self.get_dimensions(var_map)
         self.subset(bounding_box)
 
         #until I add time selection -- return last 10 time steps
@@ -66,9 +66,9 @@ class nc():
         fp = os.path.join(temp_files_dir,fn)
         self.write_nc(var_map,fp,t_index=[tlen-10,tlen,1])
 
-        return fn, fp
-            
-    def update(self,FileName):
+        return fp
+
+    def update(self, FileName):
         '''
         Change nc Dataset to point to a new nc file or url without reinitializing everything (retain grid info)
         '''
@@ -76,7 +76,7 @@ class nc():
             self.Dataset = MFDataset(FileName)
         else:
             self.Dataset = Dataset(FileName)
-    
+
     def when(self):
         '''
         Gives some info about the time dimension but only AFTER get_dimensions has been called
@@ -92,4 +92,3 @@ class nc():
         print('Time step: ', dt, 'in units of', self.time_units)
         print('Length:', len(self.time))
 
-     
