@@ -7,19 +7,25 @@ class DataSource:
     """
     core functionality for all data sources
     """
-    @property
-    def bounds():
-        """
-        Property that returns the bounds of the model
+    # Metadata required by all Data sources
+    name = None
+    data_type = None
+    bounding_box = None
+    bounds = None
+    info_text = None
 
-        geo-json compatible polygon ?
+    @classmethod
+    def get_metadata(self):
         """
-
-    @property
-    def valid_times():
+        returns a dict of the metadata for this data source
         """
-        the start and end time of the data currently available
-        """
+        metadata = {'name': self.name,
+                    'data_type': self.data_type,
+                    'bounding_box': self.bounding_box,
+                    'bounds': self.bounds,
+                    'info_text': self.info_text
+                    }
+        return metadata
 
 
 class Shoreline(DataSource):

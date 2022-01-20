@@ -1,62 +1,51 @@
-import os
-import json
+from pathlib import Path
 from .current_sources import all_currents
 
-def list_models():
+
+MODEL_TYPES = {'currents', 'winds'}
+
+
+def list_models(type):
     '''
     list all available models
-    '''
-    pass
 
+    type is one of {'currents', 'winds'}
+    '''
+    if type not in MODEL_TYPES:
+        raise ValueError(f"{type} is not supported. Supported types are:"
+                         f"{MODEL_TYPES}")
+    if type == 'winds':
+        raise NotImplementedError('winds not yet supported')
+    elif type == 'currents':
+        data = [model.get_metadata() for model in all_currents.values()]
 
-def get_all_boundaries():
-    '''
-    get boundaries from all models
-    '''
-    pass
+    return data
 
 
 def get_currents(model_name,
-            north_lat,
-            south_lat,
-            west_lon,
-            east_lon,
-            cross_dateline=False,
-            max_filesize=None,
-            ):
-            
+                 north_lat,
+                 south_lat,
+                 west_lon,
+                 east_lon,
+                 cross_dateline=False,
+                 max_filesize=None,
+                 ):
+
     source = all_currents[model_name]
 
-#    model_file = os.path.join(currents_dir, model_name + '.json')
-    
-    fn, fp = source.get_data(north_lat,
-                               south_lat,
-                               west_lon,
-                               east_lon,
+    # probably need to update the API to use bounds
+    # but converting here.
+
+    bounds = [(west_lon, north_lat),
+              (east_lon, north_lat),
+              (east_lon, south_lat),
+              (west_lon, south_lat)]
+
+    filepath = source.get_data(bounds,
                                cross_dateline,
                                max_filesize)
 
-    # print(model_info)
-    # url = model_info['url']
-    # var_map = model_info['var_map']
-    # grid_type = model_info['grid_type']
-    
-         
-    # if grid_type == "roms":
-    #     model = roms_model.roms(url)
-    # elif grid_type == "rect":
-    #     model = rect_model.rect(url)
-    
-    # model.get_dimensions(var_map)
-    # model.subset([south_lat,west_lon,north_lat,east_lon])
-    
-    # #until I add time selection -- return last 10 time steps
-    # tlen = len(model.time)
-    
-    # fn = model_name + '.nc'
-    # fp = os.path.join(temp_files_dir,fn)
-    # model.write_nc(var_map,fp,t_index=[tlen-10,tlen,1])
-    
-    # #maybe i can just return the filename then move it to the session directory?
-    return fn,fp
-    
+    # just to conform with the current API
+
+    filename = Path(filepath).name
+    return filename, filepath

@@ -44,6 +44,6 @@ def test_polygon2bbox_good():
      ])  # noqa
 def test_polygon2bbox_bad(bounds):
 
-    with pytest.raises(ValueError) as err:
-        bbox = utilities.polygon2bbox(bounds)
+    with pytest.raises(ValueError):
+        bbox = utilities.polygon2bbox(bounds). # noqa
 
