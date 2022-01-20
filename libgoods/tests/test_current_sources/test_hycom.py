@@ -14,9 +14,16 @@ def test_init():
 
     assert hc.bounding_box == (-78.6, -180, 90, 180)
 
+
+def test_get_metadata():
+    md = HYCOM.get_metadata()
+
+    assert False
+
+
 def test_get_currents():
     """
-    testing access throught he top level API
+    testing access through the top level API
     """
     filename, filepath = get_currents(
         model_name='hycom',
