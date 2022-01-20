@@ -49,12 +49,7 @@ def test_polygon2bbox_bad(bounds):
 
 
 def test_bbox2polygon():
-    """
-    Converts four points in the form:
-    (min_lat, min_lon, max_lat, max_lon)
 
-    To a four point polygon:
-    """
     bbox = (23, -88, 24, -87)
     bounds = utilities.bbox2polygon(bbox)
 
