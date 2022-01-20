@@ -24,6 +24,7 @@ querying of other systems
 """
 
 import urllib
+import urllib.request
 
 GOODS_URL = 'https://gnome.orr.noaa.gov/goods/'
 
