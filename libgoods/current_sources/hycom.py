@@ -42,10 +42,10 @@ class HYCOM(Currents, rect_model.rect):
     default_filename = "hycom.nc"
 
     def __init__(self):
-        """ initilize a HYCOM instance"""
-
+        """ initialize a HYCOM instance"""
         # we may need to query this object before actually
-        # opening a OpeNDap session
+        # opening a OpeNDap session -- so not doing this now.
+
         # self.open_nc(FileName=self.url)
 
     @classmethod
@@ -70,5 +70,3 @@ class HYCOM(Currents, rect_model.rect):
         filepath = super().get_data(bounds, cross_dateline, max_filesize)
 
         return filepath
-
-

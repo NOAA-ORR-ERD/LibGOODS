@@ -45,7 +45,6 @@ class nc():
         box -- often we want to check the size of a subset before we do the download
 
         :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...]
-
         '''
         try:
             bounding_box = polygon2bbox(bounds)
