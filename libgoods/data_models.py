@@ -42,7 +42,7 @@ ENVIRONMENTAL_PARAMETERS = {'surface winds'
                             'sea surface temperature'
                             'ice data'}
 
-
+# fixme: we should have a short identifier as well, e.g "hycom", etc.
 @dataclasses.dataclass
 class Metadata:
     name: str
