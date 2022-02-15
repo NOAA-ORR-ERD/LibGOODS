@@ -1,9 +1,5 @@
 """
-placeholder / mockup for libgoods
-
-For the moment, this is where we will define the interaction between the
-webgnome_api and libgoods.
-
+Code for getting GNOME maps
 
 Notes:
 
@@ -11,20 +7,14 @@ we may want to be smarter about how to handle big files.
  - Perhaps the API could take a path to write to, so it can
    write data bit by bit, and do checks for file size, etc
 
-Do we want to have a bounding boax as a single item?
- - either a special class -- we have one in py_gnome,
- - or a tuple of tuples.
-
-Alternativly, use a polygon for bounds
- -- it could happen to be a rectangle, or not.
-
 We should use the requests package if we have to do much
 querying of other systems
-
 """
 
 import urllib
 import urllib.request
+
+from . import utilities
 
 GOODS_URL = 'https://gnome.orr.noaa.gov/goods/'
 
@@ -34,16 +24,18 @@ class FileTooBigError(ValueError):
 
 RESOLUTIONS = {'i', }
 
-def get_map(north_lat,
-            south_lat,
-            west_lon,
-            east_lon,
+
+def get_map(bounds,
             resolution='appropriate',
             cross_dateline=False,
             max_filesize=None,
             ):
+    bbox = utilities.polygon2bbox(bounds)
+
+    south_lat, west_lon, north_lat, east_lon = bbox
 
     # some error checking:
+    # maybe a check_bounds() function in utilities?
     if north_lat > 90:
         raise ValueError(f'latitude cannot be larger than 90. Got{north_lat}')
     # lots more to be done here

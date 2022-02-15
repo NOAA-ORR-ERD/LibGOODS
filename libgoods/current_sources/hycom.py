@@ -2,9 +2,10 @@
 HYCOM global ocean model
 """
 import os
-from ..data_models import Currents
+from ..data_models import DataSource, Metadata
 from .. import rect_model, temp_files_dir
 from ..utilities import polygon2bbox
+
 
 # fixme: we probably don't want actual HTML in there
 #        but if so -- some sanitation needs to be done.
@@ -19,17 +20,23 @@ For more details about the global model visit the
 
 # using the "old libgoods" classes as a mixing to get
 # the exsisting functionality
-class HYCOM(Currents, rect_model.rect):
+class HYCOM(DataSource, rect_model.rect):
     """
     global HYCOM
     """
-    # metadata for HYCOM
+    metadata = Metadata(name="Global Ocean Forecasting System (GOFS) 3.1",
+                        bounding_box=((-78.6, -180), (90, 180)),
+                        bounds=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
+                        info_text=INFO_TEXT,
+                        forecast_available=True,
+                        hindcast_available=False,
+                        environmental_parameters=['surface currents'
+                                                  'sea surface temperature'
+                                                  'ice data',
+                                                  '3D currents',
+                                                  ],
+                        )
 
-    name = "Global Ocean Forecasting System (GOFS) 3.1"
-    data_type = 'currents'
-    info_text = INFO_TEXT
-    bounding_box = (-78.6, -180, 90, 180)
-    boundary = (-78.6, -180.0, 90.0, -180.0, 90.0, 180.0, -78.6, 180.0)
 
     # needed for internal processing
     url = "https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/FMRC/GLBy0.08_930_FMRC_best.ncd"
@@ -48,18 +55,18 @@ class HYCOM(Currents, rect_model.rect):
 
         # self.open_nc(FileName=self.url)
 
-    @classmethod
-    def get_metadata(cls):
-        meta_data = super().get_metadata()
-        # add anything else here if needed
-        # example:
-        # note: if want to get the time range, it would be dynamic
-        # so this would not be a classmethod, and the object would not
-        meta_data["time_range"] = ('2022-01-17T22:00Z', '2022-01-20T22:00Z')
-        return meta_data
+    def get_available_times(self):
+        """
+        returns the available times for this model as of right now
+
+        hard-coded for now -- needs to be fixed!
+        """
+        return ('2022-01-17T22:00Z', '2022-01-20T22:00Z')
 
     def get_data(self,
                  bounds,
+                 time_interval,
+                 environmental_parameters,
                  cross_dateline,
                  max_filesize):
         """
