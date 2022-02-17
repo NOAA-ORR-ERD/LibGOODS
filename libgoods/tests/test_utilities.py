@@ -38,8 +38,7 @@ def test_polygon2bbox_good():
 
 
 @pytest.mark.parametrize('bounds', [
-    [(-130, 45), (-130, 50), (-125, 50)],
-    [(-130, 45), (-130, 50), (-125, 50), (-125, 45), (-125, 45)],
+    [(-130, 45)],
     [(-130, 45), (-130, 50), (-125), (-125, 45)],
      ])  # noqa
 def test_polygon2bbox_bad(bounds):
