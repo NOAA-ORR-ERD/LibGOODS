@@ -2,7 +2,7 @@
 HYCOM global ocean model
 """
 import os
-from ..data_models import DataSource, Metadata
+from ..data_model import DataSource, Metadata
 from .. import rect_model, temp_files_dir
 from ..utilities import polygon2bbox
 
@@ -18,38 +18,41 @@ For more details about the global model visit the
 """
 
 
-# using the "old libgoods" classes as a mixing to get
-# the exsisting functionality
+# using the "old libgoods" classes as a mixin to get
+# the existing functionality
 class HYCOM(DataSource, rect_model.rect):
     """
     global HYCOM
     """
-    metadata = Metadata(name="Global Ocean Forecasting System (GOFS) 3.1",
-                        bounding_box=((-78.6, -180), (90, 180)),
-                        bounds=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
-                        info_text=INFO_TEXT,
-                        forecast_available=True,
-                        hindcast_available=False,
-                        environmental_parameters=['surface currents'
-                                                  'sea surface temperature'
-                                                  'ice data',
-                                                  '3D currents',
-                                                  ],
-                        )
 
+    metadata = Metadata(
+        identifier="hycom",
+        name="Global Ocean Forecasting System (GOFS) 3.1",
+        bounding_box=((-78.6, -180), (90, 180)),
+        bounding_poly=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
+        info_text=INFO_TEXT,
+        forecast_available=True,
+        hindcast_available=False,
+        environmental_parameters=[
+            "surface currents" "sea surface temperature" "ice data",
+            "3D currents",
+        ],
+    )
 
     # needed for internal processing
     url = "https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/FMRC/GLBy0.08_930_FMRC_best.ncd"
-    var_map = {"time": "time",
-               "lon": "lon",
-               "lat": "lat",
-               "z": "depth",
-               "u": "water_u",
-               "v": "water_v"}
+    var_map = {
+        "time": "time",
+        "lon": "lon",
+        "lat": "lat",
+        "z": "depth",
+        "u": "water_u",
+        "v": "water_v",
+    }
     default_filename = "hycom.nc"
 
     def __init__(self):
-        """ initialize a HYCOM instance"""
+        """initialize a HYCOM instance"""
         # we may need to query this object before actually
         # opening a OpeNDap session -- so not doing this now.
 
@@ -61,14 +64,16 @@ class HYCOM(DataSource, rect_model.rect):
 
         hard-coded for now -- needs to be fixed!
         """
-        return ('2022-01-17T22:00Z', '2022-01-20T22:00Z')
+        return ("2022-01-17T22:00Z", "2022-01-20T22:00Z")
 
-    def get_data(self,
-                 bounds,
-                 time_interval,
-                 environmental_parameters,
-                 cross_dateline,
-                 max_filesize):
+    def get_data(
+        self,
+        bounds,
+        time_interval,
+        environmental_parameters,
+        cross_dateline,
+        max_filesize,
+    ):
         """
         wrapping this so we can open the opendap connection
         right before querying the data

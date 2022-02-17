@@ -8,7 +8,7 @@ Functions return JSON-compatible dicts
 
 from pathlib import Path
 from .current_sources import all_currents
-from .dummy_models import all_dummy_models
+from .dummy_sources import all_dummy_sources
 from . import utilities
 
 
@@ -17,7 +17,7 @@ from . import utilities
 #   value: DataSource object
 all_models = {}
 all_models.update(all_currents)
-all_models.update(all_dummy_models)
+all_models.update(all_dummy_sources)
 # there will be many more in the future
 
 
@@ -41,10 +41,9 @@ def get_model_info(model_name):
     # return {'available_times': (start_time, end_time),
     #        }
     try:
-        return all_models['model_name'].get_model_info()
+        return all_models["model_name"].get_model_info()
     except KeyError:
-        return {'error': f"Model: {model_name} does not exist"}
-
+        return {"error": f"Model: {model_name} does not exist"}
 
 
 # NOTE: subset information should be cached so that subsequent
@@ -52,12 +51,13 @@ def get_model_info(model_name):
 #       computed grid subsetting info
 
 
-def get_model_subset_info(model_name,
-                          bounds,
-                          time_interval,
-                          environmental_parameters,
-                          cross_dateline=False,
-                          ):
+def get_model_subset_info(
+    model_name,
+    bounds,
+    time_interval,
+    environmental_parameters,
+    cross_dateline=False,
+):
     """
     Return the primary information about a model subset:
 
@@ -69,21 +69,23 @@ def get_model_subset_info(model_name,
     NOTE: this could be different depending on grid type
 
     """
-    return all_models[model_name].get_model_subset_info(bounds,
-                                                        time_interval,
-                                                        environmental_parameters,
-                                                        cross_dateline=False,
-                                                        )
+    return all_models[model_name].get_model_subset_info(
+        bounds,
+        time_interval,
+        environmental_parameters,
+        cross_dateline=False,
+    )
 
 
-def get_model_data(model_name,
-                   bounds,  # polygon list of (lon, lat) pairs
-                   time_interval,
-                   environmental_parameters,
-                   cross_dateline=False,
-                   max_filesize=None,
-                   dir_path=None
-                   ):
+def get_model_data(
+    model_name,
+    bounds,  # polygon list of (lon, lat) pairs
+    time_interval,
+    environmental_parameters,
+    cross_dateline=False,
+    max_filesize=None,
+    dir_path=None,
+):
 
     source = all_models[model_name]
 
@@ -96,6 +98,3 @@ def get_model_data(model_name,
     )
 
     return Path(filepath)
-
-
-
