@@ -40,7 +40,7 @@ def test_get_currents():
                    )
 
     # If these got returned, then we're good.
-    assert filename == 'hycom.nc'
+    assert filepath.name == 'hycom.nc'
     assert Path(filepath).is_file()
 
 
