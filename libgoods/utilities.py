@@ -51,13 +51,13 @@ def polygon2bbox(bounds):
     In the form: (min_lat, min_lon, max_lat, max_lon)
     """
 
-    if len(bounds) != 4:
-        raise ValueError('Bounding box must be 4 points')
+    if len(bounds) < 2:
+        raise ValueError('Bounding box requires at least 2 points')
 
     try:
-        bounds = np.asarray(bounds, dtype=np.float64)
+        bounds = np.asarray(bounds, dtype=np.float64).reshape(-1, 2)
     except ValueError as err:
-        raise ValueError("bounds must be 4 pairs of (lon, lat) points") from err
+        raise ValueError("bounds must be pairs of (lon, lat) points") from err
     min_lon, min_lat = bounds.min(axis=0)
     max_lon, max_lat = bounds.max(axis=0)
     return (min_lat, min_lon, max_lat, max_lon)
