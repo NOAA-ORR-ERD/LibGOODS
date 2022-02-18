@@ -17,7 +17,7 @@ def check_valid_longitude(lon, system='all'):
 
     Only option is 'all': -180 -- 360
 
-    We should impliment other options some day:
+    We should implement other options some day:
      - -180 -- 180
      - 0 -- 360
     """
@@ -29,6 +29,19 @@ def check_valid_longitude(lon, system='all'):
             f'longitude cannot be larger than 360 or less than -180. Got{lon}')
 
     return True
+
+
+def check_valid_box(bbox, system='all'):
+    """
+    checks that longitude and latitude values of a
+    bounding box make sense
+
+    bbox is four values: (min_lat, min_lon, max_lat, max_lon)
+    """
+    check_valid_latitude(bbox[0])
+    check_valid_latitude(bbox[2])
+    check_valid_longitude(bbox[1], system)
+    check_valid_longitude(bbox[3], system)
 
 
 def shift_lon_coords(coords, system):
