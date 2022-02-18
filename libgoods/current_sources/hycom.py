@@ -28,15 +28,17 @@ class HYCOM(DataSource, rect_model.rect):
     metadata = Metadata(
         identifier="hycom",
         name="Global Ocean Forecasting System (GOFS) 3.1",
-        bounding_box=((-78.6, -180), (90, 180)),
+        bounding_box=(-78.6, -180, 90, 180),
         bounding_poly=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
         info_text=INFO_TEXT,
         forecast_available=True,
         hindcast_available=False,
-        environmental_parameters=[
-            "surface currents" "sea surface temperature" "ice data",
+        environmental_parameters={
+            "surface currents",
+            "sea surface temperature",
+            "ice data",
             "3D currents",
-        ],
+        },
     )
 
     # needed for internal processing
@@ -71,14 +73,31 @@ class HYCOM(DataSource, rect_model.rect):
         bounds,
         time_interval,
         environmental_parameters,
-        cross_dateline,
-        max_filesize,
+        cross_dateline=False,
+        max_filesize=None,
+        target_dir=None,
     ):
         """
         wrapping this so we can open the opendap connection
         right before querying the data
         """
+        # not using super() because the base classes are not compatible.
+        DataSource.get_data(
+            self,
+            bounds,  # polygon list of (lon, lat) pairs
+            time_interval,
+            environmental_parameters,
+            cross_dateline,
+            max_filesize,
+            target_dir,
+        )
+
+        if target_dir is not None:
+            raise NotImplementedError(
+                "HYCOM does not support setting a target directory"
+            )
         self.open_nc(FileName=self.url)
-        filepath = super().get_data(bounds, cross_dateline, max_filesize)
+
+        filepath = rect_model.rect.get_data(self, bounds, cross_dateline, max_filesize)
 
         return filepath

@@ -1,44 +1,38 @@
 """
 A set of dummy models that can be used for testing, exploring the API, etc
 
+only one here now, but it would be good to have others
 """
+
+import shutil
+from pathlib import Path
 
 from ..data_model import DataSource, Metadata
 
 
-class DummyCurrents(DataSource):
+class DummyCurrentsCAROMS(DataSource):
+    """
+    A dummy current source -- used hard code small example
+    from the CAROMS model
+    """
 
     metadata = Metadata(
         identifier="dummy_cur",
         name="Example currents for testing",
-        bounding_box=((39.01, -128.029), (50.072, -121.958)),
+        bounding_box=(33.0, -119.0, 34.0, -117.5),
         bounding_poly=(
-            (45.638, -121.961),
-            (45.585, -122.161),
-            (45.578, -122.373),
-            (45.606, -122.58),
-            (45.678, -122.766),
-            (45.826, -122.747),
-            (45.966, -122.814),
-            (46.106, -122.891),
-            (46.183, -123.073),
-            (46.151, -123.283),
-            (46.265, -123.418),
-            (46.265, -123.632),
-            (46.261, -123.847),
-            (46.28, -124.059),
-            (46.43, -124.065),
-            (46.582, -124.065),
-            (46.429, -124.02),
-            (46.558, -123.915),
-            (46.702, -123.866),
+            (-119.0, 33.0),
+            (-119.0, 34.0),
+            (-118.0, 34.0),
+            (-117.5, 33.0),
         ),
-        info_text="Dummy model just for testing, etc.",
+        info_text=(
+            "Dummy model just for testing, etc.\n"
+            "Provides sample output from the CA ROMS model"
+        ),
         forecast_available=True,
         hindcast_available=False,
-        environmental_parameters=[
-            "surface currents" "sea surface temperature" "ice data"
-        ],
+        environmental_parameters={"surface currents"},
     )
 
     def get_available_times(self, cast_type):
@@ -50,9 +44,40 @@ class DummyCurrents(DataSource):
         Hardcoded result
         """
         if cast_type == "forecast":
-            return ("2022-02-15T12:00", "2022-02-20T12:00")
+            return ("2022-01-01T19:00", "2022-01-02T19:00")
         if cast_type == "hindcast":
-            return ("2021-10-01T12:00", "2022-02-15T12:00")
+            return (None, None)
+
+    def get_data(
+        self,
+        bounds,  # polygon list of (lon, lat) pairs
+        time_interval,
+        environmental_parameters,
+        cross_dateline=False,
+        max_filesize=None,
+        target_dir=None,
+    ):
+        super().get_data(
+            bounds,  # polygon list of (lon, lat) pairs
+            time_interval,
+            environmental_parameters,
+            cross_dateline,
+            max_filesize,
+            target_dir,
+        )
+
+        dummy_file = Path(__file__).parent / "CAROMS_Example.nc"
+
+        if target_dir is None:
+            target_dir = Path(__file__).parent
+        target_file = target_dir / "dummy_current.nc"
+        shutil.copy(dummy_file, target_file)
+
+        return target_file
 
 
-all_dummy_sources = {source.metadata.identifier: source() for source in {DummyCurrents}}
+# set up sources dict.
+
+all_dummy_sources = {
+    source.metadata.identifier: source() for source in {DummyCurrentsCAROMS}
+}

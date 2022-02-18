@@ -52,7 +52,7 @@ def get_model_info(model_name):
 
 
 def get_model_subset_info(
-    model_name,
+    model_id,
     bounds,
     time_interval,
     environmental_parameters,
@@ -69,7 +69,7 @@ def get_model_subset_info(
     NOTE: this could be different depending on grid type
 
     """
-    return all_models[model_name].get_model_subset_info(
+    return all_models[model_id].get_model_subset_info(
         bounds,
         time_interval,
         environmental_parameters,
@@ -78,16 +78,16 @@ def get_model_subset_info(
 
 
 def get_model_data(
-    model_name,
+    model_id,
     bounds,  # polygon list of (lon, lat) pairs
     time_interval,
     environmental_parameters,
     cross_dateline=False,
     max_filesize=None,
-    dir_path=None,
+    target_dir=None,
 ):
 
-    source = all_models[model_name]
+    source = all_models[model_id]
 
     filepath = source.get_data(
         bounds,  # polygon list of (lon, lat) pairs
