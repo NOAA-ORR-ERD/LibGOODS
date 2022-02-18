@@ -16,53 +16,59 @@ import urllib.request
 
 from . import utilities
 
-GOODS_URL = 'https://gnome.orr.noaa.gov/goods/'
+GOODS_URL = "https://gnome.orr.noaa.gov/goods/"
 
 
 class FileTooBigError(ValueError):
     pass
 
-RESOLUTIONS = {'i', }
+
+RESOLUTIONS = {
+    "i",
+}
 
 
-def get_map(bounds,
-            resolution='appropriate',
-            cross_dateline=False,
-            max_filesize=None,
-            ):
+def get_map(
+    bounds,
+    resolution="appropriate",
+    cross_dateline=False,
+    max_filesize=None,
+):
     bbox = utilities.polygon2bbox(bounds)
 
     south_lat, west_lon, north_lat, east_lon = bbox
+    # west_lon, south_lat, east_lon, north_lat = bbox
 
-    # some error checking:
-    # maybe a check_bounds() function in utilities?
-    if north_lat > 90:
-        raise ValueError(f'latitude cannot be larger than 90. Got{north_lat}')
-    # lots more to be done here
+    print(west_lon, south_lat, east_lon, north_lat)
 
-    if resolution == 'appropriate':
-        raise NotImplementedError("libgoods can not yet determine the appropriate resolution for you")
+    utilities.check_valid_box(bbox)
+
+    if resolution == "appropriate":
+        raise NotImplementedError(
+            "libgoods can not yet determine the appropriate resolution for you"
+        )
 
     # this is what the current GOODS API requires
-    req_params = {'err_placeholder':'',
-                  'NorthLat': north_lat,
-                  'WestLon': west_lon,
-                  'EastLon': east_lon,
-                  'SouthLat': south_lat,
-                  'xDateline': int(cross_dateline),
-                  'resolution': 'i',
-                  'submit': 'Get Map',
-                  }
+    req_params = {
+        "err_placeholder": "",
+        "NorthLat": north_lat,
+        "WestLon": west_lon,
+        "EastLon": east_lon,
+        "SouthLat": south_lat,
+        "xDateline": int(cross_dateline),
+        "resolution": "i",
+        "submit": "Get Map",
+    }
 
     query_string = urllib.parse.urlencode(req_params)
     data = query_string.encode("ascii")
-    url = GOODS_URL + 'tools/GSHHS/coast_extract'
+    url = GOODS_URL + "tools/GSHHS/coast_extract"
 
-# url = url + "?" + query_string
+    # url = url + "?" + query_string
 
-# with urllib.request.urlopen( url ) as response:
-#     response_text = response.read()
-#     print( response_text )
+    # with urllib.request.urlopen( url ) as response:
+    #     response_text = response.read()
+    #     print( response_text )
 
     goods_resp = urllib.request.urlopen(url, data)
 
@@ -71,12 +77,10 @@ def get_map(bounds,
     size = goods_resp.length
 
     if (max_filesize is not None) and size > max_filesize:
-        raise ValueError(f'File is too big! Max size = {max_filesize}')
+        raise ValueError(f"File is too big! Max size = {max_filesize}")
 
-    contents = goods_resp.read().decode('utf-8')
+    contents = goods_resp.read().decode("utf-8")
 
     goods_resp.close()
 
     return filename, contents
-
-
