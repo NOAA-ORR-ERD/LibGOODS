@@ -1,6 +1,9 @@
 """
-HYCOM global ocean model
+COOPS TBOFS model
+
+Not working yet with new structure
 """
+
 import os
 from ..data_model import DataSource, Metadata
 from .. import roms_model, temp_files_dir, currents_dir
