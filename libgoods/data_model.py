@@ -37,14 +37,14 @@ import dataclasses
 # These are the pre-defined environmental parameters
 # this list will need work!
 ENVIRONMENTAL_PARAMETERS = {
-    "surface winds"
-    "surface currents"
-    "3D currents"
-    "sea surface temperature"
-    "ice data"
+    "surface winds",
+    "surface currents",
+    "3D currents",
+    "sea surface temperature",
+    "ice data",
 }
 
-# fixme: we should have a short identifier as well, e.g "hycom", etc.
+
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
@@ -54,7 +54,7 @@ class Metadata:
     info_text: str = ""
     forecast_available: bool = True
     hindcast_available: bool = False
-    environmental_parameters: list = dataclasses.field(default_factory=list)
+    environmental_parameters: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
 
@@ -62,6 +62,15 @@ class Metadata:
 
     Currently this has defaults for everything, but maybe it should require everything?
     """
+
+    def __post_init__(self):
+        # make sure it's a set:
+        self.environmental_parameters = set(self.environmental_parameters)
+
+        # make sure that they are ones we know about
+        for ed in self.environmental_parameters:
+            if ed not in ENVIRONMENTAL_PARAMETERS:
+                raise ValueError(f"{ed} is not a valid environmental parameter")
 
 
 class DataSource:
@@ -101,3 +110,47 @@ class DataSource:
         This requires reaching out to the source
         """
         raise NotImplementedError
+
+    def get_model_subset_info(
+        bounds,
+        time_interval,
+        environmental_parameters,
+        cross_dateline=False,
+    ):
+        """
+        returns info about a subset
+
+        this should also probably cache computations
+        needed to determine a subset.
+
+        :returns: dict of (TBA), but maybe:
+
+         {"grid_type":
+          "num_grid_cells":
+          "num_timesteps":
+          "estimated_file_size":
+          }
+        """
+
+    def get_data(
+        self,
+        bounds,  # polygon list of (lon, lat) pairs
+        time_interval,
+        environmental_parameters,
+        cross_dateline=False,
+        max_filesize=None,
+        target_dir=None,
+    ):
+        """
+        The call to actually get the data
+
+        :returns: filepath -- pathlib.Path object of file written
+        """
+        if not set(environmental_parameters).issubset(
+            self.metadata.environmental_parameters
+        ):
+            raise ValueError(
+                f"{environmental_parameters} not supported by this data source"
+            )
+
+        # should check for valid time interval here but how / when?

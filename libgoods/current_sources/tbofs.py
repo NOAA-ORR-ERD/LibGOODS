@@ -53,7 +53,7 @@ class TBOFS(DataSource):
         forecast_available=True,
         hindcast_available=False,
         environmental_parameters=[
-            "surface currents" "sea surface temperature" "ice data",
+            "surface currents",
             "3D currents",
         ],
     )
