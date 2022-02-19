@@ -10,6 +10,7 @@ from pathlib import Path
 from .current_sources import all_currents
 from .dummy_sources import all_dummy_sources
 from . import utilities
+from . import FileTooBigError
 
 
 # all_models is a dict with
@@ -19,6 +20,8 @@ all_models = {}
 all_models.update(all_currents)
 all_models.update(all_dummy_sources)
 # there will be many more in the future
+
+
 
 
 def list_models():
