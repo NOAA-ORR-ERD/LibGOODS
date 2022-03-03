@@ -4,42 +4,47 @@ Test the HYCOM model.
 At some point, we could probably write universal tests
 """
 from pathlib import Path
-from libgoods.currents import get_currents
+
+from libgoods.data_sources import get_model_data
 
 from libgoods.current_sources.hycom import HYCOM
 
+HERE = Path(__file__).parent
 
 def test_init():
     hc = HYCOM()
 
-    assert hc.bounding_box == (-78.6, -180, 90, 180)
+    assert hc.metadata.bounding_box == ((-180, -78.6), (180, 90))
 
 
 def test_get_metadata():
     md = HYCOM().get_metadata()
 
     # could check more, but why?
-    assert md['data_type'] == 'currents'
-    assert md['name'] == HYCOM.name
+    assert md['name'] == HYCOM.metadata.name
+    assert md['forecast_available'] is True
 
 
 def test_get_currents():
     """
     testing access through the top level API
     """
-    filename, filepath = get_currents(
-        model_name='hycom',
-        north_lat=48.874,
-        south_lat=48.088,
-        west_lon=-125.621,
-        east_lon=-124.709,
-        cross_dateline=False,
-        max_filesize=None,
-        )
+    filepath = get_model_data(
+                   model_id='HYCOM',
+                   bounds=((-125.621, 48.088), (-124.709, 48.874)),
+                   # fixme: should test a real time interval!
+                   time_interval=('2022-02-15T12:00', '2022-04-15T12:00'),
+                   environmental_parameters=['surface currents'],
+                   cross_dateline=False,
+                   max_filesize=None,
+                   target_dir=HERE,
+                   )
 
     # If these got returned, then we're good.
-    assert filename == 'hycom.nc'
-    assert Path(filepath).is_file()
+    assert filepath.name == 'hycom.nc'
+    assert filepath.is_file()
+    assert filepath == HERE / 'hycom.nc'
+
 
 
 

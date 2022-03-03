@@ -17,7 +17,7 @@ def check_valid_longitude(lon, system='all'):
 
     Only option is 'all': -180 -- 360
 
-    We should impliment other options some day:
+    We should implement other options some day:
      - -180 -- 180
      - 0 -- 360
     """
@@ -30,6 +30,19 @@ def check_valid_longitude(lon, system='all'):
 
     return True
 
+
+def check_valid_box(bbox, system='all'):
+    """
+    checks that longitude and latitude values of a
+    bounding box make sense
+
+    bbox is four values: (min_lat, min_lon, max_lat, max_lon)
+    """
+    check_valid_latitude(bbox[0][1])
+    check_valid_latitude(bbox[1][1])
+    check_valid_longitude(bbox[0][0], system)
+    check_valid_longitude(bbox[1][0], system)
+    return True
 
 def shift_lon_coords(coords, system):
     """
@@ -51,16 +64,16 @@ def polygon2bbox(bounds):
     In the form: (min_lat, min_lon, max_lat, max_lon)
     """
 
-    if len(bounds) != 4:
-        raise ValueError('Bounding box must be 4 points')
+    if len(bounds) < 2:
+        raise ValueError('Bounding box requires at least 2 points')
 
     try:
-        bounds = np.asarray(bounds, dtype=np.float64)
+        bounds = np.asarray(bounds, dtype=np.float64).reshape(-1, 2)
     except ValueError as err:
-        raise ValueError("bounds must be 4 pairs of (lon, lat) points") from err
+        raise ValueError("bounds must be pairs of (lon, lat) points") from err
     min_lon, min_lat = bounds.min(axis=0)
     max_lon, max_lat = bounds.max(axis=0)
-    return (min_lat, min_lon, max_lat, max_lon)
+    return ((min_lon, min_lat), (max_lon, max_lat))
 
 
 def bbox2polygon(bbox):
@@ -71,9 +84,25 @@ def bbox2polygon(bbox):
     To a four point polygon:
     """
 
-    min_lat, min_lon, max_lat, max_lon = bbox
+    min_lon = bbox[0][0]
+    min_lat = bbox[0][1]
+    max_lon = bbox[1][0]
+    max_lat = bbox[1][1]
+
     return [(min_lon, max_lat),
             (max_lon, max_lat),
             (max_lon, min_lat),
             (min_lon, min_lat)]
 
+def flatten_bbox(bbox):
+    """
+    converts (lower-left, upper-right) Boounding Box form to the previous
+    flattened form:
+
+    (min_lat, min_lon, max_lat, max_lon)
+    """
+    min_lon = bbox[0][0]
+    min_lat = bbox[0][1]
+    max_lon = bbox[1][0]
+    max_lat = bbox[1][1]
+    return (min_lat, min_lon, max_lat, max_lon)
