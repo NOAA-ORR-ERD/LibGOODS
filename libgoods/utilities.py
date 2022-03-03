@@ -38,11 +38,11 @@ def check_valid_box(bbox, system='all'):
 
     bbox is four values: (min_lat, min_lon, max_lat, max_lon)
     """
-    check_valid_latitude(bbox[0])
-    check_valid_latitude(bbox[2])
-    check_valid_longitude(bbox[1], system)
-    check_valid_longitude(bbox[3], system)
-
+    check_valid_latitude(bbox[0][1])
+    check_valid_latitude(bbox[1][1])
+    check_valid_longitude(bbox[0][0], system)
+    check_valid_longitude(bbox[1][0], system)
+    return True
 
 def shift_lon_coords(coords, system):
     """
@@ -73,7 +73,7 @@ def polygon2bbox(bounds):
         raise ValueError("bounds must be pairs of (lon, lat) points") from err
     min_lon, min_lat = bounds.min(axis=0)
     max_lon, max_lat = bounds.max(axis=0)
-    return (min_lat, min_lon, max_lat, max_lon)
+    return ((min_lon, min_lat), (max_lon, max_lat))
 
 
 def bbox2polygon(bbox):
@@ -84,9 +84,25 @@ def bbox2polygon(bbox):
     To a four point polygon:
     """
 
-    min_lat, min_lon, max_lat, max_lon = bbox
+    min_lon = bbox[0][0]
+    min_lat = bbox[0][1]
+    max_lon = bbox[1][0]
+    max_lat = bbox[1][1]
+
     return [(min_lon, max_lat),
             (max_lon, max_lat),
             (max_lon, min_lat),
             (min_lon, min_lat)]
 
+def flatten_bbox(bbox):
+    """
+    converts (lower-left, upper-right) Boounding Box form to the previous
+    flattened form:
+
+    (min_lat, min_lon, max_lat, max_lon)
+    """
+    min_lon = bbox[0][0]
+    min_lat = bbox[0][1]
+    max_lon = bbox[1][0]
+    max_lat = bbox[1][1]
+    return (min_lat, min_lon, max_lat, max_lon)

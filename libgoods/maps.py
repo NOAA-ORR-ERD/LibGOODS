@@ -36,8 +36,8 @@ def get_map(
 ):
     bbox = utilities.polygon2bbox(bounds)
 
-    south_lat, west_lon, north_lat, east_lon = bbox
-    # west_lon, south_lat, east_lon, north_lat = bbox
+    # south_lat, west_lon, north_lat, east_lon = bbox
+    (west_lon, south_lat), (east_lon, north_lat) = bbox
 
     print(west_lon, south_lat, east_lon, north_lat)
 

@@ -98,6 +98,7 @@ def get_model_data(
         environmental_parameters,
         cross_dateline,
         max_filesize,
+        target_dir,
     )
 
     return Path(filepath)

@@ -12,7 +12,7 @@ from libgoods.dummy_sources import DummyCurrentsCAROMS
 def test_init():
     dc = DummyCurrentsCAROMS()
 
-    assert dc.metadata.bounding_box == (33.0, -119.0, 34.0, -117.5)
+    assert dc.metadata.bounding_box == ((-119.0, 33.0), (-117.5, 34.0))
 
 
 def test_get_metadata():
