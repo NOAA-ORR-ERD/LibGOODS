@@ -6,23 +6,31 @@ Not working yet with new structure
 
 import os
 from ..data_model import DataSource, Metadata
-from .. import roms_model, temp_files_dir, currents_dir
+from .. import temp_files_dir
+from ..file_processing import roms
 
 # fixme: we probably don't want actual HTML in there
-#        but if so -- some sanitiation needs to be done.
-INFO_TEXT = """"NOAA NOS Operational Forecast Systems available from the Center for Operational Oceanographic Products and Services <a href=\"http://tidesandcurrents.noaa.gov/index.shtml\" target=\"_blank\">(COOPS)</a>. Forecast files are 36 hours and updated every 6 hours. The forecast aggregation is a \"best-time series\", which includes output from the latest model runs (nowcasts + latest forecast). Archived model output is available via the <a href=\"http://opendap.co-ops.nos.noaa.gov/netcdf/\" target=\"_blank\">CO-OPS server</a>.
-"""
+#        but if so -- some sanitation needs to be done.
+INFO_TEXT = ('NOAA NOS Operational Forecast Systems available from the '
+             'Center for Operational Oceanographic Products and Services '
+             '<a href="http://tidesandcurrents.noaa.gov/index.shtml" target="_blank">'
+             '(COOPS)</a>. Forecast files are 36 hours and updated every 6 hours. '
+             'The forecast aggregation is a "best-time series", which includes '
+             'output from the latest model runs (nowcasts + latest forecast). '
+             'Archived model output is available via the '
+             '<a href="http://opendap.co-ops.nos.noaa.gov/netcdf/" target="_blank">CO-OPS server</a>.'
+             )
 
 
-class TBOFS(DataSource):
+class TBOFS(DataSource, roms):
     """
-    Tampa Bay OPerational Forecast system
+    Tampa Bay Operational Forecast system
     """
 
     metadata = Metadata(
-        identifier="tbofs",
+        identifier="TBOFS",
         name="Tampa Bay Operational Forecast Systems",
-        bounding_box=((27.0807, -83.1675), (28.0298, -82.35450)),
+        bounding_box=((-83.172, 27.077), (-82.354, 28.031)),
         bounding_poly=(
             (27.983, -82.8395),
             (27.9821, -82.8558),
@@ -74,23 +82,38 @@ class TBOFS(DataSource):
         """
         return ("2022-02-17T22:00Z", "2022-02-20T22:00Z")
 
-    def get_data(
-        self, north_lat, south_lat, west_lon, east_lon, cross_dateline, max_filesize
-    ):
+    def get_data(self,
+                 bounds,
+                 time_interval,
+                 environmental_parameters,
+                 cross_dateline=False,
+                 max_filesize=None,
+                 target_dir=None,
+                 ):
 
-        url = self.url
-        var_map = self.var_map
+        if target_dir is not None:
+            raise NotImplementedError(
+                "TBOFS does not support setting a target directory"
+            )
+        self.open_nc(FileName=self.url)
 
-        model = roms_model.roms(url)
+        filepath = roms.get_data(self, bounds, cross_dateline, max_filesize)
 
-        model.get_dimensions(var_map)
-        model.subset([south_lat, west_lon, north_lat, east_lon])
+        return filepath
 
-        # until I add time selection -- return last 10 time steps
-        tlen = len(model.time)
+        # url = self.url
+        # var_map = self.var_map
 
-        fn = self.default_filename
-        fp = os.path.join(temp_files_dir, fn)
-        model.write_nc(var_map, fp, t_index=[tlen - 10, tlen, 1])
+        # model = roms(url)
 
-        return fn, fp
+        # model.get_dimensions(var_map)
+        # model.subset([south_lat, west_lon, north_lat, east_lon])
+
+        # # until I add time selection -- return last 10 time steps
+        # tlen = len(model.time)
+
+        # fn = self.default_filename
+        # fp = os.path.join(temp_files_dir, fn)
+        # model.write_nc(var_map, fp, t_index=[tlen - 10, tlen, 1])
+
+        # return fn, fp

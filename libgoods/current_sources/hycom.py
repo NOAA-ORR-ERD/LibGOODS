@@ -3,7 +3,8 @@ HYCOM global ocean model
 """
 import os
 from ..data_model import DataSource, Metadata
-from .. import rect_model, temp_files_dir
+from .. import temp_files_dir
+from ..file_processing import rect
 from ..utilities import polygon2bbox
 
 
@@ -20,15 +21,15 @@ For more details about the global model visit the
 
 # using the "old libgoods" classes as a mixin to get
 # the existing functionality
-class HYCOM(DataSource, rect_model.rect):
+class HYCOM(DataSource, rect):
     """
     global HYCOM
     """
 
     metadata = Metadata(
-        identifier="hycom",
+        identifier="HYCOM",
         name="Global Ocean Forecasting System (GOFS) 3.1",
-        bounding_box=(-78.6, -180, 90, 180),
+        bounding_box=((-180, -78.6), (180, 90)),
         bounding_poly=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
         info_text=INFO_TEXT,
         forecast_available=True,
@@ -92,12 +93,8 @@ class HYCOM(DataSource, rect_model.rect):
             target_dir,
         )
 
-        if target_dir is not None:
-            raise NotImplementedError(
-                "HYCOM does not support setting a target directory"
-            )
         self.open_nc(FileName=self.url)
 
-        filepath = rect_model.rect.get_data(self, bounds, cross_dateline, max_filesize)
+        filepath = rect.get_data(self, bounds, cross_dateline, max_filesize, target_dir)
 
         return filepath
