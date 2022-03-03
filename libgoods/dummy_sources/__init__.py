@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 
 from ..data_model import DataSource, Metadata
-
+from .. import temp_files_dir
 
 class DummyCurrentsCAROMS(DataSource):
     """
@@ -69,7 +69,7 @@ class DummyCurrentsCAROMS(DataSource):
         dummy_file = Path(__file__).parent / "CAROMS_Example.nc"
 
         if target_dir is None:
-            target_dir = Path(__file__).parent
+            target_dir = temp_files_dir
         target_file = target_dir / "dummy_current.nc"
         shutil.copy(dummy_file, target_file)
 

@@ -8,6 +8,8 @@ from libgoods.data_sources import get_model_data
 
 from libgoods.dummy_sources import DummyCurrentsCAROMS
 
+HERE = Path(__file__).parent
+
 
 def test_init():
     dc = DummyCurrentsCAROMS()
@@ -39,10 +41,10 @@ def test_get_model_data():
         time_interval=("2022-02-15T12:00", "2022-04-15T12:00"),
         environmental_parameters=["surface currents"],
         cross_dateline=False,
-        target_dir=None,
+        target_dir=HERE,
     )
-
 
     # If these got returned, then we're good.
     assert filepath.name == "dummy_current.nc"
-    assert Path(filepath).is_file()
+    assert filepath.is_file()
+    assert filepath == HERE / "dummy_current.nc"
