@@ -15,7 +15,7 @@ from . import FileTooBigError
 
 # all_models is a dict with
 #   key: name of model
-#   value: DataSource object
+#   value: Model object
 all_models = {}
 all_models.update(all_currents)
 all_models.update(all_dummy_sources)
@@ -89,6 +89,9 @@ def get_model_data(
     max_filesize=None,
     target_dir=None,
 ):
+
+    if target_dir is not None:
+        target_dir = Path(target_dir)
 
     source = all_models[model_id]
 
