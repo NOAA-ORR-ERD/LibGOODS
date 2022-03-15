@@ -5,7 +5,7 @@ At some point, we could probably write universal tests
 """
 from pathlib import Path
 
-from libgoods.data_sources import get_model_data
+from libgoods.api import get_model_data
 
 from libgoods.current_sources.tbofs import TBOFS
 
@@ -21,7 +21,9 @@ def test_get_metadata():
 
     # could check more, but why?
     assert md['name'] == TBOFS.metadata.name
-    assert md['forecast_available'] is True
+    assert md['product_type'] == "forecast"
+    assert md['forecast_start'] != ""
+    assert md['forecast_end'] != ""
 
 
 def test_get_currents():

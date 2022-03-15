@@ -2,14 +2,13 @@
 HYCOM global ocean model
 """
 import os
-from ..data_model import DataSource, Metadata
+from ..model import Model, Metadata
 from .. import temp_files_dir
 from ..file_processing import rect
 from ..utilities import polygon2bbox
 
 
-# fixme: we probably don't want actual HTML in there
-#        but if so -- some sanitation needs to be done.
+# NOTE: this may contain HTML
 INFO_TEXT = """The global HYbrid Coordinate Ocean Model (HYCOM)
 nowcast/forecast system is a demonstration product of the
 <a href = "http://www.hycom.org" target="_blank">HYCOM Consortium</a>
@@ -21,7 +20,7 @@ For more details about the global model visit the
 
 # using the "old libgoods" classes as a mixin to get
 # the existing functionality
-class HYCOM(DataSource, rect):
+class HYCOM(Model, rect):
     """
     global HYCOM
     """
@@ -30,14 +29,15 @@ class HYCOM(DataSource, rect):
         identifier="HYCOM",
         name="Global Ocean Forecasting System (GOFS) 3.1",
         bounding_box=((-180, -78.6), (180, 90)),
-        bounding_poly=((-78.6, -180.0), (90.0, -180.0), (90.0, 180.0), (-78.6, 180.0)),
+        bounding_poly=((-180.0, -78.6), (-180.0, 90.0), (180.0, 90.0), (180.0, -78.6)),
         info_text=INFO_TEXT,
-        forecast_available=True,
-        hindcast_available=False,
+        product_type='forecast',
+        forecast_start="6 days in the past",
+        forecast_end="7 days in the future",
         environmental_parameters={
             "surface currents",
             "sea surface temperature",
-            "ice data",
+            "ice",
             "3D currents",
         },
     )
@@ -83,7 +83,7 @@ class HYCOM(DataSource, rect):
         right before querying the data
         """
         # not using super() because the base classes are not compatible.
-        DataSource.get_data(
+        Model.get_data(
             self,
             bounds,  # polygon list of (lon, lat) pairs
             time_interval,

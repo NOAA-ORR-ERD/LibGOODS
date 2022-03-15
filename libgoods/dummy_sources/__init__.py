@@ -7,10 +7,10 @@ only one here now, but it would be good to have others
 import shutil
 from pathlib import Path
 
-from ..data_model import DataSource, Metadata
+from ..model import Model, Metadata
 from .. import temp_files_dir
 
-class DummyCurrentsCAROMS(DataSource):
+class DummyCurrentsCAROMS(Model):
     """
     A dummy current source -- used hard code small example
     from the CAROMS model
@@ -30,8 +30,10 @@ class DummyCurrentsCAROMS(DataSource):
             "Dummy model just for testing, etc.\n"
             "Provides sample output from the CA ROMS model"
         ),
-        forecast_available=True,
-        hindcast_available=False,
+        product_type="hindcast",
+        hindcast_start="2021-01-01T19",
+        hindcast_end="2022-01-02T19",
+
         environmental_parameters={"surface currents"},
     )
 
