@@ -41,7 +41,7 @@ ENVIRONMENTAL_PARAMETERS = {
     "surface currents",
     "3D currents",
     "sea surface temperature",
-    "ice data",
+    "ice",
 }
 
 
@@ -52,8 +52,15 @@ class Metadata:
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
     info_text: str = ""
-    forecast_available: bool = True
-    hindcast_available: bool = False
+    # these need to be thought out more:
+    product_type: str = "forecast"  # (forecast or hindcast)
+    # either forecast or hindcast info -- not both
+    forecast_start: str = "" # human readable timespan: e.g. "7 days in the past"
+    forecast_end: str = "" # human readable timespan: e.g. "3 days in the future"
+
+    hindcast_start: str = ""  # iso datetime string
+    hindcast_end: str = "" # iso datetime string
+
     environmental_parameters: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
@@ -64,18 +71,22 @@ class Metadata:
     """
 
     def __post_init__(self):
+        # normalize environmental parameters
         # make sure it's a set:
         self.environmental_parameters = set(self.environmental_parameters)
 
         # make sure that they are ones we know about
-        for ed in self.environmental_parameters:
-            if ed not in ENVIRONMENTAL_PARAMETERS:
-                raise ValueError(f"{ed} is not a valid environmental parameter")
+        for ep in self.environmental_parameters:
+            if ep not in ENVIRONMENTAL_PARAMETERS:
+                raise ValueError(f"{ep} is not a valid environmental parameter")
+        # check forecast / hindcast
 
 
-class DataSource:
+
+
+class Model:
     """
-    core functionality for all data sources
+    Base Class for all sources of model results
     """
 
     # Metadata required by all Data sources
@@ -83,7 +94,7 @@ class DataSource:
 
     def get_metadata(self):
         """
-        Eeturns a dict of the "static" metadata for this data source
+        Returns a dict of the "static" metadata for this data source
         """
         return dataclasses.asdict(self.metadata)
 
