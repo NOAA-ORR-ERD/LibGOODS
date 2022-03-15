@@ -90,6 +90,9 @@ def get_model_data(
     target_dir=None,
 ):
 
+    if target_dir is not None:
+        target_dir = Path(target_dir)
+
     source = all_models[model_id]
 
     filepath = source.get_data(
