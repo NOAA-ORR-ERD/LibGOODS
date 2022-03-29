@@ -61,6 +61,7 @@ class Metadata:
     hindcast_start: str = ""  # iso datetime string
     hindcast_end: str = "" # iso datetime string
 
+    # this should be a set, but we want somthing JSON-compatible
     environmental_parameters: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
@@ -81,6 +82,13 @@ class Metadata:
                 raise ValueError(f"{ep} is not a valid environmental parameter")
         # check forecast / hindcast
 
+    def as_pyson(self):
+        """
+        returns a JSON compatible dict of the data
+        """
+        dict_ = dataclasses.asdict(self)
+        dict_['environmental_parameters'] = list(self.environmental_parameters)
+        return dict_
 
 
 
@@ -96,7 +104,7 @@ class Model:
         """
         Returns a dict of the "static" metadata for this data source
         """
-        return dataclasses.asdict(self.metadata)
+        return self.metadata.as_pyson()
 
     def get_model_info(self):
         """
