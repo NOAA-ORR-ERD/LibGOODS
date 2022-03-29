@@ -32,7 +32,7 @@ def test_get_model_data():
     testing access through the top level API
     """
     filepath = get_model_data(
-        model_id="dummy_cur",
+        model_id="DUMMY_CUR",
         bounds=(
             (-119.0, 33.0),
             (-119.0, 34.0),
