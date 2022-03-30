@@ -30,7 +30,8 @@ RESOLUTIONS = {
 
 def get_map(
     bounds,
-    resolution="appropriate",
+    resolution="h",
+    shoreline="gshhs",
     cross_dateline=False,
     max_filesize=None,
 ):
@@ -43,10 +44,10 @@ def get_map(
 
     utilities.check_valid_box(bbox)
 
-    if resolution == "appropriate":
-        raise NotImplementedError(
-            "libgoods can not yet determine the appropriate resolution for you"
-        )
+    # if resolution == "appropriate":
+        # raise NotImplementedError(
+            # "libgoods can not yet determine the appropriate resolution for you"
+        # )
 
     # this is what the current GOODS API requires
     req_params = {
@@ -56,13 +57,13 @@ def get_map(
         "EastLon": east_lon,
         "SouthLat": south_lat,
         "xDateline": int(cross_dateline),
-        "resolution": "i",
+        "resolution": resolution,
         "submit": "Get Map",
     }
 
     query_string = urllib.parse.urlencode(req_params)
     data = query_string.encode("ascii")
-    url = GOODS_URL + "tools/GSHHS/coast_extract"
+    url = GOODS_URL + "tools/" + shoreline.upper() + "/coast_extract"
 
     # url = url + "?" + query_string
 
