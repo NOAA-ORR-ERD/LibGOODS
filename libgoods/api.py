@@ -7,6 +7,7 @@ Functions return JSON-compatible dicts
 """
 
 from pathlib import Path
+from shapely.geometry import Polygon
 from .current_sources import all_currents
 from .dummy_sources import all_dummy_sources
 from . import utilities
@@ -21,7 +22,17 @@ all_models.update(all_currents)
 all_models.update(all_dummy_sources)
 # there will be many more in the future
 
+def filter_models(poly_bounds):
+    """
+    Given a polygon, return the 'global' models that intersect with the polygon.
+    """
+    if not isinstance(poly_bounds, Polygon):
+        poly_bounds = Polygon(poly_bounds)
 
+    models = [model.get_metadata() for model in all_models.values()
+                if Polygon(model.get_metadata()['bounding_poly']).intersects(poly_bounds)]
+
+    return models
 
 
 def list_models():

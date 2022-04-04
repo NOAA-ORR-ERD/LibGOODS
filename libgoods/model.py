@@ -49,6 +49,7 @@ ENVIRONMENTAL_PARAMETERS = {
 class Metadata:
     identifier: str = ""
     name: str = ""
+    regional: bool = False
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
     info_text: str = ""

@@ -28,6 +28,7 @@ class HYCOM(Model, rect):
     metadata = Metadata(
         identifier="HYCOM",
         name="Global Ocean Forecasting System (GOFS) 3.1",
+        regional=True,
         bounding_box=((-180, -78.6), (180, 90)),
         bounding_poly=((-180.0, -78.6), (-180.0, 90.0), (180.0, 90.0), (180.0, -78.6)),
         info_text=INFO_TEXT,
