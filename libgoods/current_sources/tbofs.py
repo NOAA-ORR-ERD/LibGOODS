@@ -30,6 +30,7 @@ class TBOFS(Model, roms):
     metadata = Metadata(
         identifier="TBOFS",
         name="Tampa Bay Operational Forecast Systems",
+        regional=False,
         bounding_box=((-83.172, 27.077), (-82.354, 28.031)),
         bounding_poly=((-82.8395, 27.983),
                        (-82.8558, 27.9821),
