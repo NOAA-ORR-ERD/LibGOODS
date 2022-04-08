@@ -7,11 +7,15 @@ Functions return JSON-compatible dicts
 """
 
 from pathlib import Path
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, MultiPoint
+import shapely.wkt as wkt
 from .current_sources import all_currents
 from .dummy_sources import all_dummy_sources
 from . import utilities
 from . import FileTooBigError
+from .model import Metadata
+
+import model_catalogs as mc
 
 
 # all_models is a dict with
@@ -22,9 +26,11 @@ all_models.update(all_currents)
 all_models.update(all_dummy_sources)
 # there will be many more in the future
 
+env_models = mc.setup_source_catalog()
+
 def filter_models(poly_bounds):
     """
-    Given a polygon, return the 'global' models that intersect with the polygon.
+    Given a polygon, return the models that intersect with the polygon.
     """
     if not isinstance(poly_bounds, Polygon):
         poly_bounds = Polygon(poly_bounds)
@@ -33,6 +39,52 @@ def filter_models(poly_bounds):
                 if Polygon(model.get_metadata()['bounding_poly']).intersects(poly_bounds)]
 
     return models
+
+def filter_models2(poly_bounds, name_list=None):
+    """
+    Given a polygon, return the models that bounding_box intersect with the polygon.
+    However, this goes to the catalog and returns a list of catalog entries
+    """
+    if name_list is None:
+        name_list = list(env_models)
+    if not isinstance(poly_bounds, Polygon):
+        if poly_bounds is None:
+            poly_bounds = [(-180,-89), (-180,89), (180, 89), (180, -89)]
+        poly_bounds = Polygon(poly_bounds)
+    retlist = []
+    for m in name_list:
+        bb = env_models[m].metadata['bounding_box']
+        bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
+        if bb_poly.intersects(poly_bounds):
+            retlist.append(env_models[m])
+    
+    return retlist
+
+def list_models2(name_list=None):
+    if name_list is None:
+        name_list = list(env_models)
+    return [env_models[m] for m in name_list]
+
+def extract_API_metadata(models):
+    '''
+    for a list of catalog entries, return a list of metadata in the expected API format
+    '''
+    def regional_test(model):
+        bb = model.metadata['bounding_box']
+        return abs(bb[2]-bb[0]) > 10 or abs(bb[3]-bb[1]) > 10
+
+    retval = []
+    for m in models:
+        entry = Metadata()
+        entry.identifer = m.name
+        entry.name = m.description
+        entry.regional = regional_test(m)
+        bb = m.metadata['bounding_box']
+        entry.bounding_box = [(a, b) for a, b in zip(bb[::2],bb[1::2])]
+        entry.bounding_poly = list(wkt.loads(m.metadata['geospatial_bounds']).boundary.coords)
+        #there are more, but I don't know how to get at them yet.
+        retval.append(entry.as_pyson())
+    return retval
 
 
 def list_models():
