@@ -9,39 +9,15 @@ Functions return JSON-compatible dicts
 from pathlib import Path
 from shapely.geometry import Polygon, MultiPoint
 import shapely.wkt as wkt
-from .current_sources import all_currents
-from .dummy_sources import all_dummy_sources
 from . import utilities
 from . import FileTooBigError
 from .model import Metadata
 
 import model_catalogs as mc
 
-
-# all_models is a dict with
-#   key: name of model
-#   value: Model object
-all_models = {}
-all_models.update(all_currents)
-all_models.update(all_dummy_sources)
-# there will be many more in the future
-
 env_models = mc.setup_source_catalog()
 
-
-def filter_models(poly_bounds):
-    """
-    Given a polygon, return the models that intersect with the polygon.
-    """
-    if not isinstance(poly_bounds, Polygon):
-        poly_bounds = Polygon(poly_bounds)
-
-    models = [model.get_metadata() for model in all_models.values()
-                if Polygon(model.get_metadata()['bounding_poly']).intersects(poly_bounds)]
-
-    return models
-
-def filter_models2(poly_bounds, name_list=None):
+def _filter_models2(poly_bounds, name_list=None):
     """
     Given a polygon, return the models that bounding_box intersect with the polygon.
     However, this goes to the catalog and returns a list of catalog entries
@@ -61,19 +37,18 @@ def filter_models2(poly_bounds, name_list=None):
 
     return retlist
 
-def list_models2(name_list=None):
-    if name_list is None:
-        name_list = list(env_models)
-    return [env_models[m] for m in name_list]
-
-def extract_API_metadata(models):
+def _extract_API_metadata(models):
     '''
     for a list of catalog entries, return a list of metadata dicts in the expected
     API format
     '''
     def regional_test(model):
+        '''
+        Selection criteria for 'regional' flag in the metadata
+        Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
+        '''
         bb = model.metadata['bounding_box']
-        return abs(bb[2]-bb[0]) > 10 or abs(bb[3]-bb[1]) > 10
+        return abs(bb[2]-bb[0]) > 20 or abs(bb[3]-bb[1]) > 20
 
     retval = []
     for m in models:
@@ -96,14 +71,15 @@ def list_models(name_list=None, map_bounds=None):
     This is static data
     """
     # return [model.get_metadata() for model in all_models.values()]
+    breakpoint()
     if name_list is None:
         name_list = list(env_models)
     if map_bounds is not None:
-        name_list = filter_models2(map_bounds, name_list=name_list)
+        models = _filter_models2(map_bounds, name_list=name_list)
+    else:
+        models = [env_models[m] for m in name_list]
 
-    models = [env_models[m] for m in name_list]
-
-    return extract_API_metadata(models)
+    return _extract_API_metadata(models)
 
 
 def get_model_info(model_name):
