@@ -28,6 +28,7 @@ all_models.update(all_dummy_sources)
 
 env_models = mc.setup_source_catalog()
 
+
 def filter_models(poly_bounds):
     """
     Given a polygon, return the models that intersect with the polygon.
@@ -57,7 +58,7 @@ def filter_models2(poly_bounds, name_list=None):
         bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
         if bb_poly.intersects(poly_bounds):
             retlist.append(env_models[m])
-    
+
     return retlist
 
 def list_models2(name_list=None):
@@ -67,7 +68,8 @@ def list_models2(name_list=None):
 
 def extract_API_metadata(models):
     '''
-    for a list of catalog entries, return a list of metadata in the expected API format
+    for a list of catalog entries, return a list of metadata dicts in the expected
+    API format
     '''
     def regional_test(model):
         bb = model.metadata['bounding_box']
@@ -87,13 +89,21 @@ def extract_API_metadata(models):
     return retval
 
 
-def list_models():
+def list_models(name_list=None, map_bounds=None):
     """
     Return metadata for all available models
 
     This is static data
     """
-    return [model.get_metadata() for model in all_models.values()]
+    # return [model.get_metadata() for model in all_models.values()]
+    if name_list is None:
+        name_list = list(env_models)
+    if map_bounds is not None:
+        name_list = filter_models2(map_bounds, name_list=name_list)
+
+    models = [env_models[m] for m in name_list]
+
+    return extract_API_metadata(models)
 
 
 def get_model_info(model_name):
