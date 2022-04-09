@@ -68,12 +68,13 @@ def list_models(name_list=None, map_bounds=None):
     """
     Return metadata for all available models
 
-    This is static data
+    This is the static information about the models
     """
-    # return [model.get_metadata() for model in all_models.values()]
-    breakpoint()
     if name_list is None:
         name_list = list(env_models)
+    # filter out names that aren't in the catalog
+    # so the following code won't crash
+    name_list = [name for name in name_list if name in env_models]
     if map_bounds is not None:
         models = _filter_models2(map_bounds, name_list=name_list)
     else:
