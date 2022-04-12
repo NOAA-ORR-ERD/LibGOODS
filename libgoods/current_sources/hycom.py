@@ -32,8 +32,10 @@ class HYCOM(Model, rect):
         bounding_poly=((-180.0, -78.6), (-180.0, 90.0), (180.0, 90.0), (180.0, -78.6)),
         info_text=INFO_TEXT,
         product_type='forecast',
-        forecast_start="6 days in the past",
-        forecast_end="7 days in the future",
+        start="6 days in the past",
+        end="7 days in the future",
+        # forecast_start="6 days in the past",
+        # forecast_end="7 days in the future",
         environmental_parameters={
             "surface currents",
             "sea surface temperature",

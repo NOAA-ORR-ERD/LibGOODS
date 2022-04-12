@@ -33,16 +33,53 @@ Model.subset_info(query_params) => info about subset
 
 import dataclasses
 
-
-# These are the pre-defined environmental parameters
-# this list will need work!
+# FOR NOW, Kristen is putting all standard_names into "environmental paarameters"
+# since it's not clear what logic to use to map between the two.
 ENVIRONMENTAL_PARAMETERS = {
-    "surface winds",
-    "surface currents",
-    "3D currents",
-    "sea surface temperature",
-    "ice",
+    "eastward_sea_water_velocity",
+    "eastward_wind",
+    "northward_sea_water_velocity",
+    "northward_wind",
+    "ocean_sigma_coordinate",
+    "ocean_s_coordinate_g1",
+    "ocean_s_coordinate_g2",
+    "sea_floor_depth",
+    "sea_ice_area_fraction",
+    "sea_ice_thickness",
+    "sea_surface_height_above_mean_sea_level",
+    "sea_water_temperature",
+    "sea_water_practical_salinity",
+    "time",
+    "upward_sea_water_velocity",
 }
+
+# # These are the pre-defined environmental parameters
+# # this list will need work!
+# ENVIRONMENTAL_PARAMETERS = {
+#     "surface winds",
+#     "surface currents",
+#     "3D currents",
+#     "sea surface temperature",
+#     "ice",
+#     "bathymetry",
+#     "surface_elevation",
+#     "salinity",
+# }
+#
+# # Mapping to connect standard_names associated with each model to
+# # the NOAA GOODS environmental parameters
+# STANDARD_NAME_MAPPING = {
+#     "surface winds": {"eastward_wind", "northward_wind"},
+#     "surface currents": {},
+#     "3D currents": {"eastward_sea_water_velocity",
+#                     "northward_sea_water_velocity",
+#                     "upward_sea_water_velocity"},
+#     "sea surface temperature": {"sea_water_temperature"},
+#     "ice": {"sea_ice_area_fraction", "sea_ice_thickness"},
+#     "bathymetry": {"sea_floor_depth"},
+#     "surface_elevation": {"sea_surface_height_above_mean_sea_level"},
+#     "salinity": {"sea_water_practical_salinity"}
+#     }
 
 
 @dataclasses.dataclass
@@ -54,12 +91,16 @@ class Metadata:
     info_text: str = ""
     # these need to be thought out more:
     product_type: str = "forecast"  # (forecast or hindcast)
-    # either forecast or hindcast info -- not both
-    forecast_start: str = "" # human readable timespan: e.g. "7 days in the past"
-    forecast_end: str = "" # human readable timespan: e.g. "3 days in the future"
+    # KMT: Can we make this generically named?
+    start: str = "" # human readable timespan: e.g. "7 days in the past"
+    end: str = "" # human readable timespan: e.g. "3 days in the future"
 
-    hindcast_start: str = ""  # iso datetime string
-    hindcast_end: str = "" # iso datetime string
+    # # either forecast or hindcast info -- not both
+    # forecast_start: str = "" # human readable timespan: e.g. "7 days in the past"
+    # forecast_end: str = "" # human readable timespan: e.g. "3 days in the future"
+    #
+    # hindcast_start: str = ""  # iso datetime string
+    # hindcast_end: str = "" # iso datetime string
 
     environmental_parameters: set = dataclasses.field(default_factory=set)
     """
@@ -109,12 +150,15 @@ class Model:
           - or is all that in the resulting data files?
         """
         info = self.get_metadata()
+        avail = self.get_available_times()
         info["available_times"] = {
-            "forecast:": self.get_available_times("forecast"),
-            "hindcast:": self.get_available_times("hindcast"),
+            "forecast:": avail["forecast"],
+            "hindcast:": avail["hindcast"],
         }
+        return info
 
-    def get_available_times(self, cast_type):
+    def get_available_times(self):
+    # def get_available_times(self, cast_type):
         """
         returns the available times for this model as of right now
 

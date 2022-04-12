@@ -60,8 +60,10 @@ class TBOFS(Model, roms):
                        (-83.1587, 27.6985)),
         info_text=INFO_TEXT,
         product_type='forecast',
-        forecast_start="7 days in the past",
-        forecast_end="3 days in the future",
+        start="7 days in the past",
+        end="3 days in the future",
+        # forecast_start="7 days in the past",
+        # forecast_end="3 days in the future",
         environmental_parameters=[
             "surface currents",
             "3D currents",

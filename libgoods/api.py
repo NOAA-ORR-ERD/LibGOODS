@@ -7,21 +7,23 @@ Functions return JSON-compatible dicts
 """
 
 from pathlib import Path
-from .current_sources import all_currents
-from .dummy_sources import all_dummy_sources
+from .sources import all_sources
+# from .current_sources import all_currents
+# from .dummy_sources import all_dummy_sources
 from . import utilities
 from . import FileTooBigError
+import model_catalogs as mc
 
 
 # all_models is a dict with
 #   key: name of model
 #   value: Model object
+
 all_models = {}
-all_models.update(all_currents)
-all_models.update(all_dummy_sources)
+all_models.update(all_sources)
+# all_models.update(all_currents)
+# all_models.update(all_dummy_sources)
 # there will be many more in the future
-
-
 
 
 def list_models():

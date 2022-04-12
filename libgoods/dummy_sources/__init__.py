@@ -31,8 +31,10 @@ class DummyCurrentsCAROMS(Model):
             "Provides sample output from the CA ROMS model"
         ),
         product_type="hindcast",
-        hindcast_start="2021-01-01T19",
-        hindcast_end="2022-01-02T19",
+        start="2021-01-01T19",
+        end="2022-01-02T19",
+        # hindcast_start="2021-01-01T19",
+        # hindcast_end="2022-01-02T19",
 
         environmental_parameters={"surface currents"},
     )
