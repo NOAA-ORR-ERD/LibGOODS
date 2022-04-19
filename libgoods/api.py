@@ -7,15 +7,19 @@ Functions return JSON-compatible dicts
 """
 
 from pathlib import Path
+import warnings
 from shapely.geometry import Polygon, MultiPoint
 import shapely.wkt as wkt
 from . import utilities
 from . import FileTooBigError
 from .model import Metadata
 
-import model_catalogs as mc
+try:
+    import model_catalogs as mc
+    env_models = mc.setup_source_catalog()
+except ImportError:
+    warnings.warn("model_catalogs not found: libgoods API will not work")
 
-env_models = mc.setup_source_catalog()
 
 def _filter_models2(poly_bounds, name_list=None):
     """
