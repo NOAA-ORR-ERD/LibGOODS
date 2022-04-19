@@ -12,6 +12,7 @@ import shapely.wkt as wkt
 from . import utilities
 from . import FileTooBigError
 from .model import Metadata
+import numpy as np
 
 import model_catalogs as mc
 
@@ -30,7 +31,10 @@ def _filter_models2(poly_bounds, name_list=None):
         poly_bounds = Polygon(poly_bounds)
     retlist = []
     for m in name_list:
-        bb = env_models[m].metadata['bounding_box']
+        bb = np.array(env_models[m].metadata['bounding_box'])
+        if (np.any(bb > 180)):
+            bb[0] -= 180
+            bb[2] -= 180
         bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
         if bb_poly.intersects(poly_bounds):
             retlist.append(env_models[m])
@@ -53,7 +57,7 @@ def _extract_API_metadata(models):
     retval = []
     for m in models:
         entry = Metadata()
-        entry.identifer = m.name
+        entry.identifier = m.name
         entry.name = m.description
         entry.regional = regional_test(m)
         bb = m.metadata['bounding_box']
