@@ -6,8 +6,6 @@ About the simplest script you can write
 from datetime import datetime
 
 import gnome.scripting as gs
-#from gnome.environment.property_classes import GridCurrent
-from gnome.movers import PyCurrentMover
 
 FNAME = 'CBOFS_REGULARGRID_forecast_20220503-20220504.nc'
 start_time = datetime(2022, 5, 3, 13)
@@ -26,7 +24,7 @@ model.map = gs.GnomeMap(map_bounds=((-77, 38.5), (-77, 40),
 # The very simplest mover: a steady uniform current
 #velocity = (.2, 0, 0) #(u, v, w) in m/s
 #uniform_vel_mover = gs.SimpleMover(velocity)
-model_vel_mover = PyCurrentMover(FNAME)
+model_vel_mover = gs.PyCurrentMover.from_netCDF(FNAME)
 
 #  random walk diffusion -- diffusion_coef in units of cm^2/s
 random_mover = gs.RandomMover(diffusion_coef=2e4)
