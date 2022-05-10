@@ -12,105 +12,89 @@ from shapely.geometry import Polygon, MultiPoint
 import shapely.wkt as wkt
 from . import utilities
 from . import FileTooBigError
-from .model import Metadata
+from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 import numpy as np
 
 try:
     import model_catalogs as mc
     env_models = mc.setup_source_catalog()
+    all_metas = {m: Metadata().init_from_model(env_models[m]) for m in env_models}
 except ImportError:
     warnings.warn("model_catalogs not found: libgoods API will not work")
 
 
-def _filter_models2(poly_bounds, name_list=None):
+def _filter_by_env_params(mdl_meta, ev_p):
+    '''
+    :param mdl_meta: model Metadata object
+    :param ev_p: list of environmental parameter (string) or singular string
+    '''
+    #filter models out if they do not have required env_params
+    if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
+        #assume singular string
+        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
+            raise KeyError("{} is not a valid environmental parameter".format(ev_p))
+        return ev_p in mdl_meta.env_params
+    else:
+        #assume multiple filter parameters eg ['surface currents', 'surface winds']
+        return all([param in mdl_meta.env_params for param in ev_p])
+
+def _filter_by_poly_bounds(mdl_meta, poly_bounds):
+    '''
+    :param mdl_meta: model Metadata object
+    :param poly_bounds: shapely Polygon boundary. Coords must be in (-180, -90), (180, 90) range
+    '''
+    bb = np.array(mdl_meta.bounding_box)
+    if (np.any(bb > 180)):
+        bb[0] -= 180
+        bb[2] -= 180
+    bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
+    return bb_poly.intersects(poly_bounds)
+
+def filter_models(models_metadatas, poly_bounds=None, name_list=None, env_params=None):
     """
-    Given a polygon, return the models that bounding_box intersect with the polygon.
-    However, this goes to the catalog and returns a list of catalog entries
+    Filters a provided list of model metadata via three criteria:
+    1. Intersects with provided polygon boundary
+    2. A name list
+    3. Present environmental parameters
+
+    :param models_metadatas: list of model Metadata objects
+    :param poly_bounds: list of tuples (coordinates), or shapely Polygon, or None
+    :param name_list: list of string names of models
+    :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
+        see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
-    if name_list is None:
-        name_list = list(env_models)
-    if not isinstance(poly_bounds, Polygon):
-        if poly_bounds is None:
-            poly_bounds = [(-180,-89), (-180,89), (180, 89), (180, -89)]
-        poly_bounds = Polygon(poly_bounds)
-    retlist = []
-    for m in name_list:
-        bb = np.array(env_models[m].metadata['bounding_box'])
-        if (np.any(bb > 180)):
-            bb[0] -= 180
-            bb[2] -= 180
-        bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
-        if bb_poly.intersects(poly_bounds):
-            retlist.append(env_models[m])
+    retlist = models_metadatas
+    if name_list is not None:
+        retlist = [m for m in models_metadatas if m.identifier in name_list]
+
+    if poly_bounds is not None:
+        poly_bounds = Polygon(poly_bounds) if not isinstance(poly_bounds, Polygon) else poly_bounds
+        retlist = [m for m in retlist if _filter_by_poly_bounds(m, poly_bounds)]
+
+    if env_params is not None:
+        retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
 
     return retlist
 
-def _extract_API_metadata(models):
-    '''
-    for a list of catalog entries, return a list of metadata dicts in the expected
-    API format
-    '''
-    def regional_test(model):
-        '''
-        Selection criteria for 'regional' flag in the metadata
-        Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
-        '''
-        bb = model.metadata['bounding_box']
-        return abs(bb[2]-bb[0]) > 20 or abs(bb[3]-bb[1]) > 20
-
-    retval = []
-    for m in models:
-        entry = Metadata()
-        entry.identifier = m.name
-        entry.name = m.description
-        entry.regional = regional_test(m)
-        bb = m.metadata['bounding_box']
-        entry.bounding_box = [(a, b) for a, b in zip(bb[::2],bb[1::2])]
-        entry.bounding_poly = list(wkt.loads(m.metadata['geospatial_bounds']).boundary.coords)
-        #there are more, but I don't know how to get at them yet.
-        retval.append(entry.as_pyson())
-    return retval
-
-
-def list_models(name_list=None, map_bounds=None):
+def list_models(name_list=None, map_bounds=None, env_params=None):
     """
     Return metadata for all available models
 
     This is the static information about the models
     """
-    if name_list is None:
-        name_list = list(env_models)
-    # filter out names that aren't in the catalog
-    # so the following code won't crash
-    name_list = [name for name in name_list if name in env_models]
-    if map_bounds is not None:
-        models = _filter_models2(map_bounds, name_list=name_list)
-    else:
-        models = [env_models[m] for m in name_list]
-
-    return _extract_API_metadata(models)
-
-
+    return filter_models(all_metas.values(),
+        name_list=name_list,
+        map_bounds=map_bounds,
+        env_params=env_params)
+    
 def get_model_info(model_name):
     """
-    Return information about a particular model
-
-    This is all the same metadata as above, plus
-    extra data that may require querying the source
-    e.g. available model times
+    Return metadata about a particular model
     """
-    # return {'available_times': (start_time, end_time),
-    #        }
-    try:
-        return all_models["model_name"].get_model_info()
-    except KeyError:
-        return {"error": f"Model: {model_name} does not exist"}
-
-
-# NOTE: subset information should be cached so that subsequent
-#       call to get_model_data with same params will reuse the
-#       computed grid subsetting info
-
+    if model_name not in env_models:
+        raise KeyError(f"{model_name} is not a valid model name")
+    else:
+        return Metadata(model=env_models[model_name])
 
 def get_model_subset_info(
     model_id,
