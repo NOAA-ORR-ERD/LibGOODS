@@ -22,6 +22,12 @@ try:
 except ImportError:
     warnings.warn("model_catalogs not found: libgoods API will not work")
 
+def _filter_by_name(mdl_meta, name):
+    '''
+    :param mdl_meta: model Metadata object
+    :param name: string name that forms all or part of a model identifier
+    '''
+    return name in mdl_meta.identifier
 
 def _filter_by_env_params(mdl_meta, ev_p):
     '''
@@ -63,9 +69,9 @@ def filter_models(models_metadatas, poly_bounds=None, name_list=None, env_params
     :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
         see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
-    retlist = models_metadatas
+    retlist = []
     if name_list is not None:
-        retlist = [m for m in models_metadatas if m.identifier in name_list]
+        retlist = [models_metadatas[n] for n in name_list if _filter_by_name(models_metadatas[n], n)]
 
     if poly_bounds is not None:
         poly_bounds = Polygon(poly_bounds) if not isinstance(poly_bounds, Polygon) else poly_bounds
