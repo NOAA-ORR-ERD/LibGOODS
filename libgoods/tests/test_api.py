@@ -19,8 +19,9 @@ def test_filter_by_poly_bounds():
     pass
 
 def test_filter_by_name():
-    assert api._filter_by_name(['CIOFS', 'GFS-1_2DEG', 'NYOFS', 'TBOFS'])
+    assert api._filter_by_name(all_metas, 'CIOFS')
     
+
     pass
 
 def test_filter_by_env_params():
