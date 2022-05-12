@@ -18,12 +18,6 @@ def test_filter_by_poly_bounds():
     assert not api._filter_by_poly_bounds(all_metas['NYOFS'], testbounds180)
     pass
 
-def test_filter_by_name():
-    assert api._filter_by_name(all_metas, 'CIOFS')
-    
-
-    pass
-
 def test_filter_by_env_params():
     pass
 

@@ -22,13 +22,6 @@ try:
 except ImportError:
     warnings.warn("model_catalogs not found: libgoods API will not work")
 
-def _filter_by_name(mdl_meta, name):
-    '''
-    :param mdl_meta: model Metadata object
-    :param name: string name that forms all or part of a model identifier
-    '''
-    return name in mdl_meta.identifier
-
 def _filter_by_env_params(mdl_meta, ev_p):
     '''
     :param mdl_meta: model Metadata object
@@ -56,7 +49,7 @@ def _filter_by_poly_bounds(mdl_meta, poly_bounds):
     bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
-def filter_models(models_metadatas, poly_bounds=None, name_list=None, env_params=None):
+def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=None):
     """
     Filters a provided list of model metadata via three criteria:
     1. Intersects with provided polygon boundary
@@ -69,29 +62,32 @@ def filter_models(models_metadatas, poly_bounds=None, name_list=None, env_params
     :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
         see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
-    retlist = []
+    retlist = models_metadatas
     if name_list is not None:
-        retlist = [models_metadatas[n] for n in name_list if _filter_by_name(models_metadatas[n], n)]
+        retlist = [m for m in retlist if m.identifier in name_list ]
 
-    if poly_bounds is not None:
-        poly_bounds = Polygon(poly_bounds) if not isinstance(poly_bounds, Polygon) else poly_bounds
-        retlist = [m for m in retlist if _filter_by_poly_bounds(m, poly_bounds)]
+    if map_bounds is not None:
+        map_bounds = Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
+        retlist = [m for m in retlist if _filter_by_poly_bounds(m, map_bounds)]
 
     if env_params is not None:
         retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
 
     return retlist
 
-def list_models(name_list=None, map_bounds=None, env_params=None):
+def list_models(name_list=None, map_bounds=None, env_params=None, as_pyson=False):
     """
     Return metadata for all available models
 
     This is the static information about the models
     """
-    return filter_models(all_metas.values(),
+    retval = filter_models(all_metas.values(),
         name_list=name_list,
         map_bounds=map_bounds,
         env_params=env_params)
+    if as_pyson:
+        retval = [m.as_pyson() for m in retval]
+    return retval
     
 def get_model_info(model_name):
     """
