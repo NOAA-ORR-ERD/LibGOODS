@@ -51,20 +51,20 @@ ENVIRONMENTAL_PARAMETERS = {
 @dataclasses.dataclass
 class CastMetadata:
     #metadata for a particular fore/now/hind cast
-    axis: dict = dataclasses.field(default_factory=dict), # 'dim_x -> [grid_variable_x]
+    #axis: dict = dataclasses.field(default_factory=dict), # 'dim_x -> [grid_variable_x]
     period: float = 0, #output period in hours
     start: str = "" #human readable timespan: e.g. "7 days in the past"
     end: str = "" #human readable timespan
-    standard_names: dict = dataclasses.field(default_factory=dict) #dict associating CF name to variable name in data
+    #standard_names: dict = dataclasses.field(default_factory=dict) #dict associating CF name to variable name in data
     env_params: set = dataclasses.field(default_factory=set)
 
     def init_from_model_cast_metadata(self, metadata):
         #uses a '.(fore/now/hind)cast.metadata dict to populate self
-        self.axis = metadata['axis']
+        #self.axis = metadata['axis']
         self.period = metadata.get('output_period_(hr)', 0)
         self.start = metadata['overall_start_datetime']
         self.end = metadata['overall_end_datetime']
-        self.standard_names = metadata['standard_names']
+        #self.standard_names = metadata['standard_names']
         self.env_params = CastMetadata.get_env_params(metadata)
         return self
     
@@ -79,7 +79,7 @@ class CastMetadata:
         returns a JSON compatible dict of the data
         """
         dict_ = dataclasses.asdict(self)
-        dict_['env_params'] = list(self.environmental_parameters)
+        dict_['env_params'] = list(self.env_params)
         return dict_
 
 
@@ -94,15 +94,12 @@ class Metadata:
     grid_type: str = "" # 'Regular', 'Curvilinear', 'Unstructured'
     has_depth: bool = True
     dimensions: tuple = ()
-    timestep_interval: float = "" #'1', '0.5', etc
+    #timestep_interval: float = "" #'1', '0.5', etc
     # either forecast or hindcast info -- not both
     forecast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
     nowcast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
     hindcast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
     env_params: set = dataclasses.field(default_factory=set)
-
-    # this should be a set, but we want somthing JSON-compatible
-    environmental_parameters: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
 
@@ -123,16 +120,19 @@ class Metadata:
         grid_dim_keyname = [n for n in m.metadata.keys() if 'grid_dim_' in n][0]
         self.has_depth = len(m.metadata[grid_dim_keyname]) == 4
         self.dimensions = m.metadata[grid_dim_keyname]
-        self.timestep_interval = self.get_output_interval(m)
+        #self.timestep_interval = self.get_output_interval(m)
         self.init_cast_metadata(m)
         self.compute_env_params()
         return self
 
     def init_cast_metadata(self, model):
         #given a model, extract the cast start_end times and set them on self
-        for c in ('forecast', 'nowcast', 'hindcast'):
-            if hasattr(model, c):
-                getattr(self, c + '_metadata').init_from_model_cast_metadata(getattr(model, c).metadata)
+        if hasattr(model, 'forecast'):   
+            self.forecast_metadata.init_from_model_cast_metadata(model.forecast.metadata)
+        if hasattr(model, 'hindcast'):
+            self.hindcast_metadata.init_from_model_cast_metadata(model.hindcast.metadata)
+        if hasattr(model, 'nowcast'):
+            self.nowcast_metadata.init_from_model_cast_metadata(model.nowcast.metadata)
 
     def compute_env_params(self):
         #Computes and sets the list of satisfied environmental parameters
@@ -151,35 +151,17 @@ class Metadata:
         bb = model.metadata['bounding_box']
         return abs(bb[2]-bb[0]) > 20 or abs(bb[3]-bb[1]) > 20
 
-    @staticmethod
-    def get_output_interval(model):
-        retval = []
-        for c in ('forecast', 'nowcast', 'hindcast'):
-            if hasattr(model, c):
-                retval.append(getattr(model, c))
-        if len(set(retval)) == 1:
-            return retval[0]
-        else:
-            return retval
-
-    def __post_init__(self):
-        # normalize environmental parameters
-        # make sure it's a set:
-        self.environmental_parameters = set(self.environmental_parameters)
-
-        # make sure that they are ones we know about
-        for ep in self.environmental_parameters:
-            if ep not in ENVIRONMENTAL_PARAMETERS:
-                raise ValueError(f"{ep} is not a valid environmental parameter")
-        # check forecast / hindcast
-
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data
         """
         dict_ = dataclasses.asdict(self)
-        dict_['env_params'] = list(self.environmental_parameters)
+        dict_['env_params'] = list(self.env_params)
+        dict_['forecast_metadata'] = self.forecast_metadata.as_pyson()
+        dict_['hindcast_metadata'] = self.hindcast_metadata.as_pyson()
+        dict_['nowcast_metadata'] = self.nowcast_metadata.as_pyson()
         return dict_
+
 
 
 
