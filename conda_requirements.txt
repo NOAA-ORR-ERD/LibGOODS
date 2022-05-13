@@ -1,10 +1,9 @@
 # libgoods
-setuptools
 numpy
 netCDF4
 requests
 
 
 # for development
-pytest
+# pytest
 
