@@ -9,9 +9,9 @@ Functions return JSON-compatible dicts
 from pathlib import Path
 import warnings
 from shapely.geometry import Polygon, MultiPoint
-import shapely.wkt as wkt
-from . import utilities
-from . import FileTooBigError
+# import shapely.wkt as wkt
+# from . import utilities
+# from . import FileTooBigError
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 import numpy as np
 
@@ -22,25 +22,28 @@ try:
 except ImportError:
     warnings.warn("model_catalogs not found: libgoods API will not work")
 
+
 def _filter_by_env_params(mdl_meta, ev_p):
     '''
     :param mdl_meta: model Metadata object
     :param ev_p: list of environmental parameter (string) or singular string
     '''
-    #filter models out if they do not have required env_params
+    # filter models out if they do not have required env_params
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
-        #assume singular string
+        # assume singular string
         if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
             raise KeyError("{} is not a valid environmental parameter".format(ev_p))
         return ev_p in mdl_meta.env_params
     else:
-        #assume multiple filter parameters eg ['surface currents', 'surface winds']
+        # assume multiple filter parameters eg ['surface currents', 'surface winds']
         return all([param in mdl_meta.env_params for param in ev_p])
+
 
 def _filter_by_poly_bounds(mdl_meta, poly_bounds):
     '''
     :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon boundary. Coords must be in (-180, -90), (180, 90) range
+    :param poly_bounds: shapely Polygon boundary.
+           Coords must be in (-180, -90), (180, 90) range
     '''
     bb = np.array(mdl_meta.bounding_box)
     if (np.any(bb > 180)):
@@ -48,6 +51,7 @@ def _filter_by_poly_bounds(mdl_meta, poly_bounds):
         bb[2] -= 180
     bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
+
 
 def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=None):
     """
@@ -88,7 +92,7 @@ def list_models(name_list=None, map_bounds=None, env_params=None, as_pyson=False
     if as_pyson:
         retval = [m.as_pyson() for m in retval]
     return retval
-    
+
 def get_model_info(model_name):
     """
     Return metadata about a particular model

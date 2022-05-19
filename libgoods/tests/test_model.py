@@ -3,6 +3,8 @@ tests of the data models base class
 """
 
 import pytest
+pytest.skip("Skipping -- obsolete", allow_module_level=True)
+
 import copy
 
 from libgoods.model import Model, Metadata, CastMetadata
@@ -37,7 +39,7 @@ class TestMetadata:
         md = Metadata()
         assert len(md.env_params) == 0
         assert isinstance(md.forecast_metadata, CastMetadata)
-    
+
     def test_env_params(self):
         md = Metadata()
         edited_sample_data = copy.deepcopy(sample_NYOFS_forecast_metadata)
