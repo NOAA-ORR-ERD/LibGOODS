@@ -3,6 +3,10 @@ Test the TBOFS model.
 
 At some point, we could probably write universal tests
 """
+
+import pytest
+pytest.skip("Skipping -- obsolete", allow_module_level=True)
+
 from pathlib import Path
 
 from libgoods.api import get_model_data

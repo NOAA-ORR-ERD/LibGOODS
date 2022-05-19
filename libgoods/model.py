@@ -50,24 +50,26 @@ ENVIRONMENTAL_PARAMETERS = {
 
 @dataclasses.dataclass
 class CastMetadata:
-    #metadata for a particular fore/now/hind cast
-    #axis: dict = dataclasses.field(default_factory=dict), # 'dim_x -> [grid_variable_x]
-    period: float = 0, #output period in hours
-    start: str = "" #human readable timespan: e.g. "7 days in the past"
-    end: str = "" #human readable timespan
-    #standard_names: dict = dataclasses.field(default_factory=dict) #dict associating CF name to variable name in data
+    # metadata for a particular fore/now/hind cast
+    # axis: dict = dataclasses.field(default_factory=dict)
+    #              'dim_x -> [grid_variable_x]
+    period: float = 0,  # output period in hours
+    start: str = ""  # human readable timespan: e.g. "7 days in the past"
+    end: str = ""  # human readable timespan
+    # dict associating CF name to variable name in data
+    # standard_names: dict = dataclasses.field(default_factory=dict)
     env_params: set = dataclasses.field(default_factory=set)
 
     def init_from_model_cast_metadata(self, metadata):
-        #uses a '.(fore/now/hind)cast.metadata dict to populate self
-        #self.axis = metadata['axis']
+        # uses a '.(fore/now/hind)cast.metadata dict to populate self
+        # self.axis = metadata['axis']
         self.period = metadata.get('output_period_(hr)', 0)
         self.start = metadata['overall_start_datetime']
         self.end = metadata['overall_end_datetime']
-        #self.standard_names = metadata['standard_names']
+        # self.standard_names = metadata['standard_names']
         self.env_params = CastMetadata.get_env_params(metadata)
         return self
-    
+
     @staticmethod
     def get_env_params(metadata):
         #param metadata: dict of fore/now/hindcast metadata from catalog
@@ -127,7 +129,7 @@ class Metadata:
 
     def init_cast_metadata(self, model):
         #given a model, extract the cast start_end times and set them on self
-        if hasattr(model, 'forecast'):   
+        if hasattr(model, 'forecast'):
             self.forecast_metadata.init_from_model_cast_metadata(model.forecast.metadata)
         if hasattr(model, 'hindcast'):
             self.hindcast_metadata.init_from_model_cast_metadata(model.hindcast.metadata)
@@ -138,7 +140,7 @@ class Metadata:
         #Computes and sets the list of satisfied environmental parameters
         #An env param is considered satisfied if ALL of fore/now/hindcast can
         #provide that env param.
-        self.env_params = (self.forecast_metadata.env_params & 
+        self.env_params = (self.forecast_metadata.env_params &
                            self.nowcast_metadata.env_params &
                            self.hindcast_metadata.env_params)
 

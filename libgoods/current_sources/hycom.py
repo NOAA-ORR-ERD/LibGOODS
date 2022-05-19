@@ -24,23 +24,26 @@ class HYCOM(Model, rect):
     """
     global HYCOM
     """
-
     metadata = Metadata(
         identifier="HYCOM",
         name="Global Ocean Forecasting System (GOFS) 3.1",
         regional=True,
         bounding_box=((-180, -78.6), (180, 90)),
-        bounding_poly=((-180.0, -78.6), (-180.0, 90.0), (180.0, 90.0), (180.0, -78.6)),
-        info_text=INFO_TEXT,
-        product_type='forecast',
-        forecast_start="6 days in the past",
-        forecast_end="7 days in the future",
-        environmental_parameters={
-            "surface currents",
-            "sea surface temperature",
-            "ice",
-            "3D currents",
-        },
+        bounding_poly = ((-180.0, -78.6), (-180.0, 90.0), (180.0, 90.0), (180.0,
+                                                                          -78.6)),
+        grid_type="Regular",
+#        info_text=INFO_TEXT,
+        forecast_metadata = CastMetadata(
+            period=72,  # hours
+            start="Current Time",
+            end="# days from present",
+            env_params={
+                "surface currents",
+                "sea surface temperature",
+                "ice",
+                "3D currents",
+            },
+        )
     )
 
     # needed for internal processing
