@@ -7,11 +7,11 @@ from datetime import datetime
 
 import gnome.scripting as gs
 
-FNAME = 'CBOFS_REGULARGRID_forecast_20220503-20220504.nc'
-start_time = datetime(2022, 5, 3, 13)
+FNAME = 'output/LOOFS_forecast_20220519-20220522.nc'
+start_time = datetime(2022, 5, 19)
 
 model = gs.Model(start_time=start_time,
-                 duration=gs.days(0.5),
+                 duration=gs.days(3),
                  time_step=gs.minutes(15)
                  )
 

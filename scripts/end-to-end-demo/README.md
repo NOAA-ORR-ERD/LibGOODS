@@ -21,3 +21,10 @@ bash -i ./end-to-end-demo.sh
 ```
 
 The demo will call two Python scripts run in conda environments activated within the script.
+
+
+## Problems
+
+Models from `model_catalog` demos unsupported by gnome:
+1. CBOFS_REGULAR_GRID
+2. CBOFS
