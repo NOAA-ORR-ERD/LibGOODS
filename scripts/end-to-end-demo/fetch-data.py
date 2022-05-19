@@ -20,9 +20,9 @@ STANDARD_NAMES = [
 class ModelConfig:
     start_date: pd.Timestamp
     end_date: pd.Timestamp
-    model_name: str = 'CBOFS_REGULARGRID'
-    lon_range: list = field(default_factory=lambda: [-77, -76])
-    lat_range: list = field(default_factory=lambda: [38.5, 40])
+    model_name: str = 'LOOFS'
+    lon_range: list = field(default_factory=lambda: [-78.8, -77.5])
+    lat_range: list = field(default_factory=lambda: [43.5,  43.8])
     timing: str = 'forecast'
     standard_names: list = field(default_factory=lambda: STANDARD_NAMES)
 
