@@ -1,11 +1,27 @@
-libGOODS
-========
+libGOODS / Model Catalogs
+=========================
 
-Python package for retrieving environmental data needed for running GNOME model (shorelines, currents, winds)
+Python packages for retrieving environmental data needed for running GNOME model (shorelines, currents, winds)
+
+model_catalogs
+--------------
+
+A system for:
+
+* Maintining a catalog of model results avaiable on external servers -- OpenDAP, etc.
+
+* Accessing the results from those models.
+
+
+libgoods
+--------
+
+A library that serves and an easy API to model_catalogs -- it is used behind the NOAA WebGNOME system, and can be used to easily access model results as netcdf files.
+
 
 **NOTE:**
 
-LibGOODS is under active development -- its API will change.
+These pacakges are under active development -- their API will change.
 
 Contributions are welcome, but we encourage you to work with the develop branch, and make sure to always pull the latest version before making any bug reports, comments or pull requests.
 
