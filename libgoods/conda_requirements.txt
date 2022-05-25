@@ -1,0 +1,9 @@
+# libgoods
+numpy
+netCDF4
+requests
+
+
+# for development
+# pytest
+
