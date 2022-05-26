@@ -1,9 +1,6 @@
-# libgoods
+# requirements for libgoods
+python>=3.8,<3.11
 numpy
 netCDF4
 requests
-
-
-# for development
-# pytest
-
+shapely
