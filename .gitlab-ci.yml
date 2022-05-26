@@ -50,7 +50,7 @@ test_libgoods:
     - conda install -y python=$PYTHON_VER --file conda_requirements.txt
                                           --file conda_requirements_test.txt
 
-    - pip install ./
+    - pip install --no-deps ./
 
     - cd ../  # make sure that it won't find the source package.
     - pytest --pyargs libgoods
@@ -67,7 +67,7 @@ test_model_catalogs:
     - pip install -r pip_requirements.txt
 
     # tests do not pass with a full install -- need editable mode.
-    - pip install -e ./
+    - pip install --no-deps -e ./
 
     - pytest model_catalogs/tests/
 
