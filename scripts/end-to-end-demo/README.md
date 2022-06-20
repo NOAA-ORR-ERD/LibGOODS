@@ -12,7 +12,7 @@ The demo script `demo.py` demonstrates the end-to-end workflow of:
 The demo script requires the packages specified in `model_catalog.py` to be installed.
 
 PyGnome is not installable via conda, pip, and cannot be installed via `pip+https` from the PyGnome repository,
-so that must be installed manualy (See https://github.com/NOAA-ORR-ERD/PyGnome).
+so that must be installed manually (See https://github.com/NOAA-ORR-ERD/PyGnome).
 
 ## Running the demo
 
