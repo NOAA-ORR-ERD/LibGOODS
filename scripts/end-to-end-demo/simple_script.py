@@ -43,13 +43,12 @@ def main():
 
     # the base GnomeMap is all water, no land
     # you can optionally add boundaries
-    model.map = gs.GnomeMap(map_bounds=((-77, 38.5), (-77, 40),
-                                        (-76, 40), (-76, 38.5))
-                            )
+    bbox = ((-78.8, 43.5), (-78.8, 43.8), (-77.5, 43.8), (-77.5, 43.5))
+    model.map = gs.GnomeMap(map_bounds=bbox)
 
     # The very simplest mover: a steady uniform current
     if args.forcing_file is not None:
-        model_vel_mover = gs.PyCurrentMover.from_netCDF(args.forcing_file)
+        model_vel_mover = gs.PyCurrentMover.from_netCDF(args.forcing_file, surface_index=19)
         model.movers += model_vel_mover
     else:
         velocity = (.2, 0, 0)  # (u, v, w) in m/s
@@ -64,7 +63,7 @@ def main():
 
     # create spill
     spill = gs.surface_point_line_spill(release_time=start_time,
-                                        start_position=(-76.5, 39.25, 0),
+                                        start_position=(-78.1, 43.65, 0),
                                         num_elements=1000)
     # add it to the model
     model.spills += spill
@@ -73,8 +72,7 @@ def main():
     renderer = gs.Renderer(output_dir='./output/',
                            output_timestep=gs.hours(6),
                            # bounding box for the output images
-                           map_BB=((-77, 38.5), (-77, 40),
-                                   (-76, 40), (-76, 38.5)))
+                           map_BB=bbox)
 
     model.outputters += renderer
 
