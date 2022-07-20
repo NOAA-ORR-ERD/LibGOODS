@@ -108,3 +108,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# vim
+*.swp
+
+scripts/examples/*/output
