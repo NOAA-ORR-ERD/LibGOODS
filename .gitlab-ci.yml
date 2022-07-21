@@ -1,0 +1,99 @@
+variables:
+  PYTHON_VER: "3.9"
+
+stages:
+  - test
+
+cache:
+  paths:
+    - ./$CI_PIPELINE_ID
+
+before_script:
+  - pwd
+  - echo $CI_PIPELINE_ID
+  - source activate ./$CI_PIPELINE_ID
+
+configure_env:
+  stage: .pre
+  image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+  before_script:
+    - echo '' # manual override of before_script because we're on runner 12.3 and inherit options are only 12.9+
+  script:
+    - conda create --prefix ./$CI_PIPELINE_ID
+  tags:
+    - docker
+  artifacts:
+    expire_in: 5 days
+    paths:
+      - ./$CI_PIPELINE_ID
+
+test_libgoods:
+  stage: test
+  allow_failure: false
+  image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+  script:
+    - cd libgoods
+    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
+                                          --file conda_requirements_test.txt
+
+    - pip install ./
+
+    - cd ../  # make sure that it won't find the source package.
+    - pytest --pyargs libgoods
+
+test_libgoods:
+  stage: test
+  allow_failure: false
+  image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+  script:
+    - cd libgoods
+    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
+                                          --file conda_requirements_test.txt
+
+    - pip install --no-deps ./
+
+    - cd ../  # make sure that it won't find the source package.
+    - pytest --pyargs libgoods
+
+test_model_catalogs:
+  stage: test
+  allow_failure: false
+  image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+  script:
+    - cd model_catalogs
+    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
+                                          --file conda_requirements_test.txt
+
+    - pip install -r pip_requirements.txt
+
+    # tests do not pass with a full install -- need editable mode.
+    - pip install --no-deps -e ./
+
+    - pytest model_catalogs/tests/
+
+
+
+# test_pygnome_develop:
+#   stage: test
+#   allow_failure: true
+#   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+#   except:
+#     - master
+#     - production
+#   script:
+#     - conda install -y --file conda_requirements_test.txt
+#     - cd ./py_gnome/tests/unit_tests && pytest --runslow
+#   tags:
+#     - docker
+
+# test_pygnome:
+#   stage: test
+#   allow_failure: false
+#   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
+#   # except:
+#   #   - develop
+#   script:
+#     - conda install -y --file conda_requirements_test.txt
+#     - cd ./py_gnome/tests/unit_tests && pytest --runslow
+#   tags:
+#     - docker
