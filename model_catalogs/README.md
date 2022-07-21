@@ -39,8 +39,8 @@ conda create --name libgoods_env  # create new environment, if you want
 conda activate libgoods_env  # activate whichever environment you want to use
 conda install -c conda-forge mamba  # mamba installs packages fast
 mamba install -c conda-forge --file conda_requirements.txt  # install LibGOODS conda requirements
-mamba install -c conda-forge --file model_catalogs/conda-requirements.txt  # install model_catalogs conda requirements
-pip install -r model_catalogs/pip-requirements.txt  # install model_catalogs pip requirements
+mamba install -c conda-forge --file model_catalogs/conda_requirements.txt  # install model_catalogs conda requirements
+pip install -r model_catalogs/pip_requirements.txt  # install model_catalogs pip requirements
 ```
 
 Install `model_catalogs` locally into environment:
@@ -81,7 +81,7 @@ conda run -n model_catalogs pytest --runslow
 
 Install additional packages:
 ``` bash
-$ conda install --file requirements-dev.txt
+$ conda install --file requirements_dev.txt
 ```
 
 To then check code before committing and pushing it to github, locally run
