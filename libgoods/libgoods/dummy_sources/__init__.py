@@ -19,6 +19,7 @@ class DummyCurrentsCAROMS(Model):
     metadata = Metadata(
         identifier="DUMMY_CUR",
         name="Example currents for testing",
+        regional=False,
         bounding_box=((-119.0, 33.0), (-117.5, 34.0)),
         bounding_poly=(
             (-119.0, 33.0),
