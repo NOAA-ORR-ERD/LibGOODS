@@ -16,16 +16,14 @@ STANDARD_NAMES = [
     'sea_water_temperature',
     'sea_water_practical_salinity',
     'sea_floor_depth',
-    'longitude',
-    'latitude',
 ]
 
-DEFAULT_BBOX = (-154.5, 58., -151., 60.)
-MODEL_NAME = 'CIOFS'
+DEFAULT_BBOX = (-89.4, 47.0, -86.4, 47.75)
+MODEL_NAME = 'LSOFS'
 
 
 def main():
-    """Fetch CIOFS Model Data."""
+    """Fetch LSOFS Model Data."""
     # Check output
     output_dir = Path(__file__).parent / 'output'
     if not output_dir.exists():
