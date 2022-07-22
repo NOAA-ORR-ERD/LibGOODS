@@ -33,24 +33,13 @@ test_libgoods:
   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
   script:
     - cd libgoods
-    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
+    - conda install mamba
+    - mamba install -y python=$PYTHON_VER --file conda_requirements.txt
                                           --file conda_requirements_test.txt
+                                          --file ../model_catalogs/conda_requirements.txt
 
     - pip install ./
-
-    - cd ../  # make sure that it won't find the source package.
-    - pytest --pyargs libgoods
-
-test_libgoods:
-  stage: test
-  allow_failure: false
-  image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
-  script:
-    - cd libgoods
-    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
-                                          --file conda_requirements_test.txt
-
-    - pip install --no-deps ./
+    - pip install -e ../model_catalogs/
 
     - cd ../  # make sure that it won't find the source package.
     - pytest --pyargs libgoods
@@ -61,7 +50,8 @@ test_model_catalogs:
   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
   script:
     - cd model_catalogs
-    - conda install -y python=$PYTHON_VER --file conda_requirements.txt
+    - conda install mamba
+    - mamba install -y python=$PYTHON_VER --file conda_requirements.txt
                                           --file conda_requirements_test.txt
 
     - pip install -r pip_requirements.txt
