@@ -20,12 +20,12 @@ STANDARD_NAMES = [
     'latitude',
 ]
 
-DEFAULT_BBOX = (-154.5, 58., -151., 60.)
-MODEL_NAME = 'CIOFS'
+DEFAULT_BBOX = (-122.0, 25.0, -115., 35.)
+MODEL_NAME = 'WCOFS_2DS'
 
 
 def main():
-    """Fetch CIOFS Model Data."""
+    """Fetch WCOFS Model Data."""
     # Check output
     output_dir = Path(__file__).parent / 'output'
     if not output_dir.exists():
