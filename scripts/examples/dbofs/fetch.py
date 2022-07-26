@@ -20,12 +20,12 @@ STANDARD_NAMES = [
     'latitude',
 ]
 
-DEFAULT_BBOX = (-154.5, 58., -151., 60.)
-MODEL_NAME = 'CIOFS'
+DEFAULT_BBOX = (-75.5, 38.5, -74.5, 39.25)
+MODEL_NAME = 'DBOFS'
 
 
 def main():
-    """Fetch CIOFS Model Data."""
+    """Fetch DBOFS Model Data."""
     # Check output
     output_dir = Path(__file__).parent / 'output'
     if not output_dir.exists():
