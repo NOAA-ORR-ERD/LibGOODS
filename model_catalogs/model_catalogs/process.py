@@ -26,17 +26,17 @@ class DatasetTransform(GenericTransform):
         """Makes it so can read in model output."""
         if self._ds is None:
             self._pick()
-            # import pandas as pd
             kwargs = self._params["transform_kwargs"]
+
+            # check for "yesterday" in kwargs and use it if present
+            # this is for some RTOFS models
             if 'yesterday' in kwargs:
                 self._source = self._source(yesterday=kwargs['yesterday'])
-                kwargs.pop('yesterday')
-            # import pdb; pdb.set_trace()
-            # kwargs["metadata"] = self.metadata
+
+            # This sends the metadata to `add_attributes()`
             self._ds = self._transform(
                 self._source.to_dask(),
                 metadata=self.metadata,
-                # **kwargs,
             )
 
         return self._ds
@@ -47,11 +47,20 @@ class DatasetTransform(GenericTransform):
 
 
 def add_attributes(ds, metadata: Optional[dict] = None):
-# def add_attributes(ds, axis, standard_names, metadata: Optional[dict] = None):
     """Update Dataset metadata.
 
-    Using supplied axis variable names and variable name mapping to associated
-    standard names (from CF conventions), update the Dataset metadata.
+    Update the Dataset metadata with metadata passed in from catalog files.
+
+    Parameters
+    ----------
+    ds : Dataset
+        xarray Dataset containing model output.
+    metadata : dict, optional
+        Metadata that has processing information to apply
+
+    Returns
+    -------
+    Improved Dataset.
     """
     # set standard_names for all variables
     if metadata is not None and "standard_names" in metadata:
