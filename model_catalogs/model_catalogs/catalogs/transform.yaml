@@ -8,6 +8,8 @@ sources:
       targets:
         - null
       transform: "model_catalogs.process.add_attributes"
-      transform_kwargs:
-        axis: null
-        standard_names: null
+      transform_kwargs: {}
+        # - null: null
+        # - yesterday: null
+      #   axis: null
+      #   standard_names: null
