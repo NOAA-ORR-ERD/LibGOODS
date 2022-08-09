@@ -14,8 +14,6 @@ def test_process():
     main_cat = mc.setup()
 
     for model in list(main_cat):
-        if model == 'TBOFS-REGULARGRID':
-            continue
         for timing in list(main_cat[model]):
 
             source = main_cat[model][timing]
@@ -33,7 +31,10 @@ def test_process():
                 mc.TEST_PATH_FILE(model, timing)
             ]
 
-            ds = source.to_dask()
+            try:
+                ds = source.to_dask()
+            except OSError:
+                print(f'MODEL {model} timing {timing}')
 
             # check axis attributes have been assigned
             checks = [
