@@ -14,6 +14,8 @@ def test_process():
     main_cat = mc.setup()
 
     for model in list(main_cat):
+        if model == 'TBOFS':
+            continue
         for timing in list(main_cat[model]):
 
             source = main_cat[model][timing]
