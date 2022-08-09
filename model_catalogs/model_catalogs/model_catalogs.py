@@ -136,13 +136,13 @@ def setup(override=False):
 
         # re-compile together catalog file if user wants to override possibly
         # existing file or if is not fresh
-        if override or not mc.is_fresh(mc.FILE_PATH_COMPILED(cat_loc.name)):
+        if override or not mc.is_fresh(mc.FILE_PATH_COMPILED(cat_loc.stem)):
 
             cat_orig = intake.open_catalog(cat_loc)
 
             # add previously-saved boundary info
             # this was calculated with mc.calculate_boundaries()
-            with open(mc.FILE_PATH_BOUNDARIES(cat_loc.name), "r") as stream:
+            with open(mc.FILE_PATH_BOUNDARIES(cat_loc.stem), "r") as stream:
                 boundary = yaml.safe_load(stream)
             # add to cat_orig metadata
             cat_orig.metadata['bounding_box'] = boundary['bbox']
@@ -164,7 +164,7 @@ def setup(override=False):
                 cat_path=mc.CACHE_PATH_COMPILED,
                 save_catalog=True
             )
-        cat_transform_locs.append(mc.FILE_PATH_COMPILED(cat_loc.name))
+        cat_transform_locs.append(mc.FILE_PATH_COMPILED(cat_loc.stem))
 
     # have to read these from disk in order to make them type
     # intake.catalog.local.YAMLFileCatalog
@@ -430,7 +430,7 @@ def select_date_range(cat, start_date, end_date, timing=None, forecast_forward=F
         Normally the options are "forecast", "nowcast", or "hindcast", and
         sometimes "hindcast-forecast-aggregation". An exception is if there is only one timing available for cat, that one will be used without specifying it.
     start_date, end_date: datetime-interpretable str or pd.Timestamp
-        For models that require aggregation, only year-month-day will be used in date, and end_date is inclusive. For all other models, the start and end date behavior are through `xarray` directly with `ds.cf.sel(T=slice(start_date, end_date))`.
+        For models that require aggregation, the end_date is inclusive. For all models, the start and end date are used with `xarray` directly with `ds.cf.sel(T=slice(start_date, end_date))` in `to_dask()`.
     forecast_forward : bool, optional
         Nowcast files are aggregated for the dates in the user-defined date range. However, if `forecast_forward==True`, the final date can have forecast files aggregated after the nowcast files to create a forecast going forward in time from the end date. The default is to not include the forecast on the end (`forecast_forward=False`).
     override : boolean, optional
@@ -458,6 +458,8 @@ def select_date_range(cat, start_date, end_date, timing=None, forecast_forward=F
     >>> source = mc.add_url_path(cat, start_date=today, end_date=today)
 
     """
+
+    end_date = mc.astype(end_date, pd.Timestamp)
 
     # if there is only one timing, use it
     if timing is None and len(list(cat)) == 1:
@@ -498,10 +500,21 @@ def select_date_range(cat, start_date, end_date, timing=None, forecast_forward=F
             with open(mc.FILE_PATH_CATREFS(source.cat.name, source.name), 'w') as outfile:
                 yaml.dump({'catrefs': catrefs}, outfile, default_flow_style=False)
 
+        # For forecast OFS aggregations, the latest date available by catalog day
+        # is today, and the forecast files within today extend forward in time.
+        # in that case, use today as end date in loop below, and use
+        # `forecast_forward=True`.
+        today = pd.Timestamp.today()
+        if end_date > today:
+            end_date_use = today
+            forecast_forward = True
+        else:
+            end_date_use = end_date
+
         # loop over dates
         filelocs_urlpath = []
-        for date in pd.date_range(start=start_date, end=end_date, freq="1D"):
-            is_forecast = True if date == pd.Timestamp(end_date) and forecast_forward else False
+        for date in pd.date_range(start=start_date, end=end_date_use, freq="1D"):
+            is_forecast = True if date.date() == end_date_use.date() and forecast_forward else False
 
             fname = mc.FILE_PATH_AGG_FILE_LOCS(source.cat.name, timing,
                                                date, is_forecast)
@@ -532,12 +545,11 @@ def select_date_range(cat, start_date, end_date, timing=None, forecast_forward=F
         # in the processing of the dataset, and overwrite the old urlpath
         source.__dict__["_captured_init_kwargs"]["transform_kwargs"]["urlpath"] = filelocs_urlpath
 
-    # urlpath is already available if the link is consistent in time
-    else:
-        # Pass start and end dates to the transform so they can be implemented
-        # there for static and deterministic model files (includes RTOFS)
-        source.__dict__["_captured_init_kwargs"]["transform_kwargs"]["start_date"] = str(start_date)
-        source.__dict__["_captured_init_kwargs"]["transform_kwargs"]["end_date"] = str(end_date)
+    # Pass start and end dates to the transform so they can be implemented
+    # there for static and deterministic model files (includes RTOFS) as well
+    # as the OFS aggregated models.
+    source.__dict__["_captured_init_kwargs"]["transform_kwargs"]["start_date"] = str(start_date)
+    source.__dict__["_captured_init_kwargs"]["transform_kwargs"]["end_date"] = str(end_date)
 
     # store info in source_orig
     metadata = {"timing": timing,

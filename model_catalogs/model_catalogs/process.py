@@ -37,6 +37,22 @@ class DatasetTransform(GenericTransform):
             if 'urlpath' in kwargs:
                 self._source.urlpath = kwargs['urlpath']
 
+            # Checks to catch potential user pitfalls
+            # Make sure that user has filled in urlpath if needed: OFS nowcast
+            # and some OFS forecast. These are unaggregated and come with 2
+            # sample files but user should be warned if they haven't been
+            # replaced since it might be a mistake
+            if 'sample_locs' in self._source.metadata:
+                if self._source.urlpath == self._source.metadata['sample_locs']:
+                    # CHANGE TO LOGGER WARNING and also print warning
+                    print("Note that you are using the original example files in your input source. You may want to instead first run `mc.select_date_range()` to search for and add the correct model output files for your desired date range, then run `to_dask()`.")
+
+            # Make sure that user has filled in urlpath if needed: OFS hindcast
+            # check for if the urlpath is null and if so `select_date_range()`
+            # needs to be run to fill it in
+            elif self._source.urlpath is None:
+                raise KeyError("The input source `urlpath` does not have a value. You probably want to run `mc.select_date_range()` before running `to_dask()`.")
+
             # This sends the metadata to `add_attributes()`
             self._ds = self._transform(
                 self._source.to_dask(),

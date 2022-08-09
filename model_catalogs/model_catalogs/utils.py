@@ -10,6 +10,7 @@ import intake
 import model_catalogs as mc
 import numpy as np
 import pandas as pd
+import pathlib
 import shapely.geometry
 import yaml
 
@@ -19,7 +20,7 @@ from siphon.catalog import TDSCatalog
 def astype(value, type_):
     """Return string or list as list"""
     if not isinstance(value, type_):
-        if type_ == list and type(value) == str:
+        if type_ == list and isinstance(value, (str, pathlib.PosixPath)):
             return [value]
         return type_(value)
     return value
@@ -393,7 +394,7 @@ def get_dates_from_ofs(filelocs, filetype, norf, firstorlast):
     return datetime
 
 
-def calculate_boundaries(file_locs=None, save_files=True):
+def calculate_boundaries(file_locs=None, save_files=True, return_boundaries=False):
     """Calculate boundary information for all models.
 
     This loops over all catalog files available in mc.CAT_PATH_ORIG, tries first with forecast source and then with nowcast source if necessary to access the example model output files and calculate the bounding box and numerical domain boundary. The numerical domain boundary is calculated using `alpha_shape` with previously-chosen parameters stored in the original model catalog files. The bounding box and boundary string representation (as WKT) are then saved to files.
@@ -406,6 +407,8 @@ def calculate_boundaries(file_locs=None, save_files=True):
         List of Path objects for model catalog files to read from. If not input, will use all catalog files available at mc.CAT_PATH_ORIG.glob("*.yaml").
     save_files : boolean, optional
         Whether to save files or not. Defaults to True. Saves to mc.CAT_PATH_BOUNDARY / cat_loc.name.
+    return_boundaries : boolean, optional
+        Whether to return boundaries information from this call. Defaults to False.
 
     Examples
     --------
@@ -422,6 +425,7 @@ def calculate_boundaries(file_locs=None, save_files=True):
         file_locs = mc.astype(file_locs, list)
 
     # loop over all orig catalogs
+    boundaries = {}
     for cat_loc in file_locs:
 
         # open model catalog
@@ -482,3 +486,9 @@ def calculate_boundaries(file_locs=None, save_files=True):
         if save_files:
             with open(mc.FILE_PATH_BOUNDARIES(cat_loc.name), 'w') as outfile:
                 yaml.dump({'bbox': bbox, 'wkt': wkt}, outfile, default_flow_style=False)
+
+        if return_boundaries:
+            boundaries[cat_loc.stem] = {'bbox': bbox, 'wkt': wkt}
+
+    if return_boundaries:
+        return boundaries
