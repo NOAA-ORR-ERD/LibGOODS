@@ -52,14 +52,18 @@ class nc:
         self.get_dimensions(var_map)
         self.subset(bounding_box)
 
-        # until I add time selection -- return last 10 time steps
+        # until I add time selection this will get a reasonal time slice for latest TBOFS/HYCOM
         tlen = len(self.time)
+        if self.metadata.identifier == "TBOFS":
+            t_index = [tlen-72, tlen, 1]
+        else:
+            t_index = [40, 70, 1]
 
         fn = self.default_filename
         if target_dir is None:
             target_dir = temp_files_dir
         fp = os.path.join(target_dir, fn)
-        self.write_nc(var_map, fp, t_index=[tlen - 10, tlen, 1])
+        self.write_nc(var_map, fp, t_index=t_index)
 
         return fp
 

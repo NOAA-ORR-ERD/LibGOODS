@@ -4,7 +4,7 @@ __init__.py for libgoods package
 
 from pathlib import Path
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 import os
 
