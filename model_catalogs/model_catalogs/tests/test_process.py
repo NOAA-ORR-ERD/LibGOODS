@@ -14,7 +14,7 @@ def test_process():
     main_cat = mc.setup()
 
     for model in list(main_cat):
-        if model == 'TBOFS':
+        if model == 'TBOFS-REGULARGRID':
             continue
         for timing in list(main_cat[model]):
 
