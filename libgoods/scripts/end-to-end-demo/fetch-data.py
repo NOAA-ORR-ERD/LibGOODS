@@ -40,21 +40,22 @@ def fetch_data(config: ModelConfig, output_dir: Path) -> Path:
         config.lat_range[1]
     ]
 
-    source_cat = mc.setup_source_catalog()
-    cat = mc.add_url_path(
-        source_cat[config.model_name],
-        timing=config.timing,
+    main_cat = mc.setup()
+    source = mc.select_date_range(
+        main_cat[config.model_name],
         start_date=config.start_date,
-        end_date=config.start_date,
+        end_date=config.end_date,
+        timing=config.timing,
         # 404 like errors if you add end_date here?
         #        end_date=config.end_date
     )
-    ds_model = cat[config.model_name].to_dask()
+    ds_model = source.to_dask()
+    # ds_model = cat[config.model_name].to_dask()
     ds_small = (
         ds_model
         .em.filter(config.standard_names)
         .em.sub_grid(bbox=bbox)
-        .cf.sel(T=slice(config.start_date, config.end_date))
+        # .cf.sel(T=slice(config.start_date, config.end_date))
     )
     fname = (f'{config.model_name}_{config.timing}_'
              f'{config.start_date.strftime("%Y%m%d")}-'
