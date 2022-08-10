@@ -112,4 +112,4 @@ ENV/
 # vim
 *.swp
 
-scripts/examples/*/output
+libgoods/scripts/examples/*/output

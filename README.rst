@@ -8,7 +8,7 @@ model_catalogs
 
 A system for:
 
-* Maintining a catalog of model results avaiable on external servers -- OpenDAP, etc.
+* Maintining a catalog of model results available on external servers -- OpenDAP, etc.
 
 * Accessing the results from those models.
 
@@ -21,7 +21,7 @@ A library that serves and an easy API to model_catalogs -- it is used behind the
 
 **NOTE:**
 
-These pacakges are under active development -- their API will change.
+These packages are under active development -- their API will change.
 
 Contributions are welcome, but we encourage you to work with the develop branch, and make sure to always pull the latest version before making any bug reports, comments or pull requests.
 
