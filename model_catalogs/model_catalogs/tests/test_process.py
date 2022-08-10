@@ -34,7 +34,7 @@ def test_process():
             try:
                 ds = source.to_dask()
             except OSError:
-                print(f'MODEL {model} timing {timing}')
+                warnings.warn(f'MODEL {model} timing {timing} would not run', RuntimeWarning)
                 continue
 
             # check axis attributes have been assigned
