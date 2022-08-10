@@ -35,6 +35,7 @@ def test_process():
                 ds = source.to_dask()
             except OSError:
                 print(f'MODEL {model} timing {timing}')
+                continue
 
             # check axis attributes have been assigned
             checks = [
