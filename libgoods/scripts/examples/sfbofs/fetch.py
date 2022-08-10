@@ -20,12 +20,12 @@ STANDARD_NAMES = [
     'latitude',
 ]
 
-DEFAULT_BBOX = (268.5, 29.25, 269, 29.75)
-MODEL_NAME = 'NGOFS2'
+DEFAULT_BBOX = (237.45, 37.75, 237.6, 37.9)
+MODEL_NAME = 'SFBOFS'
 
 
 def main():
-    """Fetch NGOFS2 Model Data."""
+    """Fetch SFBOFS Model Data."""
     # Check output
     output_dir = Path(__file__).parent / 'output'
     if not output_dir.exists():
