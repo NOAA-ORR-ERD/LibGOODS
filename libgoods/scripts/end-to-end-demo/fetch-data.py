@@ -50,12 +50,10 @@ def fetch_data(config: ModelConfig, output_dir: Path) -> Path:
         #        end_date=config.end_date
     )
     ds_model = source.to_dask()
-    # ds_model = cat[config.model_name].to_dask()
     ds_small = (
         ds_model
         .em.filter(config.standard_names)
         .em.sub_grid(bbox=bbox)
-        # .cf.sel(T=slice(config.start_date, config.end_date))
     )
     fname = (f'{config.model_name}_{config.timing}_'
              f'{config.start_date.strftime("%Y%m%d")}-'

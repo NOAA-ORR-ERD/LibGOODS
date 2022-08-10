@@ -125,12 +125,6 @@ def fetch(fetch_config: FetchConfig):
             # .cf.sel(T=slice(fetch_config.start, fetch_config.end))
             .em.sub_grid(bbox=fetch_config.bbox)
         )
-        # # TODO: This is going to get moved into model_catalogs, but some models from CO-OPS contain
-        # #   a global attribute that originates from NETCDF3. However when xarray attempts to write
-        # #   this special global attribute to disk, the netCDF-C library will throw an exception. See
-        # #   https://github.com/pydata/xarray/issues/2822 for details.
-        # if "_NCProperties" in ds_ss.attrs:
-        #     del ds_ss.attrs["_NCProperties"]
     print(
         f"Writing netCDF data to {fetch_config.output_pth}. This may take a long time..."
     )
