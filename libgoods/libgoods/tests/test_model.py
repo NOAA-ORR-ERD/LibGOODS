@@ -20,7 +20,7 @@ sample_NYOFS_forecast_metadata = {'axis': {'T': 'time', 'X': 'nx', 'Y': 'ny'},
   'northward_wind': 'air_v',
   'ocean_sigma_coordinate': 'sigma',
   'sea_floor_depth': 'depth',
-  'sea_surface_height_above_mean_sea_level': 'zeta',
+  'sea_surface_elevation': 'zeta',
   'time': 'time',
   'upward_sea_water_velocity': 'w'}
   }
