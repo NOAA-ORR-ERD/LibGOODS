@@ -10,8 +10,8 @@ import extract_model  # noqa
 from model_catalogs.examples import fetch, parse_config
 
 STANDARD_NAMES = [
-    'wind_u',
-    'wind_v',
+    'eastward_wind',
+    'northward_wind',
     'longitude',
     'latitude',
 ]
@@ -27,7 +27,7 @@ def main():
     if not output_dir.exists():
         output_dir.mkdir()
 
-    default_start = (pd.Timestamp.today() - pd.Timedelta('1D')).floor('1D') 
+    default_start = (pd.Timestamp.today() - pd.Timedelta('1D')).floor('1D')
     default_end = default_start + pd.Timedelta('1D')
 
     config = parse_config(main=main,
