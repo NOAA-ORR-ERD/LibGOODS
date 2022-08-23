@@ -21,11 +21,11 @@ STANDARD_NAMES = [
 ]
 
 DEFAULT_BBOX = (268.5, 29.25, 269, 29.75)
-MODEL_NAME = 'NGOFS2'
+MODEL_NAME = 'NGOFS2_2DS'
 
 
 def main():
-    """Fetch NGOFS2 Model Data."""
+    """Fetch NGOFS2_2DS Model Data."""
     # Check output
     output_dir = Path(__file__).parent / 'output'
     if not output_dir.exists():

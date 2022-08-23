@@ -3,15 +3,6 @@ libGOODS / Model Catalogs
 
 Python packages for retrieving environmental data needed for running GNOME model (shorelines, currents, winds)
 
-model_catalogs
---------------
-
-A system for:
-
-* Maintining a catalog of model results available on external servers -- OpenDAP, etc.
-
-* Accessing the results from those models.
-
 
 libgoods
 --------
