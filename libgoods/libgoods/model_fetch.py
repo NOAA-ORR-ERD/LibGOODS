@@ -72,7 +72,7 @@ class FetchConfig:
     surface_only: bool = False
 
 
-def get_surface(ds: xr.Dataset) -> xr.Dataset:
+def _select_surface(ds: xr.Dataset) -> xr.Dataset:
     """Return a dataset that is reduced to only the surface layer."""
     model_guess = em_utils.guess_model_type(ds)
     if all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
@@ -120,6 +120,12 @@ def get_source_online_status(model_name: str) -> Mapping[str, bool]:
     return statuses
 
 
+def get_bounds(model_name: str) -> Tuple[float, float, float, float]:
+    """Returns the geospatial extents for the model."""
+    main_cat = mc.setup()
+    return main_cat[model_name].metadata["bounding_box"]
+
+
 def fetch(fetch_config: FetchConfig):
     """Downloads and subsets the model data.
 
@@ -151,7 +157,7 @@ def fetch(fetch_config: FetchConfig):
     if fetch_config.surface_only:
         print("Selecting only surface data.")
         with Timer("\tIndexed surface data in {}"):
-            ds = get_surface(ds)
+            ds = _select_surface(ds)
 
     print("Subsetting data")
     with Timer("\tSubsetted dataset in {}"):
