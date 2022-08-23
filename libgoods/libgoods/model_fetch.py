@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """A module containing code for fetching content from models."""
 import time
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Mapping, Optional
 from pathlib import Path
+from datetime import datetime
 from dataclasses import field, dataclass
 
 import pandas as pd
 import xarray as xr
-from extract_model import utils as em_utils
-
+import requests
 import model_catalogs as mc
+from extract_model import utils as em_utils
 
 DEFAULT_STANDARD_NAMES = [
     "eastward_sea_water_velocity",
@@ -71,11 +72,6 @@ class FetchConfig:
     surface_only: bool = False
 
 
-def parse_standard_names(value: str) -> List[str]:
-    """Return a list of standard names."""
-    return value.split(",")
-
-
 def get_surface(ds: xr.Dataset) -> xr.Dataset:
     """Return a dataset that is reduced to only the surface layer."""
     model_guess = em_utils.guess_model_type(ds)
@@ -91,6 +87,37 @@ def get_surface(ds: xr.Dataset) -> xr.Dataset:
     elif model_guess == "SELFE":
         return ds.isel(nv=-1)
     raise ValueError("Can't decode vertical coordinates.")
+
+
+def get_times(model_name: str) -> Mapping[str, pd.Timestamp]:
+    """Return a mapping of a source to the start and end datetimes."""
+    main_cat = mc.setup()
+    cat = mc.find_availability(main_cat[model_name])
+    timing_date_map = {}
+    for timing in cat:
+        timing_date_map[timing] = (
+            pd.Timestamp(cat[timing].metadata["start_datetime"]),
+            pd.Timestamp(cat[timing].metadata["end_datetime"]),
+        )
+    return timing_date_map
+
+
+def get_source_online_status(model_name: str) -> Mapping[str, bool]:
+    """Return a mapping of source to a boolean indicating if the source is available."""
+    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
+    main_cat = mc.setup()
+    statuses = {}
+    for timing in main_cat[model_name]:
+        main_cat[model_name][timing]._pick()
+        urlpath = main_cat[model_name][timing]._source(yesterday=yesterday).urlpath
+        if isinstance(urlpath, list):
+            urlpath = urlpath[0]
+        resp = requests.get(urlpath + ".das")
+        if resp.status_code != 200:
+            statuses[timing] = False
+        else:
+            statuses[timing] = True
+    return statuses
 
 
 def fetch(fetch_config: FetchConfig):

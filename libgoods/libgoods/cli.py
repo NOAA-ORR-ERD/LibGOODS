@@ -2,17 +2,22 @@
 # -*- coding: utf-8 -*-
 """Module for fetching model data from the CLI."""
 import sys
-
-from typing import List, Tuple, Callable, Optional
+import warnings
+from typing import List, Tuple, Optional
 from pathlib import Path
 from argparse import ArgumentParser
-from datetime import datetime
 
 import pandas as pd
+import xarray as xr
+import requests
 import model_catalogs as mc
 
-from libgoods.model_fetch import FetchConfig, DEFAULT_STANDARD_NAMES, fetch
-
+from libgoods.model_fetch import (
+    fetch,
+    get_times,
+    FetchConfig,
+    DEFAULT_STANDARD_NAMES,
+)
 
 # These are just arbitrary boxes selected within the model's domain that demonstrates and offers a
 # simple way to subset model output.
@@ -81,6 +86,62 @@ def show_bounds(model_name: str):
     main_cat = mc.setup()
     bbox = ", ".join(f"{i:.2f}" for i in main_cat[model_name].metadata["bounding_box"])
     print(bbox)
+
+
+def show_times(model_name: str):
+    """Print the start/end times."""
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=xr.SerializationWarning)
+        times = get_times(model_name)
+    print(model_name)
+    for timing in times:
+        start_time = times[timing][0]
+        end_time = times[timing][1]
+        if pd.isna(start_time):
+            start_time = "undefined"
+        if pd.isna(end_time):
+            end_time = "undefined"
+        print(f"{timing:<32} {str(start_time):<22} {str(end_time):<22}")
+
+
+def show_status_all():
+    print(f'{"model_name":<20} {"timing":<32} {"status":<6} {"start":<20} end')
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=xr.SerializationWarning)
+        main_cat = mc.setup()
+        for model_name in sorted(main_cat):
+            _show_status(main_cat, model_name)
+
+
+def show_status(model_name: str):
+    print(f'{"model_name":<20} {"timing":<32} {"status":<6} {"start":<20} end')
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=xr.SerializationWarning)
+        main_cat = mc.setup()
+        _show_status(main_cat, model_name)
+
+
+def _show_status(main_cat, model_name):
+    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
+    cat = mc.find_availability(main_cat[model_name])
+    for timing in main_cat[model_name]:
+        main_cat[model_name][timing]._pick()
+        urlpath = main_cat[model_name][timing]._source(yesterday=yesterday).urlpath
+        if isinstance(urlpath, list):
+            urlpath = urlpath[0]
+        resp = requests.get(urlpath + ".das")
+        if resp.status_code != 200:
+            status = False
+        else:
+            status = True
+
+        if status:
+            start = pd.Timestamp(cat[timing].metadata["start_datetime"])
+            end = pd.Timestamp(cat[timing].metadata["end_datetime"])
+        else:
+            start = ""
+            end = ""
+        print(f"{model_name:<20} {timing:<32} {str(status):<6} {str(start):<20} {end}")
 
 
 def parse_config() -> FetchConfig:
@@ -167,15 +228,39 @@ def parse_config() -> FetchConfig:
         action="store_true",
         help="Show the bounds of the model and exit.",
     )
+
+    parser.add_argument(
+        "--show-times",
+        action="store_true",
+        help="Show the times of the model and exit.",
+    )
+
+    parser.add_argument(
+        "--show-status",
+        action="store_true",
+        help="Show which sources are online for the given model and exit.",
+    )
     args = parser.parse_args()
     if args.list_models:
         print_models()
         sys.exit(0)
+
+    if args.show_status:
+        if args.model_name:
+            show_status(args.model_name)
+        else:
+            show_status_all()
+        sys.exit(0)
+
     if args.model_name is None:
         raise ValueError("model_name is required")
 
     if args.show_bounds:
         show_bounds(args.model_name)
+        sys.exit(0)
+
+    if args.show_times:
+        show_times(args.model_name)
         sys.exit(0)
 
     # Sanity check on start/end time
