@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """A module containing code for fetching content from models."""
 import time
+import numpy as np
 from typing import List, Tuple, Mapping, Optional
 from pathlib import Path
 from datetime import datetime
@@ -126,6 +127,38 @@ def get_bounds(model_name: str) -> Tuple[float, float, float, float]:
     return main_cat[model_name].metadata["bounding_box"]
 
 
+def is_monotonic(data: np.array) -> bool:
+    """Return true if the array is monotonically increasing or decreasing."""
+    increasing = np.all(data[1:] >= data[:-1])
+    decreasing = np.all(data[1:] <= data[:-1])
+    return increasing or decreasing
+
+
+def is_coordinate_variable(ds: xr.Dataset, varname) -> bool:
+    """Return True if the variable is a coordinate variable."""
+    return ds[varname].dims == (varname,)
+
+
+def rotate_longitude(ds: xr.Dataset):
+    new_vars = {}
+    for varname in ds.filter_by_attrs(standard_name='longitude').variables:
+        if 'standard_name' not in ds[varname].attrs:
+            continue
+        if ds[varname].attrs['standard_name'] != 'longitude':
+            continue
+        lon_data = ds[varname][:].to_numpy()
+        rotated_data = np.copy(lon_data)
+        rotated_data[rotated_data > 180] -= 360
+        if is_coordinate_variable(ds, varname) and not is_monotonic(rotated_data):
+            print("Longitude can not be rotated because the rotated data are not monotonic.")
+        else:
+            xvar = xr.DataArray(rotated_data, dims=ds[varname].dims, attrs=ds[varname].attrs)
+            new_vars[varname] = xvar
+    if len(new_vars) > 0:
+        ds = ds.assign(new_vars)
+    return ds
+
+
 def fetch(fetch_config: FetchConfig):
     """Downloads and subsets the model data.
 
@@ -164,6 +197,9 @@ def fetch(fetch_config: FetchConfig):
         ds_ss = ds.em.filter(fetch_config.standard_names)
         if fetch_config.bbox is not None:
             ds_ss = ds_ss.em.sub_grid(bbox=fetch_config.bbox)
+
+        if main_cat[fetch_config.model_name].metadata["bounding_box"][2] > 180:
+            ds_ss = rotate_longitude(ds_ss)
     # print("Loading dataset into memory.")
     # with Timer("\tLoaded into memory in {}"):
     #    #ds_ss = ds_ss.load(scheduler="processes")
