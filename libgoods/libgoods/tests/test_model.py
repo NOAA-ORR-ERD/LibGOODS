@@ -10,7 +10,7 @@ import copy
 from libgoods.model import Model, Metadata, CastMetadata
 
 sample_NYOFS_forecast_metadata = {'axis': {'T': 'time', 'X': 'nx', 'Y': 'ny'},
- 'catalog_dir': 'c:/users/jay.hennen/documents/code/libgoods/model_catalogs/model_catalogs/catalogs/complete/',
+ #'catalog_dir': 'c:/users/jay.hennen/documents/code/libgoods/model_catalogs/model_catalogs/catalogs/complete/',
  'output_period_(hr)': 1,
  'overall_end_datetime': '48 hours after present time',
  'overall_start_datetime': '7 days before present time',

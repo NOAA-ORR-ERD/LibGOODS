@@ -204,3 +204,21 @@ def get_model_data(
     )
 
     return Path(filepath)
+
+def fetch(*args, **kwargs):
+    '''
+    class FetchConfig:
+        """Configuration data class for fetching."""
+
+        model_name: str
+        output_pth: Path
+        start: pd.Timestamp
+        end: pd.Timestamp
+        bbox: Tuple[float, float, float, float]
+        timing: str
+        standard_names: List[str] = field(default_factory=lambda: STANDARD_NAMES)
+        surface_only: bool = False
+    '''
+    cfg = mc.examples.parse_config(*args, **kwargs)
+    mc.examples.fetch(cfg)
+    return kwargs['output_pth']
