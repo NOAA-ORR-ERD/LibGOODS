@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 """A module containing code for fetching content from models."""
 import time
-import numpy as np
 from typing import List, Tuple, Mapping, Optional
 from pathlib import Path
-from datetime import datetime
 from dataclasses import field, dataclass
 
+import numpy as np
 import pandas as pd
 import xarray as xr
 import requests
@@ -105,7 +104,7 @@ def get_times(model_name: str) -> Mapping[str, pd.Timestamp]:
 
 def get_source_online_status(model_name: str) -> Mapping[str, bool]:
     """Return a mapping of source to a boolean indicating if the source is available."""
-    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
+    yesterday = pd.Timestamp.today() - pd.Timedelta("1 day")
     main_cat = mc.setup()
     statuses = {}
     for timing in main_cat[model_name]:
@@ -141,18 +140,22 @@ def is_coordinate_variable(ds: xr.Dataset, varname) -> bool:
 
 def rotate_longitude(ds: xr.Dataset):
     new_vars = {}
-    for varname in ds.filter_by_attrs(standard_name='longitude').variables:
-        if 'standard_name' not in ds[varname].attrs:
+    for varname in ds.filter_by_attrs(standard_name="longitude").variables:
+        if "standard_name" not in ds[varname].attrs:
             continue
-        if ds[varname].attrs['standard_name'] != 'longitude':
+        if ds[varname].attrs["standard_name"] != "longitude":
             continue
         lon_data = ds[varname][:].to_numpy()
         rotated_data = np.copy(lon_data)
         rotated_data[rotated_data > 180] -= 360
         if is_coordinate_variable(ds, varname) and not is_monotonic(rotated_data):
-            print("Longitude can not be rotated because the rotated data are not monotonic.")
+            print(
+                "Longitude can not be rotated because the rotated data are not monotonic."
+            )
         else:
-            xvar = xr.DataArray(rotated_data, dims=ds[varname].dims, attrs=ds[varname].attrs)
+            xvar = xr.DataArray(
+                rotated_data, dims=ds[varname].dims, attrs=ds[varname].attrs
+            )
             new_vars[varname] = xvar
     if len(new_vars) > 0:
         ds = ds.assign(new_vars)
@@ -172,7 +175,7 @@ def _check_axis(ds: xr.Dataset, axis: str) -> bool:
 
 def has_horizontal_data(ds: xr.Dataset) -> bool:
     """Return true if the horizontal size of the dataset is 0."""
-    horizontal_axes = ['X', 'Y']
+    horizontal_axes = ["X", "Y"]
     for axis in horizontal_axes:
         if _check_axis(ds, axis):
             return True
@@ -222,7 +225,7 @@ def fetch(fetch_config: FetchConfig):
             ds_ss = rotate_longitude(ds_ss)
 
         if not has_horizontal_data(ds_ss):
-            raise ValueError('Subsetting produced no valid data to write to disk.')
+            raise ValueError("Subsetting produced no valid data to write to disk.")
     # print("Loading dataset into memory.")
     # with Timer("\tLoaded into memory in {}"):
     #    #ds_ss = ds_ss.load(scheduler="processes")
