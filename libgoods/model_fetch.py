@@ -159,6 +159,26 @@ def rotate_longitude(ds: xr.Dataset):
     return ds
 
 
+def _check_axis(ds: xr.Dataset, axis: str) -> bool:
+    """Return true if the axis has a size greater than 1."""
+    if axis not in ds.cf.axes:
+        return True
+    for varname in ds.cf.axes[axis]:
+        if ds[varname].dims == (varname,):
+            if ds.dims[varname] > 0:
+                return True
+    return False
+
+
+def has_horizontal_data(ds: xr.Dataset) -> bool:
+    """Return true if the horizontal size of the dataset is 0."""
+    horizontal_axes = ['X', 'Y']
+    for axis in horizontal_axes:
+        if _check_axis(ds, axis):
+            return True
+    return False
+
+
 def fetch(fetch_config: FetchConfig):
     """Downloads and subsets the model data.
 
@@ -200,6 +220,9 @@ def fetch(fetch_config: FetchConfig):
 
         if main_cat[fetch_config.model_name].metadata["bounding_box"][2] > 180:
             ds_ss = rotate_longitude(ds_ss)
+
+        if not has_horizontal_data(ds_ss):
+            raise ValueError('Subsetting produced no valid data to write to disk.')
     # print("Loading dataset into memory.")
     # with Timer("\tLoaded into memory in {}"):
     #    #ds_ss = ds_ss.load(scheduler="processes")
