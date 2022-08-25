@@ -1,9 +1,19 @@
+"""
+A class for dealing with curvilinear grid model output and converting to GNOME format
+By passing in a var_map dict the
+variable names can be customized for different models or datasets
+"""
 #!/usr/bin/env python
 import numpy as np
 from netCDF4 import Dataset, MFDataset
 from . import base
 
 class curv(base.nc):
+    """
+    A class for dealing with curvilinear grid model output and converting to GNOME format
+    By passing in a var_map dict the
+    variable names can be customized for different models or datasets
+    """
 
     def get_dimensions(self,var_map,get_time=True,get_xy=True,get_z=False):
         '''
@@ -68,10 +78,3 @@ class curv(base.nc):
             else:
                 self.y = [0,np.size(glat,0),1]
                 self.x = [0,np.size(glat,1),1]
-
-
-
-
-
-
-

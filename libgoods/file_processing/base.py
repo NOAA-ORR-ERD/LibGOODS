@@ -1,3 +1,6 @@
+"""
+Base model class
+"""
 #!/usr/bin/env python
 from __future__ import print_function
 import numpy as np
@@ -8,6 +11,9 @@ import os
 
 
 class nc:
+    """
+    Base model class
+    """
 
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names

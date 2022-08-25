@@ -22,6 +22,7 @@ STANDARD_NAMES = [
 
 @dataclass
 class ModelConfig:
+    """model configuration"""
     start_date: pd.Timestamp
     end_date: pd.Timestamp
     model_name: str = 'LOOFS'

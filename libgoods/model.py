@@ -50,6 +50,7 @@ ENVIRONMENTAL_PARAMETERS = {
 
 @dataclasses.dataclass
 class CastMetadata:
+    """cast metadata"""
     # metadata for a particular fore/now/hind cast
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
@@ -72,6 +73,7 @@ class CastMetadata:
 
     @staticmethod
     def get_env_params(metadata):
+        """return env parameters"""
         #param metadata: dict of fore/now/hindcast metadata from catalog
 
         return {k for k, v in ENVIRONMENTAL_PARAMETERS.items() if all([subv in metadata['standard_names'] for subv in v])}
@@ -111,6 +113,7 @@ class Metadata:
     """
 
     def init_from_model(self, m):
+        """initiate a model"""
         #given a model, extract the data and set on self.
         self.identifier = m.name
         self.name = m.description
@@ -128,6 +131,7 @@ class Metadata:
         return self
 
     def init_cast_metadata(self, model):
+        """initiate metadata"""
         #given a model, extract the cast start_end times and set them on self
         if hasattr(model, 'forecast'):
             self.forecast_metadata.init_from_model_cast_metadata(model.forecast.metadata)
@@ -137,6 +141,7 @@ class Metadata:
             self.nowcast_metadata.init_from_model_cast_metadata(model.nowcast.metadata)
 
     def compute_env_params(self):
+        """compute env params"""
         #Computes and sets the list of satisfied environmental parameters
         #An env param is considered satisfied if ALL of fore/now/hindcast can
         #provide that env param.

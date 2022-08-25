@@ -41,6 +41,7 @@ class Timer:
         return (time.time() - self.t0) * 1000.0
 
     def format(self):
+        """return formatted time"""
         time_in_ms = self.tock()
         if time_in_ms > 60000:
             return f"{time_in_ms / 60000:.1f} min"

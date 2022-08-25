@@ -52,7 +52,3 @@ def test_get_currents():
     assert filepath.name == 'hycom.nc'
     assert filepath.is_file()
     assert filepath == HERE / 'hycom.nc'
-
-
-
-

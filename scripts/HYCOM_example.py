@@ -1,3 +1,4 @@
+"""run HYCOM example"""
 import json
 import os
 from libgoods import rect_model, temp_files_dir
@@ -22,10 +23,7 @@ hycom.get_dimensions(var_map)
 hycom.when()
 
 
-hycom.subset(subset_box) 
+hycom.subset(subset_box)
 
 ofn = os.path.join(temp_files_dir,'HYCOM.nc')
 hycom.write_nc(var_map,ofn)
-
- 
-

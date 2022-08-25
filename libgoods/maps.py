@@ -35,6 +35,7 @@ def get_map(
     cross_dateline=False,
     max_filesize=None,
 ):
+    """get map"""
     bbox = utilities.polygon2bbox(bounds)
 
     # south_lat, west_lon, north_lat, east_lon = bbox

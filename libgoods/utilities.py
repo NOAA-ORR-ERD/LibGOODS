@@ -4,6 +4,7 @@ assorted utilities useful for libgoods
 import numpy as np
 
 def check_valid_latitude(lat):
+    """make sure lat is valid"""
 
     if not (-90.0 < lat < 90.0):
         raise ValueError(f'latitude cannot be larger than 90. Got{lat}')

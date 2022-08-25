@@ -1,3 +1,4 @@
+"""run TBOFS example"""
 import json
 import os
 from libgoods import roms_model, temp_files_dir
@@ -20,10 +21,6 @@ subset_box = [ #south lat, west lon, north lat, east lon
 tbofs.get_dimensions()
 tbofs.when()
 
-tbofs.subset(subset_box) 
+tbofs.subset(subset_box)
 ofn = os.path.join(temp_files_dir,'TBOFS.nc')
 tbofs.write_nc(var_map=None,ofn=ofn)
-
-
- 
-

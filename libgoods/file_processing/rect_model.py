@@ -1,3 +1,8 @@
+"""
+A class for dealing with regular grid model output and converting to GNOME format
+By passing in a var_map dict the
+variable names can be customized for different models or datasets
+"""
 import numpy as np
 from .import base
 from netCDF4 import Dataset, MFDataset
@@ -11,6 +16,7 @@ class rect(base.nc):
     """
 
     def get_dimensions(self, var_map, get_time=True, get_xy=True, get_z=False):
+        """get dimensions for roms models"""
 
         if get_time:
             self.time_varname = var_map["time"]

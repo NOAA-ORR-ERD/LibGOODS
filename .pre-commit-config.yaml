@@ -4,29 +4,29 @@ repos:
   rev: 1.5.0
   hooks:
     - id: interrogate
-      exclude: ^(libgoods|scripts|setup.py|tests)
-      args: [--config=model_catalogs/pyproject.toml]
+      exclude: ^(setup.py|libgoods/tests|libgoods/docs|libgoods/dummy_sources)
+      args: [--config=pyproject.toml]
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.1.0
   hooks:
     - id: trailing-whitespace
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: check-ast
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: debug-statements
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: end-of-file-fixer
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: check-docstring-first
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: check-added-large-files
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: requirements-txt-fixer
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
     - id: file-contents-sorter
       files: model_catalogs/requirements-dev.txt
-      exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
+      # exclude: ^(libgoods|scripts|CHANGES.txt|README.rst|conda_requirements.txt)
 
 - repo: https://gitlab.com/pycqa/flake8
   rev: 3.9.2
@@ -63,10 +63,10 @@ repos:
 #     exclude: docs/source/conf.py
 #     args: [--ignore-missing-imports]
 
-- repo: https://github.com/codespell-project/codespell
-  rev: v2.1.0
-  hooks:
-    - id: codespell
-      exclude: ^(model_catalogs/model_catalogs/notebooks|model_catalogs/model_catalogs/docs|libgoods)
-      args:
-        - --quiet-level=2
+# - repo: https://github.com/codespell-project/codespell
+#   rev: v2.1.0
+#   hooks:
+#     - id: codespell
+#       exclude: ^(docs/subsetting.ipynb)
+#       args:
+#         - --quiet-level=2

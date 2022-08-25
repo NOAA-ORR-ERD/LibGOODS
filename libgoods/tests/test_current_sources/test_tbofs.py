@@ -48,6 +48,3 @@ def test_get_currents():
     # If these got returned, then we're good.
     assert filepath.name == 'tbofs.nc'
     assert Path(filepath).is_file()
-
-
-
