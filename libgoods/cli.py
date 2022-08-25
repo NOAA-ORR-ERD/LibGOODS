@@ -105,6 +105,7 @@ def show_times(model_name: str):
 
 
 def show_status_all():
+    """Status for all models"""
     print(f'{"model_name":<20} {"timing":<32} {"status":<6} {"start":<20} end')
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=xr.SerializationWarning)
@@ -114,6 +115,7 @@ def show_status_all():
 
 
 def show_status(model_name: str):
+    """Status for model"""
     print(f'{"model_name":<20} {"timing":<32} {"status":<6} {"start":<20} end')
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=xr.SerializationWarning)
@@ -122,7 +124,8 @@ def show_status(model_name: str):
 
 
 def _show_status(main_cat, model_name):
-    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
+    """Status for model"""
+    yesterday = pd.Timestamp.today() - pd.Timedelta("1 day")
     cat = mc.find_availability(main_cat[model_name])
     for timing in main_cat[model_name]:
         main_cat[model_name][timing]._pick()

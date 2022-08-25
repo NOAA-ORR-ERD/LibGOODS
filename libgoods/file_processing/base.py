@@ -1,3 +1,6 @@
+"""
+Base model class
+"""
 #!/usr/bin/env python
 from __future__ import print_function
 import numpy as np
@@ -8,6 +11,9 @@ import os
 
 
 class nc:
+    """
+    Base model class
+    """
 
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names
@@ -55,7 +61,7 @@ class nc:
         # until I add time selection this will get a reasonal time slice for latest TBOFS/HYCOM
         tlen = len(self.time)
         if self.metadata.identifier == "TBOFS":
-            t_index = [tlen-72, tlen, 1]
+            t_index = [tlen - 72, tlen, 1]
         else:
             t_index = [40, 70, 1]
 
