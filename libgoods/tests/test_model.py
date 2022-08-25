@@ -10,21 +10,25 @@ import copy
 
 from libgoods.model import Model, Metadata, CastMetadata
 
-sample_NYOFS_forecast_metadata = {'axis': {'T': 'time', 'X': 'nx', 'Y': 'ny'},
- #'catalog_dir': 'c:/users/jay.hennen/documents/code/libgoods/model_catalogs/model_catalogs/catalogs/complete/',
- 'output_period_(hr)': 1,
- 'overall_end_datetime': '48 hours after present time',
- 'overall_start_datetime': '7 days before present time',
- 'standard_names': {'eastward_sea_water_velocity': 'u',
-  'eastward_wind': 'air_u',
-  'northward_sea_water_velocity': 'v',
-  'northward_wind': 'air_v',
-  'ocean_sigma_coordinate': 'sigma',
-  'sea_floor_depth': 'depth',
-  'sea_surface_elevation': 'zeta',
-  'time': 'time',
-  'upward_sea_water_velocity': 'w'}
-  }
+sample_NYOFS_forecast_metadata = {
+    "axis": {"T": "time", "X": "nx", "Y": "ny"},
+    #'catalog_dir': 'c:/users/jay.hennen/documents/code/libgoods/model_catalogs/model_catalogs/catalogs/complete/',
+    "output_period_(hr)": 1,
+    "overall_end_datetime": "48 hours after present time",
+    "overall_start_datetime": "7 days before present time",
+    "standard_names": {
+        "eastward_sea_water_velocity": "u",
+        "eastward_wind": "air_u",
+        "northward_sea_water_velocity": "v",
+        "northward_wind": "air_v",
+        "ocean_sigma_coordinate": "sigma",
+        "sea_floor_depth": "depth",
+        "sea_surface_elevation": "zeta",
+        "time": "time",
+        "upward_sea_water_velocity": "w",
+    },
+}
+
 
 class TestCastMetadata:
     def test_construction(self):

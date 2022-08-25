@@ -214,6 +214,7 @@ def get_model_data(
 
     return Path(filepath)
 
+
 def fetch(*args, **kwargs):
     '''
     class FetchConfig:
@@ -230,4 +231,4 @@ def fetch(*args, **kwargs):
     '''
     cfg = mc.examples.parse_config(*args, **kwargs)
     mc.examples.fetch(cfg)
-    return kwargs['output_pth']
+    return kwargs["output_pth"]
