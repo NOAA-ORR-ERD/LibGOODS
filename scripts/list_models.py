@@ -14,6 +14,5 @@ from libgoods import api
 
 data = api.list_models()
 
-with open("all_models.json", 'w', encoding='utf-8') as outfile:
+with open("all_models.json", "w", encoding="utf-8") as outfile:
     json.dump(data, outfile, indent=4)
-
