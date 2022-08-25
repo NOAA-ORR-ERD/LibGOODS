@@ -8,8 +8,10 @@ __version__ = "2.0.1"
 
 import os
 
+
 class FileTooBigError(ValueError):
     """class for file too big"""
+
     pass
 
 

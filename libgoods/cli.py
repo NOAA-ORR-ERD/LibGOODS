@@ -125,7 +125,7 @@ def show_status(model_name: str):
 
 def _show_status(main_cat, model_name):
     """Status for model"""
-    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
+    yesterday = pd.Timestamp.today() - pd.Timedelta("1 day")
     cat = mc.find_availability(main_cat[model_name])
     for timing in main_cat[model_name]:
         main_cat[model_name][timing]._pick()

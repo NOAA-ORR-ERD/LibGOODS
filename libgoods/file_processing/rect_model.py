@@ -4,7 +4,7 @@ By passing in a var_map dict the
 variable names can be customized for different models or datasets
 """
 import numpy as np
-from .import base
+from . import base
 from netCDF4 import Dataset, MFDataset
 
 

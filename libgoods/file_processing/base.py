@@ -61,7 +61,7 @@ class nc:
         # until I add time selection this will get a reasonal time slice for latest TBOFS/HYCOM
         tlen = len(self.time)
         if self.metadata.identifier == "TBOFS":
-            t_index = [tlen-72, tlen, 1]
+            t_index = [tlen - 72, tlen, 1]
         else:
             t_index = [40, 70, 1]
 
