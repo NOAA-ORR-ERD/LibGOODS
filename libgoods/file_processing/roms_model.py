@@ -1,7 +1,3 @@
-"""
-A class for loading variables from ROMS model output on specified domain subsets that are
-needed for GNOME
-"""
 #!/usr/bin/env python
 import numpy as np
 from netCDF4 import Dataset, MFDataset
@@ -16,7 +12,6 @@ class roms(curv_model.curv):
     """
 
     def get_dimensions(self, var_map=None, get_time=True, get_xy=True):
-        """get dimensions for roms models"""
 
         if var_map is None:
             tvar = "ocean_time"

@@ -41,7 +41,6 @@ class Timer:
         return (time.time() - self.t0) * 1000.0
 
     def format(self):
-        """return formatted time"""
         time_in_ms = self.tock()
         if time_in_ms > 60000:
             return f"{time_in_ms / 60000:.1f} min"
@@ -105,7 +104,7 @@ def get_times(model_name: str) -> Mapping[str, pd.Timestamp]:
 
 def get_source_online_status(model_name: str) -> Mapping[str, bool]:
     """Return a mapping of source to a boolean indicating if the source is available."""
-    yesterday = pd.Timestamp.today() - pd.Timedelta("1 day")
+    yesterday = pd.Timestamp.today() - pd.Timedelta('1 day')
     main_cat = mc.setup()
     statuses = {}
     for timing in main_cat[model_name]:

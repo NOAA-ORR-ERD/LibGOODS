@@ -1,10 +1,10 @@
-extract_model
-netCDF4
-numpy
 # requirements for libgoods
 python>=3.8,<3.11
+numpy
+netCDF4
 requests
 shapely
+extract_model
 
 
 # Not yet available on conda-forge

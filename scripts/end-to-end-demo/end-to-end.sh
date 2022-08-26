@@ -1,7 +1,7 @@
 #!/bin/bash
 #----------------------------------------
 # Run LibGOODS demo
-#
+# 
 # This script will use the fetch-data.py script to download Lake Ontario Operational Forcast System
 # model output from 6 days ago to 2 days ago. The output will then be used as the forcing file for a
 # GNOME oil spill simulation in the simple_script.py

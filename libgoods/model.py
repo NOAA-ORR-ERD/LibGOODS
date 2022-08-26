@@ -40,35 +40,20 @@ import shapely.wkt as wkt
 # E.G. In order to state a source can provide 'surface_winds' it must have variables
 # with CF standard_name 'eastward_wind' and 'northward_wind' present
 ENVIRONMENTAL_PARAMETERS = {
-    "surface winds": ["eastward_wind", "northward_wind"],
-    "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
-    "3D currents": [
-        "eastward_sea_water_velocity",
-        "northward_sea_water_velocity",
-        "upward_sea_water_velocity",
-    ],
-    "surface temperature": ["sea_surface_temperature"],
-    "3D temperature": ["sea_water_temperature"],
-    "ice": [
-        "eastward_sea_ice_velocity",
-        "northward_sea_ice_velocity",
-        "sea_ice_area_fraction",
-        "eastward_sea_water_velocity",
-        "northward_sea_water_velocity",
-        "eastward_wind",
-        "northward_wind",
-    ],
+    "surface winds": ['eastward_wind','northward_wind'],
+    "surface currents": ['eastward_sea_water_velocity', 'northward_sea_water_velocity'],
+    "3D currents": ['eastward_sea_water_velocity', 'northward_sea_water_velocity', 'upward_sea_water_velocity'],
+    "surface temperature": ['sea_surface_temperature'],
+    "3D temperature": ['sea_water_temperature'],
+    "ice": ['eastward_sea_ice_velocity', 'northward_sea_ice_velocity', 'sea_ice_area_fraction', 'eastward_sea_water_velocity', 'northward_sea_water_velocity', 'eastward_wind', 'northward_wind'],
 }
-
 
 @dataclasses.dataclass
 class CastMetadata:
-    """cast metadata"""
-
     # metadata for a particular fore/now/hind cast
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
-    period: float = (0,)  # output period in hours
+    period: float = 0,  # output period in hours
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
     # dict associating CF name to variable name in data
@@ -78,30 +63,25 @@ class CastMetadata:
     def init_from_model_cast_metadata(self, metadata):
         # uses a '.(fore/now/hind)cast.metadata dict to populate self
         # self.axis = metadata['axis']
-        self.period = metadata.get("output_period_(hr)", 0)
-        self.start = metadata["overall_start_datetime"]
-        self.end = metadata["overall_end_datetime"]
+        self.period = metadata.get('output_period_(hr)', 0)
+        self.start = metadata['overall_start_datetime']
+        self.end = metadata['overall_end_datetime']
         # self.standard_names = metadata['standard_names']
         self.env_params = CastMetadata.get_env_params(metadata)
         return self
 
     @staticmethod
     def get_env_params(metadata):
-        """return env parameters"""
-        # param metadata: dict of fore/now/hindcast metadata from catalog
+        #param metadata: dict of fore/now/hindcast metadata from catalog
 
-        return {
-            k
-            for k, v in ENVIRONMENTAL_PARAMETERS.items()
-            if all([subv in metadata["standard_names"] for subv in v])
-        }
+        return {k for k, v in ENVIRONMENTAL_PARAMETERS.items() if all([subv in metadata['standard_names'] for subv in v])}
 
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data
         """
         dict_ = dataclasses.asdict(self)
-        dict_["env_params"] = list(self.env_params)
+        dict_['env_params'] = list(self.env_params)
         return dict_
 
 
@@ -113,10 +93,10 @@ class Metadata:
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
     # these need to be thought out more:
-    grid_type: str = ""  # 'Regular', 'Curvilinear', 'Unstructured'
+    grid_type: str = "" # 'Regular', 'Curvilinear', 'Unstructured'
     has_depth: bool = True
     dimensions: tuple = ()
-    # timestep_interval: float = "" #'1', '0.5', etc
+    #timestep_interval: float = "" #'1', '0.5', etc
     # either forecast or hindcast info -- not both
     forecast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
     nowcast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
@@ -131,69 +111,60 @@ class Metadata:
     """
 
     def init_from_model(self, m):
-        """initiate a model"""
-        # given a model, extract the data and set on self.
+        #given a model, extract the data and set on self.
         self.identifier = m.name
         self.name = m.description
         self.regional = Metadata.regional_test(m)
-        bb = m.metadata["bounding_box"]
-        self.bounding_box = bb  # [(a, b) for a, b in zip(bb[::2],bb[1::2])]
-        self.bounding_poly = list(
-            wkt.loads(m.metadata["geospatial_bounds"]).boundary.coords
-        )
-        self.grid_type = m.metadata["grid_type"].capitalize()
-        grid_dim_keyname = [n for n in m.metadata.keys() if "grid_dim_" in n][0]
+        bb = m.metadata['bounding_box']
+        self.bounding_box = bb #[(a, b) for a, b in zip(bb[::2],bb[1::2])]
+        self.bounding_poly = list(wkt.loads(m.metadata['geospatial_bounds']).boundary.coords)
+        self.grid_type = m.metadata['grid_type'].capitalize()
+        grid_dim_keyname = [n for n in m.metadata.keys() if 'grid_dim_' in n][0]
         self.has_depth = len(m.metadata[grid_dim_keyname]) == 4
         self.dimensions = m.metadata[grid_dim_keyname]
-        # self.timestep_interval = self.get_output_interval(m)
+        #self.timestep_interval = self.get_output_interval(m)
         self.init_cast_metadata(m)
         self.compute_env_params()
         return self
 
     def init_cast_metadata(self, model):
-        """initiate metadata"""
-        # given a model, extract the cast start_end times and set them on self
-        if hasattr(model, "forecast"):
-            self.forecast_metadata.init_from_model_cast_metadata(
-                model.forecast.metadata
-            )
-        if hasattr(model, "hindcast"):
-            self.hindcast_metadata.init_from_model_cast_metadata(
-                model.hindcast.metadata
-            )
-        if hasattr(model, "nowcast"):
+        #given a model, extract the cast start_end times and set them on self
+        if hasattr(model, 'forecast'):
+            self.forecast_metadata.init_from_model_cast_metadata(model.forecast.metadata)
+        if hasattr(model, 'hindcast'):
+            self.hindcast_metadata.init_from_model_cast_metadata(model.hindcast.metadata)
+        if hasattr(model, 'nowcast'):
             self.nowcast_metadata.init_from_model_cast_metadata(model.nowcast.metadata)
 
     def compute_env_params(self):
-        """compute env params"""
-        # Computes and sets the list of satisfied environmental parameters
-        # An env param is considered satisfied if ALL of fore/now/hindcast can
-        # provide that env param.
-        self.env_params = (
-            self.forecast_metadata.env_params
-            & self.nowcast_metadata.env_params
-            & self.hindcast_metadata.env_params
-        )
+        #Computes and sets the list of satisfied environmental parameters
+        #An env param is considered satisfied if ALL of fore/now/hindcast can
+        #provide that env param.
+        self.env_params = (self.forecast_metadata.env_params &
+                           self.nowcast_metadata.env_params &
+                           self.hindcast_metadata.env_params)
 
     @staticmethod
     def regional_test(model):
-        """
+        '''
         Selection criteria for 'regional' flag in the metadata
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
-        """
-        bb = model.metadata["bounding_box"]
-        return abs(bb[2] - bb[0]) > 20 or abs(bb[3] - bb[1]) > 20
+        '''
+        bb = model.metadata['bounding_box']
+        return abs(bb[2]-bb[0]) > 20 or abs(bb[3]-bb[1]) > 20
 
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data
         """
         dict_ = dataclasses.asdict(self)
-        dict_["env_params"] = list(self.env_params)
-        dict_["forecast_metadata"] = self.forecast_metadata.as_pyson()
-        dict_["hindcast_metadata"] = self.hindcast_metadata.as_pyson()
-        dict_["nowcast_metadata"] = self.nowcast_metadata.as_pyson()
+        dict_['env_params'] = list(self.env_params)
+        dict_['forecast_metadata'] = self.forecast_metadata.as_pyson()
+        dict_['hindcast_metadata'] = self.hindcast_metadata.as_pyson()
+        dict_['nowcast_metadata'] = self.nowcast_metadata.as_pyson()
         return dict_
+
+
 
 
 class Model:

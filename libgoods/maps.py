@@ -35,7 +35,6 @@ def get_map(
     cross_dateline=False,
     max_filesize=None,
 ):
-    """get map"""
     bbox = utilities.polygon2bbox(bounds)
 
     # south_lat, west_lon, north_lat, east_lon = bbox
@@ -46,9 +45,9 @@ def get_map(
     utilities.check_valid_box(bbox)
 
     # if resolution == "appropriate":
-    # raise NotImplementedError(
-    # "libgoods can not yet determine the appropriate resolution for you"
-    # )
+        # raise NotImplementedError(
+            # "libgoods can not yet determine the appropriate resolution for you"
+        # )
 
     # this is what the current GOODS API requires
     req_params = {

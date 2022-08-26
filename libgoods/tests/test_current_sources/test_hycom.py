@@ -5,7 +5,6 @@ At some point, we could probably write universal tests
 """
 
 import pytest
-
 pytest.skip("Skipping -- obsolete", allow_module_level=True)
 
 
@@ -28,10 +27,10 @@ def test_get_metadata():
     md = HYCOM().get_metadata()
 
     # could check more, but why?
-    assert md["name"] == HYCOM.metadata.name
-    assert md["product_type"] == "forecast"
-    assert md["forecast_start"] != ""
-    assert md["forecast_end"] != ""
+    assert md['name'] == HYCOM.metadata.name
+    assert md['product_type'] == "forecast"
+    assert md['forecast_start'] != ""
+    assert md['forecast_end'] != ""
 
 
 def test_get_currents():
@@ -39,17 +38,21 @@ def test_get_currents():
     testing access through the top level API
     """
     filepath = get_model_data(
-        model_id="HYCOM",
-        bounds=((-125.621, 48.088), (-124.709, 48.874)),
-        # fixme: should test a real time interval!
-        time_interval=("2022-02-15T12:00", "2022-04-15T12:00"),
-        environmental_parameters=["surface currents"],
-        cross_dateline=False,
-        max_filesize=None,
-        target_dir=HERE,
-    )
+                   model_id='HYCOM',
+                   bounds=((-125.621, 48.088), (-124.709, 48.874)),
+                   # fixme: should test a real time interval!
+                   time_interval=('2022-02-15T12:00', '2022-04-15T12:00'),
+                   environmental_parameters=['surface currents'],
+                   cross_dateline=False,
+                   max_filesize=None,
+                   target_dir=HERE,
+                   )
 
     # If these got returned, then we're good.
-    assert filepath.name == "hycom.nc"
+    assert filepath.name == 'hycom.nc'
     assert filepath.is_file()
-    assert filepath == HERE / "hycom.nc"
+    assert filepath == HERE / 'hycom.nc'
+
+
+
+

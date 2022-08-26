@@ -10,7 +10,6 @@ from pathlib import Path
 from ..model import Model, Metadata
 from .. import temp_files_dir
 
-
 class DummyCurrentsCAROMS(Model):
     """
     A dummy current source -- used hard code small example
@@ -35,6 +34,7 @@ class DummyCurrentsCAROMS(Model):
         product_type="hindcast",
         hindcast_start="2021-01-01T19",
         hindcast_end="2022-01-02T19",
+
         environmental_parameters={"surface currents"},
     )
 

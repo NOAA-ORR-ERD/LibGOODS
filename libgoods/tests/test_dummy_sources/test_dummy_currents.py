@@ -4,7 +4,6 @@ Test the Dummy currents
 """
 
 import pytest
-
 pytest.skip("Skipping -- obsolete", allow_module_level=True)
 
 from pathlib import Path
@@ -14,6 +13,7 @@ from libgoods.api import get_model_data
 from libgoods.dummy_sources import DummyCurrentsCAROMS
 
 HERE = Path(__file__).parent
+
 
 
 def test_init():
@@ -31,7 +31,6 @@ def test_get_metadata():
     # just checking it there, not the values
     assert md["hindcast_start"] != ""
     assert md["hindcast_end"] != ""
-
 
 def test_get_model_data():
     """
