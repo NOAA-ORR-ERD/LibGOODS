@@ -9,5 +9,3 @@ based on INgest and xarray, etc.
 from .curv_model import curv
 from .rect_model import rect
 from .roms_model import roms
-
-

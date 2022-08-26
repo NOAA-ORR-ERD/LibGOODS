@@ -9,6 +9,7 @@ Functions return JSON-compatible dicts
 from pathlib import Path
 import warnings
 from shapely.geometry import Polygon, MultiPoint
+
 # import shapely.wkt as wkt
 # from . import utilities
 from . import FileTooBigError
@@ -29,11 +30,12 @@ except ImportError:
 # utility functions -- implementation, not API
 ##################
 
+
 def _filter_by_env_params(mdl_meta, ev_p):
-    '''
+    """
     :param mdl_meta: model Metadata object
     :param ev_p: list of environmental parameter (string) or singular string
-    '''
+    """
     # filter models out if they do not have required env_params
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
         # assume singular string
@@ -46,16 +48,16 @@ def _filter_by_env_params(mdl_meta, ev_p):
 
 
 def _filter_by_poly_bounds(mdl_meta, poly_bounds):
-    '''
+    """
     :param mdl_meta: model Metadata object
     :param poly_bounds: shapely Polygon boundary.
            Coords must be in (-180, -90), (180, 90) range
-    '''
+    """
     bb = np.array(mdl_meta.bounding_box)
-    if (np.any(bb > 180)):
+    if np.any(bb > 180):
         bb[0] -= 180
         bb[2] -= 180
-    bb_poly = MultiPoint([(bb[0],bb[1]),(bb[2],bb[3])]).envelope
+    bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
 
@@ -74,10 +76,12 @@ def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=
     """
     retlist = models_metadatas
     if name_list is not None:
-        retlist = [m for m in retlist if m.identifier in name_list ]
+        retlist = [m for m in retlist if m.identifier in name_list]
 
     if map_bounds is not None:
-        map_bounds = Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
+        map_bounds = (
+            Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
+        )
         retlist = [m for m in retlist if _filter_by_poly_bounds(m, map_bounds)]
 
     if env_params is not None:
@@ -85,9 +89,11 @@ def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=
 
     return retlist
 
+
 ###########
 # API functions -- these are what WebGNOME will call
 ###########
+
 
 def list_models(name_list=None, map_bounds=None, env_params=None, as_pyson=False):
     """
@@ -107,10 +113,12 @@ def list_models(name_list=None, map_bounds=None, env_params=None, as_pyson=False
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    retval = filter_models(all_metas.values(),
+    retval = filter_models(
+        all_metas.values(),
         name_list=name_list,
         map_bounds=map_bounds,
-        env_params=env_params)
+        env_params=env_params,
+    )
     if as_pyson:
         retval = [m.as_pyson() for m in retval]
     return retval
@@ -204,3 +212,22 @@ def get_model_data(
     )
 
     return Path(filepath)
+
+
+def fetch(*args, **kwargs):
+    '''
+    class FetchConfig:
+        """Configuration data class for fetching."""
+
+        model_name: str
+        output_pth: Path
+        start: pd.Timestamp
+        end: pd.Timestamp
+        bbox: Tuple[float, float, float, float]
+        timing: str
+        standard_names: List[str] = field(default_factory=lambda: STANDARD_NAMES)
+        surface_only: bool = False
+    '''
+    cfg = mc.examples.parse_config(*args, **kwargs)
+    mc.examples.fetch(cfg)
+    return kwargs["output_pth"]
