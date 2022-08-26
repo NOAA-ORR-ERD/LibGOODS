@@ -9,6 +9,7 @@ Functions return JSON-compatible dicts
 from pathlib import Path
 import warnings
 from shapely.geometry import Polygon, MultiPoint
+import pandas as pd
 
 # import shapely.wkt as wkt
 # from . import utilities
@@ -16,7 +17,7 @@ from . import FileTooBigError
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 
 import numpy as np
-
+from . import model_fetch
 
 try:
     import model_catalogs as mc
@@ -140,6 +141,7 @@ def get_model_info(model_name):
         return Metadata(model=env_models[model_name])
 
 
+#Not currently used or functional
 def get_model_subset_info(
     model_id,
     bounds,
@@ -165,23 +167,28 @@ def get_model_subset_info(
         cross_dateline=False,
     )
 
-
 def get_model_data(
     model_id,
-    bounds,  # polygon list of (lon, lat) pairs
-    time_interval,
-    environmental_parameters,
-    cross_dateline=False,
-    max_filesize=None,
-    target_dir=None,
+    timing,
+    start,  
+    end,
+    bounds,
+    surface_only = True,
+    #environmental_parameters, #not implemented (uses standard varnames)
+    #cross_dateline=False,
+    #max_filesize=None,
+    target_pth=None,
 ):
     """
     Get the actual model data as a netcdf file.
 
     :param model_id: ID (name) of the model
+    :param timing (forecast/nowcast etc) -- !!!naming conventions are changing soon
+    :params start: start time of to subset to (date string)
+    :params end: end time to subset to (date string)
     :param bounds: bounds to subset to -- if the implementation doesn't
-                   support polygons, the bonding box of the bounds will be used.
-    :param time_interval: time span to subset to -- pair of datetime objects
+                   support polygons, the bounding box of the bounds will be used.
+
 
     :param environmental_parameters: which environmental parameters to extract
 
@@ -197,38 +204,27 @@ def get_model_data(
     :returns: Path object for the file
     """
 
-    if target_dir is not None:
-        target_dir = Path(target_dir)
+    if target_pth is None:
+        target_pth = os.path.abspath('output.nc')
+    
+    if model_id == 'HYCOM': #this is really temp just to test 
+        bounds[0] = bounds[0]+360
+        bounds[2] = bounds[2]+360
+        
+    fc = model_fetch.FetchConfig(
+            model_name=model_id,
+            output_pth=target_pth,
+            start=pd.Timestamp(start),
+            end=pd.Timestamp(end),
+            bbox=bounds,
+            timing=timing,
+            #standard_names=None,
+            surface_only=surface_only,
+            #cross_dateline=cross_dateline
+            )
+            
+    model_fetch.fetch(fc)
+    
+    return target_pth
 
-    # NOTE: this implementation may not be appropriate
-    source = all_models[model_id]
 
-    filepath = source.get_data(
-        bounds,  # polygon list of (lon, lat) pairs
-        time_interval,
-        environmental_parameters,
-        cross_dateline,
-        max_filesize,
-        target_dir,
-    )
-
-    return Path(filepath)
-
-
-def fetch(*args, **kwargs):
-    '''
-    class FetchConfig:
-        """Configuration data class for fetching."""
-
-        model_name: str
-        output_pth: Path
-        start: pd.Timestamp
-        end: pd.Timestamp
-        bbox: Tuple[float, float, float, float]
-        timing: str
-        standard_names: List[str] = field(default_factory=lambda: STANDARD_NAMES)
-        surface_only: bool = False
-    '''
-    cfg = mc.examples.parse_config(*args, **kwargs)
-    mc.examples.fetch(cfg)
-    return kwargs["output_pth"]
