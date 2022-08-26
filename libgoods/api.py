@@ -15,7 +15,7 @@ import pandas as pd
 # from . import utilities
 from . import FileTooBigError
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
-
+from . import file_processing
 import numpy as np
 from . import model_fetch
 
@@ -210,21 +210,60 @@ def get_model_data(
     if model_id == 'HYCOM': #this is really temp just to test 
         bounds[0] = bounds[0]+360
         bounds[2] = bounds[2]+360
-        
-    fc = model_fetch.FetchConfig(
-            model_name=model_id,
-            output_pth=target_pth,
-            start=pd.Timestamp(start),
-            end=pd.Timestamp(end),
-            bbox=bounds,
-            timing=timing,
-            #standard_names=None,
-            surface_only=surface_only,
-            #cross_dateline=cross_dateline
-            )
-            
-    model_fetch.fetch(fc)
     
+    model_urls_dict = __get_URLs()
+    if not model_id in model_urls_dict:
+        fc = model_fetch.FetchConfig(
+                model_name=model_id,
+                output_pth=target_pth,
+                start=pd.Timestamp(start),
+                end=pd.Timestamp(end),
+                bbox=bounds,
+                timing=timing,
+                #standard_names=None,
+                surface_only=surface_only,
+                #cross_dateline=cross_dateline
+                )
+                
+        model_fetch.fetch(fc)
+        
+    else:
+        url = model_urls_dict[model_id]
+        if 'ROMS' in env_models[model_id].description:
+            model = file_processing.roms()
+            var_map = {'time':'time'}
+        elif 'POM'in env_models[model_id].description:
+            var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
+            model = file_processing.curv()
+        
+        print(start)
+        print(end)
+        model.open_nc(url)
+        #get dimensions to determine subset
+        model.get_dimensions(var_map=var_map)
+        #quick and dirty time subsetting
+        from netCDF4 import num2date
+        import datetime
+        dts = num2date(model.time,model.time_units)
+        sdate = datetime.datetime.strptime(start,'%Y-%m-%dT%H:%M:%S')
+        edate = datetime.datetime.strptime(end,'%Y-%m-%dT%H:%M:%S')
+        t1 = [i for i,dt in enumerate(dts) if dt>=sdate][0]
+        t2 = [i for i,dt in enumerate(dts) if dt<=edate][-1]
+        #grid subsetting
+        model.subset(bounds)
+        model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2+1,1])
+       
     return target_pth
 
+def __get_URLs():
+    '''
+    This feels really silly but I can't figure out how to get the static URL 
+    though model catalogs directly. Brute forcing here
+    '''
+    model_info_dict = {}
+    for m in ['CBOFS','DBOFS','TBOFS','CIOFS']:
+        model_info_dict[m] = 'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/' + m + '/fmrc/Aggregated_7_day_' + m + '_Fields_Forecast_best.ncd'
 
+   
+    
+    return model_info_dict
