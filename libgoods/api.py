@@ -19,7 +19,7 @@ import numpy as np
 
 try:
     import model_catalogs as mc
-    env_models = mc.setup_source_catalog()
+    env_models = mc.setup()
     all_metas = {m: Metadata().init_from_model(env_models[m]) for m in env_models}
 except ImportError:
     warnings.warn("model_catalogs not found: libgoods API will not work")
