@@ -93,7 +93,7 @@ class curv(base.nc):
                 self.y = [0, np.size(glat, 0), 1]
                 self.x = [0, np.size(glat, 1), 1]
                 
-    def write_nc(self,var_map,ofn='test.nc',t_index=None,is3d=False,grid_only=False,zind=-1,dl=True):       
+    def write_nc(self,var_map,ofn='test.nc',t_index=None,is3d=False,grid_only=False,zind=-1,dl=True,flipud=False):       
         '''
         Write a curvilinear grid with u/v on center points (may or may not have grid
         cell lat/lons)
