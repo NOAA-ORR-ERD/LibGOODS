@@ -212,7 +212,8 @@ def get_model_data(
         bounds[2] = bounds[2]+360
     
     model_urls_dict = __get_URLs()
-    if not model_id in model_urls_dict:
+    
+    if not model_id in model_urls_dict: #I'm bypassing this and using the old LibGOODS code
         fc = model_fetch.FetchConfig(
                 model_name=model_id,
                 output_pth=target_pth,
@@ -235,13 +236,14 @@ def get_model_data(
         elif 'POM'in env_models[model_id].description:
             var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
             model = file_processing.curv()
+        else:
+            var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
+            model = file_processing.rect()
         
-        print(start)
-        print(end)
         model.open_nc(url)
         #get dimensions to determine subset
         model.get_dimensions(var_map=var_map)
-        #quick and dirty time subsetting
+        #quick and dirty time subsetting !!TODO: redo and move to base class
         from netCDF4 import num2date
         import datetime
         dts = num2date(model.time,model.time_units)
@@ -261,8 +263,9 @@ def __get_URLs():
     though model catalogs directly. Brute forcing here
     '''
     model_info_dict = {}
-    for m in ['CBOFS','DBOFS','TBOFS','CIOFS']:
+    for m in ['CBOFS','DBOFS','TBOFS','CIOFS','NYOFS']:
         model_info_dict[m] = 'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/' + m + '/fmrc/Aggregated_7_day_' + m + '_Fields_Forecast_best.ncd'
+    model_info_dict['HYCOM'] = 'http://tds.hycom.org/thredds/dodsC/GLBy0.08/latest'
 
    
     

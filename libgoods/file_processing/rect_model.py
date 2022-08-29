@@ -34,7 +34,7 @@ class rect(base.nc):
             self.x = [0, len(self.lon), 1]
             self.y = [0, len(self.lat), 1]
 
-            self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
+            # self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
 
         if get_z:
             self.depth = self.Dataset.variables[var_map["z"]]
@@ -46,16 +46,16 @@ class rect(base.nc):
 
         """
         subset_lat = np.nonzero(
-            np.logical_and(self.lat >= bbox[0], self.lat <= bbox[2])
+            np.logical_and(self.lat >= bbox[1], self.lat <= bbox[3])
         )[0]
 
         if dl == 0:
             subset_lon = np.nonzero(
-                np.logical_and(self.lon >= bbox[1], self.lon <= bbox[3])
+                np.logical_and(self.lon >= bbox[0], self.lon <= bbox[2])
             )[0]
         else:
             subset_lon = np.nonzero(
-                np.logical_or(self.lon >= bbox[1], self.lon <= bbox[3])
+                np.logical_or(self.lon >= bbox[0], self.lon <= bbox[2])
             )[0]
 
         if stride >= len(subset_lat):
@@ -141,7 +141,6 @@ class rect(base.nc):
                     data_vars.append(var_map[var])
 
             for var in data_vars:
-                print(var)
                 # Create variable in new file:
                 var_in = nc_in.variables[var]
                 dims = (
