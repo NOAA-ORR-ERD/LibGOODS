@@ -206,11 +206,7 @@ def get_model_data(
 
     if target_pth is None:
         target_pth = os.path.abspath('output.nc')
-    
-    if model_id == 'HYCOM': #this is really temp just to test 
-        bounds[0] = bounds[0]+360
-        bounds[2] = bounds[2]+360
-    
+        
     model_urls_dict = __get_URLs()
     
     if not model_id in model_urls_dict: #I'm bypassing this and using the old LibGOODS code
@@ -243,17 +239,14 @@ def get_model_data(
         model.open_nc(url)
         #get dimensions to determine subset
         model.get_dimensions(var_map=var_map)
-        #quick and dirty time subsetting !!TODO: redo and move to base class
-        from netCDF4 import num2date
-        import datetime
-        dts = num2date(model.time,model.time_units)
-        sdate = datetime.datetime.strptime(start,'%Y-%m-%dT%H:%M:%S')
-        edate = datetime.datetime.strptime(end,'%Y-%m-%dT%H:%M:%S')
-        t1 = [i for i,dt in enumerate(dts) if dt>=sdate][0]
-        t2 = [i for i,dt in enumerate(dts) if dt<=edate][-1]
+        if model.lon.max() > 180: #should model catalogs tell us the coordinates?
+            bounds[0] = bounds[0]+360
+            bounds[2] = bounds[2]+360
+        
+        t1,t2 = model.get_timeslice_indices(start,end)
         #grid subsetting
         model.subset(bounds)
-        model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2+1,1])
+        model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
        
     return target_pth
 
@@ -267,6 +260,6 @@ def __get_URLs():
         model_info_dict[m] = 'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/' + m + '/fmrc/Aggregated_7_day_' + m + '_Fields_Forecast_best.ncd'
     model_info_dict['HYCOM'] = 'http://tds.hycom.org/thredds/dodsC/GLBy0.08/latest'
 
-   
+    model_info_dict['WCOFS'] = 'http://eds.ioos.us/thredds/dodsC/ioos/ofs/wcofs/forecast/fields/WCOFS_Forecast_Fields_best.ncd'
     
     return model_info_dict
