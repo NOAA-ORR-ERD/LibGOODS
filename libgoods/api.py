@@ -209,57 +209,47 @@ def get_model_data(
         
     model_urls_dict = __get_URLs()
     
-    if not model_id in model_urls_dict: #I'm bypassing this and using the old LibGOODS code
-        fc = model_fetch.FetchConfig(
-                model_name=model_id,
-                output_pth=target_pth,
-                start=pd.Timestamp(start),
-                end=pd.Timestamp(end),
-                bbox=bounds,
-                timing=timing,
-                #standard_names=None,
-                surface_only=surface_only,
-                #cross_dateline=cross_dateline
-                )
+    #I'm bypassing this and using the old LibGOODS code
+        # fc = model_fetch.FetchConfig(
+                # model_name=model_id,
+                # output_pth=target_pth,
+                # start=pd.Timestamp(start),
+                # end=pd.Timestamp(end),
+                # bbox=bounds,
+                # timing=timing,
+                # #standard_names=None,
+                # surface_only=surface_only,
+                # #cross_dateline=cross_dateline
+                # )
                 
-        model_fetch.fetch(fc)
+        # model_fetch.fetch(fc)
         
+    cat = env_models[model_id]  
+    url = cat[timing].urlpath
+    
+    if 'ROMS' in cat.description:
+        model = file_processing.roms()
+        var_map = {'time':'time'}
+    elif 'POM'in cat.description:
+        var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
+        model = file_processing.curv()
     else:
-        url = model_urls_dict[model_id]
-        if 'ROMS' in env_models[model_id].description:
-            model = file_processing.roms()
-            var_map = {'time':'time'}
-        elif 'POM'in env_models[model_id].description:
-            var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
-            model = file_processing.curv()
-        else:
-            var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
-            model = file_processing.rect()
-        
-        model.open_nc(url)
-        #get dimensions to determine subset
-        model.get_dimensions(var_map=var_map)
-        if model.lon.max() > 180: #should model catalogs tell us the coordinates?
-            bounds[0] = bounds[0]+360
-            bounds[2] = bounds[2]+360
-        
-        t1,t2 = model.get_timeslice_indices(start,end)
-        #grid subsetting
-        model.subset(bounds)
-        model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
+        var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
+        model = file_processing.rect()
+    
+    model.open_nc(url)
+    #get dimensions to determine subset
+    model.get_dimensions(var_map=var_map)
+    if model.lon.max() > 180: #should model catalogs tell us the coordinates?
+        bounds[0] = bounds[0]+360
+        bounds[2] = bounds[2]+360
+    
+    t1,t2 = model.get_timeslice_indices(start,end)
+    #grid subsetting
+    model.subset(bounds)
+    model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
        
     return target_pth
 
-def __get_URLs():
-    '''
-    This feels really silly but I can't figure out how to get the static URL 
-    though model catalogs directly. Brute forcing here
-    '''
-    model_info_dict = {}
-    for m in ['CBOFS','DBOFS','TBOFS','CIOFS','NYOFS','LOOFS','LSOFS','GOMOFS']:
-        model_info_dict[m] = 'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/' + m + '/fmrc/Aggregated_7_day_' + m + '_Fields_Forecast_best.ncd'
-    model_info_dict['HYCOM'] = 'http://tds.hycom.org/thredds/dodsC/GLBy0.08/latest'
 
-    model_info_dict['WCOFS'] = 'http://eds.ioos.us/thredds/dodsC/ioos/ofs/wcofs/forecast/fields/WCOFS_Forecast_Fields_best.ncd'
-    
     return model_info_dict
