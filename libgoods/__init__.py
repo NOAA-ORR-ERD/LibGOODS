@@ -20,3 +20,8 @@ temp_files_dir = Path(__file__).parent / "temp_files"
 temp_files_dir.mkdir(parents=True, exist_ok=True)
 
 # currents_dir = os.path.join(os.path.split(__file__)[0], "current_sources")
+
+class NonIntersectingSubsetError(ValueError):
+    '''
+    provided subset does not overlap in at least one dimension
+    '''

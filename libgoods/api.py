@@ -13,7 +13,7 @@ import pandas as pd
 
 # import shapely.wkt as wkt
 # from . import utilities
-from . import FileTooBigError
+from . import FileTooBigError, NonIntersectingSubsetError
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 from . import file_processing
 import numpy as np
@@ -71,7 +71,7 @@ def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=
     3. Present environmental parameters
 
     :param models_metadatas: list of model Metadata objects
-    :param poly_bounds: list of tuples (coordinates), or shapely Polygon, or None
+    :param map_bounds: list of tuples (coordinates), or shapely Polygon, or None
     :param name_list: list of string names of models
     :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
         see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
@@ -167,6 +167,27 @@ def get_model_subset_info(
         cross_dateline=False,
     )
 
+def check_subset_overlap(cat, time_range=None, xy_bounds=None):
+    '''
+    TODO FINISH TIME RANGE CHECKING
+    This function checks if a given time range and xy_bounds overlap with
+    the model dimensions. If a param is None it is not checked. If both are None
+    True is returned
+
+    :param cat: model_catalog entry
+    :param time_range: iterable pair of python datetime.datetime objects or None
+    :param xy_bounds: iterable pairs of [lon, lat], or None
+    '''
+    overlap = True
+
+    if time_range is not None:
+        pass
+    if xy_bounds is not None:
+        subset_xy_bounds = Polygon(xy_bounds)
+        overlap = overlap and _filter_by_poly_bounds(cat.metadata, subset_xy_bounds)
+    return overlap
+
+
 def get_model_data(
     model_id,
     timing,
@@ -224,7 +245,11 @@ def get_model_data(
                 
         # model_fetch.fetch(fc)
         
-    cat = env_models[model_id]  
+    cat = env_models[model_id]
+    polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
+    if not check_subset_overlap(cat.metadata, [start,end], polybounds):
+        #no overlap in at least one dimension
+        raise NonIntersectingSubsetError()
     url = cat[timing].urlpath
     
     if 'ROMS' in cat.description:
