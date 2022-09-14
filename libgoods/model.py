@@ -255,25 +255,39 @@ class Model:
           }
         """
 
-    def get_data(
+    def get_data_oldcode(
         self,
+        desc,
+        url,
         bounds,  # polygon list of (lon, lat) pairs
-        time_interval,
+        start,
+        end,
         environmental_parameters,
-        cross_dateline=False,
-        max_filesize=None,
-        target_dir=None,
-    ):
+        target_pth,
+        ):
         """
         The call to actually get the data
 
         :returns: filepath -- pathlib.Path object of file written
         """
-        if not set(environmental_parameters).issubset(
-            self.metadata.environmental_parameters
-        ):
-            raise ValueError(
-                f"{environmental_parameters} not supported by this data source"
-            )
-
-        # should check for valid time interval here but how / when?
+        if 'ROMS' in desc:
+            model = file_processing.roms()
+            var_map = {'time':'time'}
+        elif 'POM'in desc:
+            var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
+            model = file_processing.curv()
+        else:
+            var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
+            model = file_processing.rect()
+        
+        model.open_nc(url)
+        #get dimensions to determine subset
+        model.get_dimensions(var_map=var_map)
+        if model.lon.max() > 180: #should model catalogs tell us the coordinates?
+            bounds[0] = bounds[0]+360
+            bounds[2] = bounds[2]+360
+        
+        t1,t2 = model.get_timeslice_indices(start,end)
+        #grid subsetting
+        model.subset(bounds)
+        model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])

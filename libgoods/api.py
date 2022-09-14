@@ -226,55 +226,29 @@ def get_model_data(
     """
 
     if target_pth is None:
-        target_pth = os.path.abspath('output.nc')
-        
-    model_urls_dict = __get_URLs()
+        target_pth = os.path.abspath('output.nc')        
+ 
+    # cat = env_models[model_id]
+    # polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
+    # if not check_subset_overlap(cat, [start,end], polybounds):
+        # #no overlap in at least one dimension
+        # raise NonIntersectingSubsetError()
+    # url = cat[timing].urlpath
     
-    #I'm bypassing this and using the old LibGOODS code
-        # fc = model_fetch.FetchConfig(
-                # model_name=model_id,
-                # output_pth=target_pth,
-                # start=pd.Timestamp(start),
-                # end=pd.Timestamp(end),
-                # bbox=bounds,
-                # timing=timing,
-                # #standard_names=None,
-                # surface_only=surface_only,
-                # #cross_dateline=cross_dateline
-                # )
-                
-        # model_fetch.fetch(fc)
-        
-    cat = env_models[model_id]
-    polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
-    if not check_subset_overlap(cat.metadata, [start,end], polybounds):
-        #no overlap in at least one dimension
-        raise NonIntersectingSubsetError()
-    url = cat[timing].urlpath
-    
-    if 'ROMS' in cat.description:
-        model = file_processing.roms()
-        var_map = {'time':'time'}
-    elif 'POM'in cat.description:
-        var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
-        model = file_processing.curv()
-    else:
-        var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
-        model = file_processing.rect()
-    
-    model.open_nc(url)
-    #get dimensions to determine subset
-    model.get_dimensions(var_map=var_map)
-    if model.lon.max() > 180: #should model catalogs tell us the coordinates?
-        bounds[0] = bounds[0]+360
-        bounds[2] = bounds[2]+360
-    
-    t1,t2 = model.get_timeslice_indices(start,end)
-    #grid subsetting
-    model.subset(bounds)
-    model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
+    fc = model_fetch.FetchConfig(
+        model_name=model_id,
+        output_pth=target_pth,
+        start=pd.Timestamp(start),
+        end=pd.Timestamp(end),
+        bbox=bounds,
+        timing=timing,
+        #standard_names=None,
+        surface_only=surface_only,
+        #cross_dateline=cross_dateline
+        )
+            
+    model_fetch.fetch(fc)
        
     return target_pth
 
 
-    return model_info_dict
