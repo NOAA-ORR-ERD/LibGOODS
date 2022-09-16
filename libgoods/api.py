@@ -179,12 +179,13 @@ def check_subset_overlap(cat, time_range=None, xy_bounds=None):
     :param xy_bounds: iterable pairs of [lon, lat], or None
     '''
     overlap = True
+    metadata = Metadata().init_from_model(cat)
 
     if time_range is not None:
         pass
     if xy_bounds is not None:
         subset_xy_bounds = Polygon(xy_bounds)
-        overlap = overlap and _filter_by_poly_bounds(cat.metadata, subset_xy_bounds)
+        overlap = overlap and _filter_by_poly_bounds(metadata, subset_xy_bounds)
     return overlap
 
 
@@ -228,12 +229,12 @@ def get_model_data(
     if target_pth is None:
         target_pth = os.path.abspath('output.nc')        
  
-    # cat = env_models[model_id]
-    # polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
-    # if not check_subset_overlap(cat, [start,end], polybounds):
-        # #no overlap in at least one dimension
-        # raise NonIntersectingSubsetError()
-    # url = cat[timing].urlpath
+    cat = env_models[model_id]
+    polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
+    if not check_subset_overlap(cat, [start,end], polybounds):
+        #no overlap in at least one dimension
+        raise NonIntersectingSubsetError()
+    url = cat[timing].urlpath
     
     fc = model_fetch.FetchConfig(
         model_name=model_id,
