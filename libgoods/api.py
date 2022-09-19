@@ -49,19 +49,30 @@ def _filter_by_env_params(mdl_meta, ev_p):
         return all([param in mdl_meta.env_params for param in ev_p])
 
 
-def _filter_by_poly_bounds(mdl_meta, poly_bounds):
+def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     """
     :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon boundary.
+    :param poly_bounds: shapely Polygon (map) boundary.
            Coords must be in (-180, -90), (180, 90) range
     """
     bb = np.array(mdl_meta.bounding_box)
     if np.any(bb > 180):
-        bb[0] -= 180
-        bb[2] -= 180
+        bb[0] -= 360
+        bb[2] -= 360
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
+def _filter_by_poly_bounds(mdl_meta, poly_bounds):
+    """
+    :param mdl_meta: model Metadata object
+    :param poly_bounds: shapely Polygon (map) boundary.
+           Coords must be in (-180, -90), (180, 90) range
+    """
+    model_bounds = np.array(mdl_meta.bounding_poly)
+    if np.any(model_bounds[:,0] > 180):
+        model_bounds[:,0] = model_bounds[:,0] - 360
+    model_bounds_poly = Polygon(model_bounds)
+    return model_bounds_poly.intersects(poly_bounds)
 
 def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=None):
     """
@@ -84,7 +95,7 @@ def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=
         map_bounds = (
             Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
         )
-        retlist = [m for m in retlist if _filter_by_poly_bounds(m, map_bounds)]
+        retlist = [m for m in retlist if _filter_by_bb_intersection(m, map_bounds)]
 
     if env_params is not None:
         retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
@@ -234,7 +245,7 @@ def get_model_data(
     if not check_subset_overlap(cat, [start,end], polybounds):
         #no overlap in at least one dimension
         raise NonIntersectingSubsetError()
-    url = cat[timing].urlpath
+    #url = cat[timing].urlpath
     
     fc = model_fetch.FetchConfig(
         model_name=model_id,
