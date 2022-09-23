@@ -17,6 +17,7 @@ from libgoods.model_fetch import (
     get_times,
     FetchConfig,
     DEFAULT_STANDARD_NAMES,
+    get_bounds,
 )
 
 # These are just arbitrary boxes selected within the model's domain that demonstrates and offers a
@@ -26,19 +27,19 @@ EXAMPLE_BBOXES = {
     "CIOFS": (-154.5, 58.0, -151.0, 60.0),
     "CREOFS": (-123.9, 46.1, -123.6, 46.3),
     "DBOFS": (-75.5, 38.5, -74.5, 39.25),
-    "GFS-1DEG": (275.0, 25.0, 300.0, 48.0),
-    "HYCOM": (-79.10 + 360, 31.84, -68.159 + 360, 42.29),
-    "LEOFS": (276.4, 41.5, 277.4, 42.1),
-    "LMHOFS": (272, 41.57, 274, 44),
+    "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
+    "HYCOM": (-79.10, 31.84, -68.159, 42.29),
+    "LEOFS": (-83.6, 41.5, -82.6, 42.1),
+    "LMHOFS": (-88, 41.57, -86, 44),
     "LOOFS": (-78.6, 43.4, -77.1, 43.7),
     "LSOFS": (-89.4, 47.0, -86.4, 47.75),
-    "NGOFS2": (268.5, 29.25, 269, 29.75),
-    "NGOFS2_2DS": (268.5, 29.25, 269, 29.75),
+    "NGOFS2": (-91.5, 29.25, -91, 29.75),
+    "NGOFS2-2DS": (-91.5, 29.25, -91, 29.75),
     "NYOFS": (-74.1, 40.49, -73.95, 40.61),
-    "SFBOFS": (237.45, 37.75, 237.6, 37.9),
+    "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
     "TBOFS": (-82.9, 27.3, -82.6, 27.7),
     "WCOFS": (-122.0, 25.0, -115.0, 35.0),
-    "WCOFS_2DS": (-122.0, 25.0, -115.0, 35.0),
+    "WCOFS-2DS": (-122.0, 25.0, -115.0, 35.0),
 }
 
 
@@ -145,6 +146,19 @@ def _show_status(main_cat, model_name):
             start = ""
             end = ""
         print(f"{model_name:<20} {timing:<32} {str(status):<6} {str(start):<20} {end}")
+
+
+def _rotate_bbox(model_name, bbox) -> Tuple[float, float, float, float]:
+    """Performs checks on the bounding box relative to the model's bounds."""
+    bounds = get_bounds(model_name)
+    if bbox[2] < bounds[0]:
+        new_bbox = list(bbox)
+        if new_bbox[0] < 0:
+            new_bbox[0] += 360
+        if new_bbox[2] < 0:
+            new_bbox[2] += 360
+        return tuple(new_bbox)
+    return bbox
 
 
 def parse_config() -> FetchConfig:
@@ -299,6 +313,7 @@ def parse_config() -> FetchConfig:
             raise FileExistsError(f"{output_pth} already exists")
 
     bbox = parse_bbox(args.model_name, args.bbox)
+    bbox = _rotate_bbox(args.model_name, bbox)
 
     return FetchConfig(
         model_name=args.model_name,
