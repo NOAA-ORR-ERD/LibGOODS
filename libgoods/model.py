@@ -303,7 +303,7 @@ class Model():
         start,
         end,
         target_pth,
-        ):
+    ):
         """
         The call to actually get the data
 
@@ -314,24 +314,32 @@ class Model():
         
         if 'ROMS' in desc:
             model = file_processing.roms()
-            var_map = {'time':'time'}
-        elif 'POM'in desc:
-            var_map = {'time':'time','lon':'lon','lat':'lat','u':'u','v':'v'}
+            var_map = {"time": "time"}
+        elif "POM" in desc:
+            var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
             model = file_processing.curv()
         else:
-            var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
+            var_map = {
+                "time": "time",
+                "lon": "lon",
+                "lat": "lat",
+                "u": "water_u",
+                "v": "water_v",
+            }
             model = file_processing.rect()
-        
+
         model.open_nc(self.url)
         #get dimensions to determine subset
+
         model.get_dimensions(var_map=var_map)
-        if model.lon.max() > 180: #should model catalogs tell us the coordinates?
-            bounds[0] = bounds[0]+360
-            bounds[2] = bounds[2]+360
-        
-        t1,t2 = model.get_timeslice_indices(start,end)
-        #grid subsetting
+        if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
+            bounds[0] = bounds[0] + 360
+            bounds[2] = bounds[2] + 360
+
+        t1, t2 = model.get_timeslice_indices(start, end)
+        # grid subsetting
         model.subset(bounds)
         model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
         
         return target_pth
+
