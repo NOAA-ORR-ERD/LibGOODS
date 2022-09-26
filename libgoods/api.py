@@ -62,6 +62,7 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
+
 def _filter_by_poly_bounds(mdl_meta, poly_bounds):
     """
     :param mdl_meta: model Metadata object
@@ -69,10 +70,11 @@ def _filter_by_poly_bounds(mdl_meta, poly_bounds):
            Coords must be in (-180, -90), (180, 90) range
     """
     model_bounds = np.array(mdl_meta.bounding_poly)
-    if np.any(model_bounds[:,0] > 180):
-        model_bounds[:,0] = model_bounds[:,0] - 360
+    if np.any(model_bounds[:, 0] > 180):
+        model_bounds[:, 0] = model_bounds[:, 0] - 360
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds)
+
 
 def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=None):
     """
@@ -152,7 +154,7 @@ def get_model_info(model_name):
         return Metadata(model=env_models[model_name])
 
 
-#Not currently used or functional
+# Not currently used or functional
 def get_model_subset_info(
     model_id,
     bounds,
@@ -178,8 +180,9 @@ def get_model_subset_info(
         cross_dateline=False,
     )
 
+
 def check_subset_overlap(cat, time_range=None, xy_bounds=None):
-    '''
+    """
     TODO FINISH TIME RANGE CHECKING
     This function checks if a given time range and xy_bounds overlap with
     the model dimensions. If a param is None it is not checked. If both are None
@@ -188,7 +191,7 @@ def check_subset_overlap(cat, time_range=None, xy_bounds=None):
     :param cat: model_catalog entry
     :param time_range: iterable pair of python datetime.datetime objects or None
     :param xy_bounds: iterable pairs of [lon, lat], or None
-    '''
+    """
     overlap = True
     metadata = Metadata().init_from_model(cat)
 
@@ -203,13 +206,13 @@ def check_subset_overlap(cat, time_range=None, xy_bounds=None):
 def get_model_data(
     model_id,
     timing,
-    start,  
+    start,
     end,
     bounds,
-    surface_only = True,
-    #environmental_parameters, #not implemented (uses standard varnames)
-    #cross_dateline=False,
-    #max_filesize=None,
+    surface_only=True,
+    # environmental_parameters, #not implemented (uses standard varnames)
+    # cross_dateline=False,
+    # max_filesize=None,
     target_pth=None,
 ):
     """
@@ -238,15 +241,20 @@ def get_model_data(
     """
 
     if target_pth is None:
-        target_pth = os.path.abspath('output.nc')        
- 
+        target_pth = os.path.abspath("output.nc")
+
     cat = env_models[model_id]
-    polybounds = [[bounds[0], bounds[1]], [bounds[0], bounds[3]], [bounds[2], bounds[1]], [bounds[2], bounds[3]]]
-    if not check_subset_overlap(cat, [start,end], polybounds):
-        #no overlap in at least one dimension
+    polybounds = [
+        [bounds[0], bounds[1]],
+        [bounds[0], bounds[3]],
+        [bounds[2], bounds[1]],
+        [bounds[2], bounds[3]],
+    ]
+    if not check_subset_overlap(cat, [start, end], polybounds):
+        # no overlap in at least one dimension
         raise NonIntersectingSubsetError()
-    #url = cat[timing].urlpath
-    
+    # url = cat[timing].urlpath
+
     fc = model_fetch.FetchConfig(
         model_name=model_id,
         output_pth=target_pth,
@@ -254,13 +262,11 @@ def get_model_data(
         end=pd.Timestamp(end),
         bbox=bounds,
         timing=timing,
-        #standard_names=None,
+        # standard_names=None,
         surface_only=surface_only,
-        #cross_dateline=cross_dateline
-        )
-            
+        # cross_dateline=cross_dateline
+    )
+
     model_fetch.fetch(fc)
-       
+
     return target_pth
-
-

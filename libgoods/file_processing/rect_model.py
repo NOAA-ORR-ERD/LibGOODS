@@ -7,6 +7,7 @@ import numpy as np
 from . import base
 from netCDF4 import Dataset, MFDataset
 
+
 class rect(base.nc):
     """
     A class for dealing with regular grid model output and converting to GNOME format
