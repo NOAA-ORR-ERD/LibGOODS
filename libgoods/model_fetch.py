@@ -12,6 +12,7 @@ import xarray as xr
 import requests
 import model_catalogs as mc
 from extract_model import utils as em_utils
+from libgoods.performance import Timer
 
 DEFAULT_STANDARD_NAMES = [
     "eastward_sea_water_velocity",
@@ -22,41 +23,6 @@ DEFAULT_STANDARD_NAMES = [
     "sea_water_practical_salinity",
     "sea_floor_depth",
 ]
-
-
-class Timer:
-    """A class to aid with measuring timing."""
-
-    def __init__(self, msg=None):
-        """Initializes the current time."""
-        self.t0 = time.time()
-        self.msg = msg
-
-    def tick(self):
-        """Update the timer start."""
-        self.t0 = time.time()
-
-    def tock(self) -> float:
-        """Return elapsed time in ms."""
-        return (time.time() - self.t0) * 1000.0
-
-    def format(self):
-        """return formatted time"""
-        time_in_ms = self.tock()
-        if time_in_ms > 60000:
-            return f"{time_in_ms / 60000:.1f} min"
-        if time_in_ms > 2000:
-            return f"{time_in_ms / 1000:.1f} s"
-        return f"{time_in_ms:.1f} ms"
-
-    def __enter__(self):
-        """With context."""
-        self.tick()
-
-    def __exit__(self, type, value, traceback):
-        """With exit."""
-        if self.msg is not None:
-            print(self.msg.format(self.format()))
 
 
 @dataclass
@@ -73,11 +39,14 @@ class FetchConfig:
     surface_only: bool = False
 
 
-def _select_surface(ds: xr.Dataset) -> xr.Dataset:
+def select_surface(ds: xr.Dataset) -> xr.Dataset:
     """Return a dataset that is reduced to only the surface layer."""
     model_guess = em_utils.guess_model_type(ds)
-    if all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
-        return ds.cf.sel(Z=0, method="nearest")
+    # SELFE uses a hybrid sigma coordinate system for the vertical coordinates,
+    # but cf_xarray misinterprets it as being the z variable. So, we check SELFE
+    # first, before trying to use cf_xarray
+    if model_guess == "SELFE":
+        return ds.isel(nv=-1)
     elif model_guess == "FVCOM":
         vertical_dims = set()
         for varname in ds.cf.axes["Z"]:
@@ -85,8 +54,8 @@ def _select_surface(ds: xr.Dataset) -> xr.Dataset:
             vertical_dims.add(vertical_dim)
         sel_kwargs = {vdim: 0 for vdim in vertical_dims}
         return ds.isel(**sel_kwargs)
-    elif model_guess == "SELFE":
-        return ds.isel(nv=-1)
+    elif all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
+        return ds.cf.sel(Z=0, method="nearest")
     raise ValueError("Can't decode vertical coordinates.")
 
 
@@ -134,7 +103,7 @@ def is_monotonic(data: np.array) -> bool:
     return increasing or decreasing
 
 
-def is_coordinate_variable(ds: xr.Dataset, varname) -> bool:
+def is_coordinate_variable(ds: xr.Dataset, varname: str) -> bool:
     """Return True if the variable is a coordinate variable."""
     return ds[varname].dims == (varname,)
 
@@ -161,6 +130,24 @@ def rotate_longitude(ds: xr.Dataset):
     if len(new_vars) > 0:
         ds = ds.assign(new_vars)
     return ds
+
+
+def rotate_bbox(model_name: str, bbox: em_utils.BBoxType) -> em_utils.BBoxType:
+    """Performs checks on the bounding box relative to the model's bounds.
+
+    This function checks the bounding box relative to the domain of the region.
+    If the bounding box uses [-180, 180] and the model uses [0, 360] the
+    bounding box elements are shifted into the domain.
+    """
+    bounds = get_bounds(model_name)
+    if bbox[2] < bounds[0]:
+        new_bbox = list(bbox)
+        if new_bbox[0] < 0:
+            new_bbox[0] += 360
+        if new_bbox[2] < 0:
+            new_bbox[2] += 360
+        return tuple(new_bbox)
+    return bbox
 
 
 def _check_axis(ds: xr.Dataset, axis: str) -> bool:
@@ -214,26 +201,23 @@ def fetch(fetch_config: FetchConfig):
     if fetch_config.surface_only:
         print("Selecting only surface data.")
         with Timer("\tIndexed surface data in {}"):
-            ds = _select_surface(ds)
+            ds = select_surface(ds)
 
     print("Subsetting data")
     with Timer("\tSubsetted dataset in {}"):
         ds_ss = ds.em.filter(fetch_config.standard_names)
         if fetch_config.bbox is not None:
-            ds_ss = ds_ss.em.sub_grid(bbox=fetch_config.bbox)
+            ds_ss = ds_ss.em.sub_grid(bbox=fetch_config.bbox, naive=True, preload=True)
+        print(
+            f"Estimated size of uncompressed dataset: {ds_ss.nbytes / 1024 / 1024:.2f} MiB"
+        )
 
         if main_cat[fetch_config.model_name].metadata["bounding_box"][2] > 180:
             ds_ss = rotate_longitude(ds_ss)
 
         if not has_horizontal_data(ds_ss):
             raise ValueError("Subsetting produced no valid data to write to disk.")
-    # print("Loading dataset into memory.")
-    # with Timer("\tLoaded into memory in {}"):
-    #    #ds_ss = ds_ss.load(scheduler="processes")
-    #    ds_ss = ds_ss.load()
-    print(
-        f"Writing netCDF data to {fetch_config.output_pth}. This may take a long time..."
-    )
+    print(f"Writing netCDF data to {fetch_config.output_pth}.")
     with Timer("\tWrote output to disk in {}"):
         ds_ss.to_netcdf(fetch_config.output_pth)
     print("Complete")
