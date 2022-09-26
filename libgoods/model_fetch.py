@@ -13,7 +13,7 @@ import xarray as xr
 import requests
 import model_catalogs as mc
 from extract_model import utils as em_utils
-from libgoods.performance import Timer
+#from libgoods.performance import Timer
 
 DEFAULT_STANDARD_NAMES = [
     "eastward_sea_water_velocity",
@@ -134,22 +134,22 @@ def rotate_longitude(ds: xr.Dataset) -> xr.Dataset:
     return ds
 
 
-def rotate_bbox(model_name: str, bbox: em_utils.BBoxType) -> em_utils.BBoxType:
-    """Performs checks on the bounding box relative to the model's bounds.
+# def rotate_bbox(model_name: str, bbox: em_utils.BBoxType) -> em_utils.BBoxType:
+    # """Performs checks on the bounding box relative to the model's bounds.
 
-    This function checks the bounding box relative to the domain of the region.
-    If the bounding box uses [-180, 180] and the model uses [0, 360] the
-    bounding box elements are shifted into the domain.
-    """
-    bounds = get_bounds(model_name)
-    if bbox[2] < bounds[0]:
-        new_bbox = list(bbox)
-        if new_bbox[0] < 0:
-            new_bbox[0] += 360
-        if new_bbox[2] < 0:
-            new_bbox[2] += 360
-        return tuple(new_bbox)
-    return bbox
+    # This function checks the bounding box relative to the domain of the region.
+    # If the bounding box uses [-180, 180] and the model uses [0, 360] the
+    # bounding box elements are shifted into the domain.
+    # """
+    # bounds = get_bounds(model_name)
+    # if bbox[2] < bounds[0]:
+        # new_bbox = list(bbox)
+        # if new_bbox[0] < 0:
+            # new_bbox[0] += 360
+        # if new_bbox[2] < 0:
+            # new_bbox[2] += 360
+        # return tuple(new_bbox)
+    # return bbox
 
 
 def _check_axis(ds: xr.Dataset, axis: str) -> bool:

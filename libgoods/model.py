@@ -33,7 +33,11 @@ Model.subset_info(query_params) => info about subset
 
 import dataclasses
 import shapely.wkt as wkt
+import model_catalogs as mc
+from . import model_fetch #we could move the utilities used from here into utilities?
 
+##We should do this either in the API or here but not both
+main_cat = mc.setup()
 
 # The following is a mapping of 'environmental conditions concepts' to the 'CF concepts' required
 # to be present in any given file.
@@ -196,18 +200,29 @@ class Metadata:
         return dict_
 
 
-class Model:
+class Model():
     """
     Base Class for all sources of model results
     """
-
+    def __init__(self,model_id,timing='forecast'):
+    
     # Metadata required by all Data sources
-    metadata = Metadata()
+        self.id = model_id
+        self.source = 'forecast'
+        self.metadata = Metadata().init_from_model(main_cat[model_id])
+        cat = mc.find_availability(main_cat[model_id],timings=timing)
+        #add this to metadata?
+        source = main_cat['CBOFS']['forecast'] #we should just be able to pass this into find availability eventually
+        self.url = source.urlpath
+        self.start_time = cat[timing].metadata['start_datetime']
+        self.end_time = cat[timing].metadata['end_datetime']
+        
 
     def get_metadata(self):
         """
         Returns a dict of the "static" metadata for this data source
         """
+
         return self.metadata.as_pyson()
 
     def get_model_info(self):
@@ -225,6 +240,8 @@ class Model:
             "forecast:": self.get_available_times("forecast"),
             "hindcast:": self.get_available_times("hindcast"),
         }
+        
+        return info
 
     def get_available_times(self, cast_type):
         """
@@ -254,15 +271,37 @@ class Model:
           "estimated_file_size":
           }
         """
-
-    def get_data_oldcode(
-        self,
-        desc,
-        url,
+    
+    def get_data(self,
         bounds,  # polygon list of (lon, lat) pairs
         start,
         end,
-        environmental_parameters,
+        target_pth,
+        which_data = 'surface currents',       
+        ):
+        
+        source = mc.select_date_range(
+            main_cat[self.id],
+            start_date=start,
+            end_date=end,
+            timing=self.source,
+        )
+        
+        ds = source.to_dask()
+        
+        ds = model_fetch.select_surface(ds) #eventually check env params 
+        ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
+        ds_ss = ds_ss.em.sub_grid(bbox=bounds)
+        ds_ss.to_netcdf(target_pth)
+        
+        return target_pth
+    
+    
+    def get_data_oldcode(
+        self,
+        bounds,  # polygon list of (lon, lat) pairs
+        start,
+        end,
         target_pth,
         ):
         """
@@ -270,6 +309,9 @@ class Model:
 
         :returns: filepath -- pathlib.Path object of file written
         """
+        from . import file_processing
+        desc = self.metadata.as_pyson()['name']
+        
         if 'ROMS' in desc:
             model = file_processing.roms()
             var_map = {'time':'time'}
@@ -280,7 +322,7 @@ class Model:
             var_map = {'time':'time','lon':'lon','lat':'lat','u':'water_u','v':'water_v'}
             model = file_processing.rect()
         
-        model.open_nc(url)
+        model.open_nc(self.url)
         #get dimensions to determine subset
         model.get_dimensions(var_map=var_map)
         if model.lon.max() > 180: #should model catalogs tell us the coordinates?
@@ -291,3 +333,5 @@ class Model:
         #grid subsetting
         model.subset(bounds)
         model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
+        
+        return target_pth
