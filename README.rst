@@ -62,6 +62,24 @@ This project relies on conda for installation and managing of the project depend
       pip install -r pip-requirements.txt
       pip install -e .
 
+
+To run precommit checks
+-----------------------
+
+Install necessary packages, listed in `conda-requirements-dev.txt`, with
+
+.. code-block::
+
+   conda install -c conda-forge --file conda-requirements-dev.txt
+
+Then to keep your code linted, and especially before pushing any code, run:
+
+.. code-block::
+
+   pre-commit run --all-files
+
+
+
 Command-Line Examples
 ---------------------
 
