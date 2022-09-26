@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """A module containing code for fetching content from models."""
 import time
+import warnings
 from typing import List, Tuple, Mapping, Optional
 from pathlib import Path
 from dataclasses import field, dataclass
@@ -108,7 +109,8 @@ def is_coordinate_variable(ds: xr.Dataset, varname: str) -> bool:
     return ds[varname].dims == (varname,)
 
 
-def rotate_longitude(ds: xr.Dataset):
+def rotate_longitude(ds: xr.Dataset) -> xr.Dataset:
+    """Returns a dataset in which the longitude coordinate is rotated to [-180, 180] values."""
     new_vars = {}
     for varname in ds.filter_by_attrs(standard_name="longitude").variables:
         if "standard_name" not in ds[varname].attrs:
@@ -119,7 +121,7 @@ def rotate_longitude(ds: xr.Dataset):
         rotated_data = np.copy(lon_data)
         rotated_data[rotated_data > 180] -= 360
         if is_coordinate_variable(ds, varname) and not is_monotonic(rotated_data):
-            print(
+            warnings.warn(
                 "Longitude can not be rotated because the rotated data are not monotonic."
             )
         else:
