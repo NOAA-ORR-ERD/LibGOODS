@@ -113,3 +113,4 @@ ENV/
 *.swp
 
 libgoods/scripts/examples/*/output
+output
