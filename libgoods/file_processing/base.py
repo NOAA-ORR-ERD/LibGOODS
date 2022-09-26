@@ -97,16 +97,16 @@ class nc:
         print("End date: ", ed)
         print("Time step: ", dt, "in units of", self.time_units)
         print("Length:", len(self.time))
-        
-    def get_timeslice_indices(self,start,end,fmt='%Y-%m-%dT%H:%M:%S'):
+
+    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S"):
         """
         Start/end are strings in format %Y-%m-%dT%H:%M:%S
         or passed in
         """
-        dts = num2date(self.time,self.time_units)
-        sdate = datetime.datetime.strptime(start,fmt)
-        edate = datetime.datetime.strptime(end,fmt)
-        t1 = [i for i,dt in enumerate(dts) if dt>=sdate][0]
-        t2 = [i for i,dt in enumerate(dts) if dt<=edate][-1] + 1
-        
-        return t1,t2
+        dts = num2date(self.time, self.time_units)
+        sdate = datetime.datetime.strptime(start, fmt)
+        edate = datetime.datetime.strptime(end, fmt)
+        t1 = [i for i, dt in enumerate(dts) if dt >= sdate][0]
+        t2 = [i for i, dt in enumerate(dts) if dt <= edate][-1] + 1
+
+        return t1, t2
