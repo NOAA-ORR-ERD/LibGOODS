@@ -152,7 +152,7 @@ def _show_status(main_cat, model_name):
 
         if status:
             try:
-                cat = mc.find_availability(main_cat[model_name], timings=timing)
+                cat = mc.find_availability(main_cat[model_name], timing=timing)
                 start = pd.Timestamp(cat[timing].metadata["start_datetime"])
                 end = pd.Timestamp(cat[timing].metadata["end_datetime"])
             except Exception:
