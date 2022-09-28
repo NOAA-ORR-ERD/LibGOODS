@@ -85,7 +85,7 @@ def polygon2bbox(bounds):
 def bbox2polygon(bbox):
     """
     Converts four points in the form:
-    (min_lat, min_lon, max_lat, max_lon)
+    ((min_lon, min_lat), (max_lon, max_lat))
 
     To a four point polygon:
     """
@@ -108,10 +108,10 @@ def flatten_bbox(bbox):
     converts (lower-left, upper-right) Boounding Box form to the previous
     flattened form:
 
-    (min_lat, min_lon, max_lat, max_lon)
+    (min_lon, min_lat, max_lon, max_lat)
     """
     min_lon = bbox[0][0]
     min_lat = bbox[0][1]
     max_lon = bbox[1][0]
     max_lat = bbox[1][1]
-    return (min_lat, min_lon, max_lat, max_lon)
+    return (min_lon, min_lat, max_lon, max_lat)
