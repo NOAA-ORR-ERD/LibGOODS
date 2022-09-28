@@ -19,10 +19,12 @@ from . import file_processing, utilities, model_fetch
 
 from importlib import reload
 from libgoods import model
+
 reload(model)
 
 try:
     import model_catalogs as mc
+
     env_models = mc.setup()
     all_metas = {m: Metadata().init_from_model(env_models[m]) for m in env_models}
 except ImportError:
@@ -76,9 +78,11 @@ def _filter_by_poly_bounds(mdl_meta, poly_bounds):
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds)
 
+
 ###########
 # API functions -- these are what WebGNOME will call
 ###########
+
 
 def filter_models(models_metadatas, map_bounds=None, name_list=None, env_params=None):
     """
@@ -145,7 +149,7 @@ def get_model_info(model_name):
     :param model_name: the name (unique ID) of the model.
 
     :returns: libgoods.models.Metadata object with metadata of the model.
-    
+
     TODO?? -- return only meta for specific source?
 
     """
@@ -184,11 +188,11 @@ def get_model_file(
     end,
     bounds,
     surface_only=True,
-    environmental_parameters="surace currents", 
+    environmental_parameters="surace currents",
     # cross_dateline=False,
     # max_filesize=None,
     target_pth=None,
-    ):
+):
     """
     Get the actual model data as a netcdf file.
 
@@ -212,23 +216,23 @@ def get_model_file(
 
     :returns: filepath
     """
-    print('api')
+    print("api")
     print(bounds)
 
     if target_pth is None:
         target_pth = os.path.abspath("output.nc")
 
     cat = env_models[model_id]
-    
+
     polybounds = utilities.bbox2polygon(bounds)
     if not check_subset_overlap(cat, [start, end], polybounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError()
-    
-    source = mc.select_date_range(cat[model_source],start_date=start,end_date=end)    
+
+    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
     ds = source.to_dask()
     meta = get_model_info(model_id)
-    
-    target_pth = model.fetch_model(ds,meta,utilities.flatten_bbox(bounds),target_pth)
+
+    target_pth = model.fetch_model(ds, meta, utilities.flatten_bbox(bounds), target_pth)
 
     return target_pth

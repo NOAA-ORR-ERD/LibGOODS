@@ -34,7 +34,7 @@ Model.subset_info(query_params) => info about subset
 import dataclasses
 import shapely.wkt as wkt
 import model_catalogs as mc
-from . import model_fetch #we could move the utilities used from here into utilities?
+from . import model_fetch  # we could move the utilities used from here into utilities?
 
 
 # The following is a mapping of 'environmental conditions concepts' to the 'CF concepts' required
@@ -197,75 +197,75 @@ class Metadata:
         dict_["nowcast_metadata"] = self.nowcast_metadata.as_pyson()
         return dict_
 
+
 def fetch_model(
-        ds, #xarray dataset
-        meta, #the meta data for this particular model
-        bounds,  # at this pt requires (min_lon, min_lat, max_lon, max_lat) 
-        target_pth,
-        which_data = 'surface currents',       
-        ):
-               
-        ds = model_fetch.select_surface(ds) #eventually check env params 
-        ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
-        bounds = model_fetch.rotate_bbox(meta['identifier'],bounds) 
-        ds_ss = ds_ss.em.sub_grid(bbox=bounds)
-        if meta['bounding_box'][2] > 180:
-            ds_ss = model_fetch.rotate_longitude(ds_ss)
+    ds,  # xarray dataset
+    meta,  # the meta data for this particular model
+    bounds,  # at this pt requires (min_lon, min_lat, max_lon, max_lat)
+    target_pth,
+    which_data="surface currents",
+):
 
-        ds_ss.to_netcdf(target_pth)
-        
-        return target_pth
-        
+    ds = model_fetch.select_surface(ds)  # eventually check env params
+    ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
+    bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
+    ds_ss = ds_ss.em.sub_grid(bbox=bounds)
+    if meta["bounding_box"][2] > 180:
+        ds_ss = model_fetch.rotate_longitude(ds_ss)
+
+    ds_ss.to_netcdf(target_pth)
+
+    return target_pth
+
+
 # class Model():
-    # """
-    # Base Class for all sources of model results
-    # """
-    # def __init__(self,model_id,source):
-    
-        # # could separate out some of the metadata stuff?
+# """
+# Base Class for all sources of model results
+# """
+# def __init__(self,model_id,source):
 
-        # self.metadata = Metadata().init_from_model(main_cat[model_id]).as_pyson()
-        # cat = mc.find_availability(main_cat[model_id][source])
-        # #add this to metadata?
-        # self.id = model_id
-        # self.source = source
-        # self.url = cat.urlpath
-        # self.start_time = cat.metadata['start_datetime']
-        # self.end_time = cat.metadata['end_datetime']
-        
+# # could separate out some of the metadata stuff?
 
-    # def get_available_times(self, cast_type):
-        # """
-        # returns the available times for this model as of right now
+# self.metadata = Metadata().init_from_model(main_cat[model_id]).as_pyson()
+# cat = mc.find_availability(main_cat[model_id][source])
+# #add this to metadata?
+# self.id = model_id
+# self.source = source
+# self.url = cat.urlpath
+# self.start_time = cat.metadata['start_datetime']
+# self.end_time = cat.metadata['end_datetime']
 
-        # This requires reaching out to the source
-        # """
-        # raise NotImplementedError
 
-    # def get_model_subset_info(
-        # bounds,
-        # time_interval,
-        # environmental_parameters,
-        # cross_dateline=False,
-    # ):
-        # """
-        # returns info about a subset
+# def get_available_times(self, cast_type):
+# """
+# returns the available times for this model as of right now
 
-        # this should also probably cache computations
-        # needed to determine a subset.
+# This requires reaching out to the source
+# """
+# raise NotImplementedError
 
-        # :returns: dict of (TBA), but maybe:
+# def get_model_subset_info(
+# bounds,
+# time_interval,
+# environmental_parameters,
+# cross_dateline=False,
+# ):
+# """
+# returns info about a subset
 
-         # {"grid_type":
-          # "num_grid_cells":
-          # "num_timesteps":
-          # "estimated_file_size":
-          # }
-        # """
-    
+# this should also probably cache computations
+# needed to determine a subset.
 
-    
-    
+# :returns: dict of (TBA), but maybe:
+
+# {"grid_type":
+# "num_grid_cells":
+# "num_timesteps":
+# "estimated_file_size":
+# }
+# """
+
+
 def get_data_oldcode(
     self,
     bounds,  # polygon list of (lon, lat) pairs
@@ -279,9 +279,10 @@ def get_data_oldcode(
     :returns: filepath -- pathlib.Path object of file written
     """
     from . import file_processing
-    desc = self.metadata['name']
-    
-    if 'ROMS' in desc:
+
+    desc = self.metadata["name"]
+
+    if "ROMS" in desc:
         model = file_processing.roms()
         var_map = {"time": "time"}
     elif "POM" in desc:
@@ -298,7 +299,7 @@ def get_data_oldcode(
         model = file_processing.rect()
 
     model.open_nc(self.url)
-    #get dimensions to determine subset
+    # get dimensions to determine subset
 
     model.get_dimensions(var_map=var_map)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
@@ -308,7 +309,6 @@ def get_data_oldcode(
     t1, t2 = model.get_timeslice_indices(start, end)
     # grid subsetting
     model.subset(bounds)
-    model.write_nc(var_map=var_map,ofn=target_pth,t_index=[t1,t2,1])
-    
-    return target_pth
+    model.write_nc(var_map=var_map, ofn=target_pth, t_index=[t1, t2, 1])
 
+    return target_pth
