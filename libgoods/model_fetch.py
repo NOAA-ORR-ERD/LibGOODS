@@ -14,7 +14,7 @@ import requests
 import model_catalogs as mc
 from extract_model import utils as em_utils
 
-# from libgoods.performance import Timer
+from libgoods.performance import Timer
 
 DEFAULT_STANDARD_NAMES = [
     "eastward_sea_water_velocity",
