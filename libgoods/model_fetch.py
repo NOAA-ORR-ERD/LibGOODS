@@ -13,7 +13,7 @@ import xarray as xr
 import requests
 import model_catalogs as mc
 from extract_model import utils as em_utils
-#from libgoods.performance import Timer
+from libgoods.performance import Timer
 
 DEFAULT_STANDARD_NAMES = [
     "eastward_sea_water_velocity",
@@ -182,44 +182,44 @@ def fetch(fetch_config: FetchConfig):
         request, etc.
     """
     print("Setting up source catalog")
-    #with Timer("\tSource catalog generated in {}"):
-    main_cat = mc.setup()
+    with Timer("\tSource catalog generated in {}"):
+        main_cat = mc.setup()
 
     print(
         f"Generating catalog specific for {fetch_config.model_name} {fetch_config.timing}"
     )
-    #with Timer("\tSpecific catalog generated in {}"):
-    source = mc.select_date_range(
-        main_cat[fetch_config.model_name],
-        start_date=fetch_config.start,
-        end_date=fetch_config.end,
-        timing=fetch_config.timing,
-    )
+    with Timer("\tSpecific catalog generated in {}"):
+        source = mc.select_date_range(
+            main_cat[fetch_config.model_name],
+            start_date=fetch_config.start,
+            end_date=fetch_config.end,
+            timing=fetch_config.timing,
+        )
 
     print("Getting xarray dataset for model data")
-    #with Timer("\tCreated dask-based xarray dataset in {}"):
-    ds = source.to_dask()
+    with Timer("\tCreated dask-based xarray dataset in {}"):
+        ds = source.to_dask()
 
     if fetch_config.surface_only:
         print("Selecting only surface data.")
-    #    with Timer("\tIndexed surface data in {}"):
-        ds = select_surface(ds)
+        with Timer("\tIndexed surface data in {}"):
+            ds = select_surface(ds)
 
     print("Subsetting data")
-    #with Timer("\tSubsetted dataset in {}"):
-    ds_ss = ds.em.filter(fetch_config.standard_names)
-    if fetch_config.bbox is not None:
-        ds_ss = ds_ss.em.sub_grid(bbox=fetch_config.bbox, naive=True, preload=True)
-    print(
-        f"Estimated size of uncompressed dataset: {ds_ss.nbytes / 1024 / 1024:.2f} MiB"
-    )
+    with Timer("\tSubsetted dataset in {}"):
+        ds_ss = ds.em.filter(fetch_config.standard_names)
+        if fetch_config.bbox is not None:
+            ds_ss = ds_ss.em.sub_grid(bbox=fetch_config.bbox, naive=True, preload=True)
+        print(
+            f"Estimated size of uncompressed dataset: {ds_ss.nbytes / 1024 / 1024:.2f} MiB"
+        )
 
-    if main_cat[fetch_config.model_name].metadata["bounding_box"][2] > 180:
-        ds_ss = rotate_longitude(ds_ss)
+        if main_cat[fetch_config.model_name].metadata["bounding_box"][2] > 180:
+            ds_ss = rotate_longitude(ds_ss)
 
-    if not has_horizontal_data(ds_ss):
-        raise ValueError("Subsetting produced no valid data to write to disk.")
+        if not has_horizontal_data(ds_ss):
+            raise ValueError("Subsetting produced no valid data to write to disk.")
     print(f"Writing netCDF data to {fetch_config.output_pth}.")
-    #with Timer("\tWrote output to disk in {}"):
-    ds_ss.to_netcdf(fetch_config.output_pth)
+    with Timer("\tWrote output to disk in {}"):
+        ds_ss.to_netcdf(fetch_config.output_pth)
     print("Complete")
