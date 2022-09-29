@@ -19,10 +19,6 @@ from . import utilities
 GOODS_URL = "https://gnome.orr.noaa.gov/goods/"
 
 
-class FileTooBigError(ValueError):
-    pass
-
-
 RESOLUTIONS = {
     "i",
 }
