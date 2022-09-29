@@ -101,12 +101,14 @@ class nc:
     def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S"):
         """
         Start/end are strings in format %Y-%m-%dT%H:%M:%S
-        or passed in
+        or datetimes
         """
         dts = num2date(self.time, self.time_units)
-        sdate = datetime.datetime.strptime(start, fmt)
-        edate = datetime.datetime.strptime(end, fmt)
-        t1 = [i for i, dt in enumerate(dts) if dt >= sdate][0]
-        t2 = [i for i, dt in enumerate(dts) if dt <= edate][-1] + 1
+        if not isinstance(start, datetime.datetime):
+            start = datetime.datetime.strptime(start, fmt)
+        if not isinstance(end, datetime.datetime):
+            end = datetime.datetime.strptime(end, fmt)
+        t1 = [i for i, dt in enumerate(dts) if dt >= start][0]
+        t2 = [i for i, dt in enumerate(dts) if dt <= end][-1] + 1
 
         return t1, t2

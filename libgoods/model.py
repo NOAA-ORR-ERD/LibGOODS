@@ -33,6 +33,8 @@ Model.subset_info(query_params) => info about subset
 
 import dataclasses
 import shapely.wkt as wkt
+import model_catalogs as mc
+from . import model_fetch  # we could move the utilities used from here into utilities?
 
 
 # The following is a mapping of 'environmental conditions concepts' to the 'CF concepts' required
@@ -196,104 +198,117 @@ class Metadata:
         return dict_
 
 
-class Model:
+def fetch_model(
+    ds,  # xarray dataset
+    meta,  # the meta data for this particular model
+    bounds,  # at this pt requires (min_lon, min_lat, max_lon, max_lat)
+    target_pth,
+    which_data="surface currents",
+):
+
+    ds = model_fetch.select_surface(ds)  # eventually check env params
+    ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
+    bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
+    ds_ss = ds_ss.em.sub_grid(bbox=bounds)
+    if meta["bounding_box"][2] > 180:
+        ds_ss = model_fetch.rotate_longitude(ds_ss)
+
+    ds_ss.to_netcdf(target_pth)
+
+    return target_pth
+
+
+# class Model():
+# """
+# Base Class for all sources of model results
+# """
+# def __init__(self,model_id,source):
+
+# # could separate out some of the metadata stuff?
+
+# self.metadata = Metadata().init_from_model(main_cat[model_id]).as_pyson()
+# cat = mc.find_availability(main_cat[model_id][source])
+# #add this to metadata?
+# self.id = model_id
+# self.source = source
+# self.url = cat.urlpath
+# self.start_time = cat.metadata['start_datetime']
+# self.end_time = cat.metadata['end_datetime']
+
+
+# def get_available_times(self, cast_type):
+# """
+# returns the available times for this model as of right now
+
+# This requires reaching out to the source
+# """
+# raise NotImplementedError
+
+# def get_model_subset_info(
+# bounds,
+# time_interval,
+# environmental_parameters,
+# cross_dateline=False,
+# ):
+# """
+# returns info about a subset
+
+# this should also probably cache computations
+# needed to determine a subset.
+
+# :returns: dict of (TBA), but maybe:
+
+# {"grid_type":
+# "num_grid_cells":
+# "num_timesteps":
+# "estimated_file_size":
+# }
+# """
+
+
+def get_data_oldcode(
+    self,
+    bounds,  # polygon list of (lon, lat) pairs
+    start,
+    end,
+    target_pth,
+):
     """
-    Base Class for all sources of model results
+    The call to actually get the data
+
+    :returns: filepath -- pathlib.Path object of file written
     """
+    from . import file_processing
 
-    # Metadata required by all Data sources
-    metadata = Metadata()
+    desc = self.metadata["name"]
 
-    def get_metadata(self):
-        """
-        Returns a dict of the "static" metadata for this data source
-        """
-        return self.metadata.as_pyson()
-
-    def get_model_info(self):
-        """
-        Returns a dict of both the static and dynamic metadata
-
-        e.g. available times
-
-        -- will there be other info?
-          - maybe model meta-data -- when it was run, etc.
-          - or is all that in the resulting data files?
-        """
-        info = self.get_metadata()
-        info["available_times"] = {
-            "forecast:": self.get_available_times("forecast"),
-            "hindcast:": self.get_available_times("hindcast"),
+    if "ROMS" in desc:
+        model = file_processing.roms()
+        var_map = {"time": "time"}
+    elif "POM" in desc:
+        var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
+        model = file_processing.curv()
+    else:
+        var_map = {
+            "time": "time",
+            "lon": "lon",
+            "lat": "lat",
+            "u": "water_u",
+            "v": "water_v",
         }
+        model = file_processing.rect()
 
-    def get_available_times(self, cast_type):
-        """
-        returns the available times for this model as of right now
+    model.open_nc(self.url)
+    # get dimensions to determine subset
 
-        This requires reaching out to the source
-        """
-        raise NotImplementedError
+    model.get_dimensions(var_map=var_map)
+    if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
+        bounds[0] = bounds[0] + 360
+        bounds[2] = bounds[2] + 360
 
-    def get_model_subset_info(
-        bounds,
-        time_interval,
-        environmental_parameters,
-        cross_dateline=False,
-    ):
-        """
-        returns info about a subset
+    t1, t2 = model.get_timeslice_indices(start, end)
+    # grid subsetting
+    model.subset(bounds)
+    model.write_nc(var_map=var_map, ofn=target_pth, t_index=[t1, t2, 1])
 
-        this should also probably cache computations
-        needed to determine a subset.
-
-        :returns: dict of (TBA), but maybe:
-
-         {"grid_type":
-          "num_grid_cells":
-          "num_timesteps":
-          "estimated_file_size":
-          }
-        """
-
-    def get_data_oldcode(
-        self,
-        desc,
-        url,
-        bounds,  # polygon list of (lon, lat) pairs
-        start,
-        end,
-        environmental_parameters,
-        target_pth,
-    ):
-        """
-        The call to actually get the data
-
-        :returns: filepath -- pathlib.Path object of file written
-        """
-        if "ROMS" in desc:
-            model = file_processing.roms()
-            var_map = {"time": "time"}
-        elif "POM" in desc:
-            var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
-            model = file_processing.curv()
-        else:
-            var_map = {
-                "time": "time",
-                "lon": "lon",
-                "lat": "lat",
-                "u": "water_u",
-                "v": "water_v",
-            }
-            model = file_processing.rect()
-
-        model.open_nc(url)
-        # get dimensions to determine subset
-        model.get_dimensions(var_map=var_map)
-        if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
-            bounds[0] = bounds[0] + 360
-            bounds[2] = bounds[2] + 360
-
-        t1, t2 = model.get_timeslice_indices(start, end)
-        # grid subsetting
-        model.subset(bounds)
-        model.write_nc(var_map=var_map, ofn=target_pth, t_index=[t1, t2, 1])
+    return target_pth
