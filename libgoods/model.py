@@ -111,6 +111,8 @@ class CastMetadata:
 class Metadata:
     identifier: str = ""
     name: str = ""
+    description: str = ""
+    html_desc: str = ""
     regional: bool = False
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
@@ -136,7 +138,12 @@ class Metadata:
         """initiate a model"""
         # given a model, extract the data and set on self.
         self.identifier = m.name
-        self.name = m.description
+        self.name = m.metadata["long_name"]
+        self.description = m.description
+        try:
+            self.html_desc = m.metadata["html_desc"]
+        except KeyError:
+            self.html_desc = m.description
         self.regional = Metadata.regional_test(m)
         bb = m.metadata["bounding_box"]
         self.bounding_box = bb  # [(a, b) for a, b in zip(bb[::2],bb[1::2])]
@@ -184,7 +191,7 @@ class Metadata:
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
         """
         bb = model.metadata["bounding_box"]
-        return abs(bb[2] - bb[0]) > 20 or abs(bb[3] - bb[1]) > 20
+        return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
 
     def as_pyson(self):
         """
