@@ -1,0 +1,11 @@
+extract_model
+netCDF4
+numpy
+# requirements for libgoods
+python>=3.8,<3.11
+requests
+shapely
+
+
+# Not yet available on conda-forge
+# model_catalogs
