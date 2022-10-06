@@ -17,10 +17,7 @@ from . import FileTooBigError, NonIntersectingSubsetError
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 from . import file_processing, utilities, model_fetch
 
-from importlib import reload
 from libgoods import model
-
-reload(model)
 
 try:
     import model_catalogs as mc
@@ -216,8 +213,6 @@ def get_model_file(
 
     :returns: filepath
     """
-    print("api")
-    print(bounds)
 
     if target_pth is None:
         target_pth = os.path.abspath("output.nc")
@@ -234,7 +229,10 @@ def get_model_file(
     meta = get_model_info(model_id)
 
     target_pth = model.fetch_model(ds, meta, utilities.flatten_bbox(bounds), target_pth)
-
+    
+    #Example of how to use old code. Leave for now, but can delete eventually.
+    #target_pth = model.fetch_model_oldcode(source.urlpath,meta,utilities.flatten_bbox(bounds),start,end,target_pth)
+    
     return target_pth
 
 def generate_subset_xds(self,

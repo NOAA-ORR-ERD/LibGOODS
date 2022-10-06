@@ -111,6 +111,8 @@ class CastMetadata:
 class Metadata:
     identifier: str = ""
     name: str = ""
+    description: str = ""
+    html_desc: str = ""
     regional: bool = False
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
@@ -136,7 +138,12 @@ class Metadata:
         """initiate a model"""
         # given a model, extract the data and set on self.
         self.identifier = m.name
-        self.name = m.description
+        self.name = m.metadata["long_name"]
+        self.description = m.description
+        try:
+            self.html_desc = m.metadata["html_desc"]
+        except KeyError:
+            self.html_desc = m.description
         self.regional = Metadata.regional_test(m)
         bb = m.metadata["bounding_box"]
         self.bounding_box = bb  # [(a, b) for a, b in zip(bb[::2],bb[1::2])]
@@ -184,7 +191,7 @@ class Metadata:
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
         """
         bb = model.metadata["bounding_box"]
-        return abs(bb[2] - bb[0]) > 20 or abs(bb[3] - bb[1]) > 20
+        return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
 
     def as_pyson(self):
         """
@@ -201,7 +208,7 @@ class Metadata:
 def fetch_model(
     ds,  # xarray dataset
     meta,  # the meta data for this particular model
-    bounds,  # at this pt requires (min_lon, min_lat, max_lon, max_lat)
+    bounds,  # at this pt expects (min_lon, min_lat, max_lon, max_lat)
     target_pth,
     which_data="surface currents",
 ):
@@ -218,57 +225,10 @@ def fetch_model(
     return target_pth
 
 
-# class Model():
-# """
-# Base Class for all sources of model results
-# """
-# def __init__(self,model_id,source):
-
-# # could separate out some of the metadata stuff?
-
-# self.metadata = Metadata().init_from_model(main_cat[model_id]).as_pyson()
-# cat = mc.find_availability(main_cat[model_id][source])
-# #add this to metadata?
-# self.id = model_id
-# self.source = source
-# self.url = cat.urlpath
-# self.start_time = cat.metadata['start_datetime']
-# self.end_time = cat.metadata['end_datetime']
-
-
-# def get_available_times(self, cast_type):
-# """
-# returns the available times for this model as of right now
-
-# This requires reaching out to the source
-# """
-# raise NotImplementedError
-
-# def get_model_subset_info(
-# bounds,
-# time_interval,
-# environmental_parameters,
-# cross_dateline=False,
-# ):
-# """
-# returns info about a subset
-
-# this should also probably cache computations
-# needed to determine a subset.
-
-# :returns: dict of (TBA), but maybe:
-
-# {"grid_type":
-# "num_grid_cells":
-# "num_timesteps":
-# "estimated_file_size":
-# }
-# """
-
-
-def get_data_oldcode(
-    self,
-    bounds,  # polygon list of (lon, lat) pairs
+def fetch_model_oldcode(
+    url,
+    meta,
+    bounds,  
     start,
     end,
     target_pth,
@@ -280,11 +240,14 @@ def get_data_oldcode(
     """
     from . import file_processing
 
-    desc = self.metadata["name"]
+    desc = meta["html_desc"]
 
     if "ROMS" in desc:
         model = file_processing.roms()
-        var_map = {"time": "time"}
+        if isinstance(url,list):
+            var_map = {"time": "ocean_time"}
+        else:
+            var_map = {"time": "time"}
     elif "POM" in desc:
         var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
         model = file_processing.curv()
@@ -298,9 +261,11 @@ def get_data_oldcode(
         }
         model = file_processing.rect()
 
-    model.open_nc(self.url)
+    model.open_nc(url)
     # get dimensions to determine subset
-
+    
+    bounds = utilities.
+    
     model.get_dimensions(var_map=var_map)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
         bounds[0] = bounds[0] + 360
