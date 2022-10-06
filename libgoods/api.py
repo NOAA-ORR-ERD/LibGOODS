@@ -188,7 +188,7 @@ def get_model_file(
     end,
     bounds,
     surface_only=True,
-    environmental_parameters="surace currents",
+    environmental_parameters="surface currents",
     # cross_dateline=False,
     # max_filesize=None,
     target_pth=None,
@@ -236,3 +236,36 @@ def get_model_file(
     target_pth = model.fetch_model(ds, meta, utilities.flatten_bbox(bounds), target_pth)
 
     return target_pth
+
+def generate_subset_xds(self,
+                        identifier,
+                        model_source,
+                        start,
+                        end,
+                        bounds,
+                        surface_only,
+                        cross_dateline,
+                        which_data='surface_currents'):
+
+    '''
+    Generates a subset xarray dataset. Does NOT actually get the data
+    '''
+
+    cat = env_models[identifier]
+
+    polybounds = utilities.bbox2polygon(bounds)
+    if not check_subset_overlap(cat, [start, end], polybounds):
+        # no overlap in at least one dimension
+        raise NonIntersectingSubsetError()
+    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
+    ds = source.to_dask()
+    meta = get_model_info(identifier)
+
+    ds = model_fetch.select_surface(ds)  # eventually check env params
+    ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
+    bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
+    ds_ss = ds_ss.em.sub_grid(bbox=bounds)
+    if meta["bounding_box"][2] > 180:
+        ds_ss = model_fetch.rotate_longitude(ds_ss)
+
+    return ds_ss
