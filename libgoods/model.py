@@ -264,7 +264,6 @@ def fetch_model_oldcode(
     model.open_nc(url)
     # get dimensions to determine subset
     
-    bounds = utilities.
     
     model.get_dimensions(var_map=var_map)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
