@@ -84,16 +84,13 @@ def polygon2bbox(bounds):
 
 def bbox2polygon(bbox):
     """
-    Converts four points in the form:
-    ((min_lon, min_lat), (max_lon, max_lat))
-
-    To a four point polygon:
+    Converts (W, S, E, N) bounding box to a four point polygon:
     """
 
-    min_lon = bbox[0][0]
-    min_lat = bbox[0][1]
-    max_lon = bbox[1][0]
-    max_lat = bbox[1][1]
+    min_lon = bbox[0]
+    min_lat = bbox[1]
+    max_lon = bbox[2]
+    max_lat = bbox[3]
 
     return [
         (min_lon, max_lat),
