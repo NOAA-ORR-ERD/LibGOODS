@@ -64,12 +64,13 @@ ENVIRONMENTAL_PARAMETERS = {
 
 
 @dataclasses.dataclass
-class CastMetadata:
-    """cast metadata"""
+class SourceMetadata:
+    """source metadata"""
 
-    # metadata for a particular fore/now/hind cast
+    # metadata for a particular model source
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
+    name: str = ""
     period: float = (0,)  # output period in hours
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
@@ -77,14 +78,15 @@ class CastMetadata:
     # standard_names: dict = dataclasses.field(default_factory=dict)
     env_params: set = dataclasses.field(default_factory=set)
 
-    def init_from_model_cast_metadata(self, metadata):
+    def init_from_model_source(self, src):
         # uses a '.(fore/now/hind)cast.metadata dict to populate self
         # self.axis = metadata['axis']
-        self.period = metadata.get("output_period_(hr)", 0)
-        self.start = metadata["overall_start_datetime"]
-        self.end = metadata["overall_end_datetime"]
+        self.name = src.name
+        self.period = src.metadata.get("output_period_(hr)", 0)
+        self.start = src.metadata["overall_start_datetime"]
+        self.end = src.metadata["overall_end_datetime"]
         # self.standard_names = metadata['standard_names']
-        self.env_params = CastMetadata.get_env_params(metadata)
+        self.env_params = SourceMetadata.get_env_params(src.metadata)
         return self
 
     @staticmethod
@@ -122,10 +124,8 @@ class Metadata:
     dimensions: tuple = ()
     # timestep_interval: float = "" #'1', '0.5', etc
     # either forecast or hindcast info -- not both
-    forecast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
-    nowcast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
-    hindcast_metadata: CastMetadata = dataclasses.field(default_factory=CastMetadata)
-    env_params: set = dataclasses.field(default_factory=set)
+    sources : list = dataclasses.field(default_factory=list)
+    #env_params: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
 
@@ -155,23 +155,19 @@ class Metadata:
         self.has_depth = len(m.metadata[grid_dim_keyname]) == 4
         self.dimensions = m.metadata[grid_dim_keyname]
         # self.timestep_interval = self.get_output_interval(m)
-        self.init_cast_metadata(m)
-        self.compute_env_params()
+        self.init_source_metadata(m)
+        #self.compute_env_params()
         return self
 
-    def init_cast_metadata(self, model):
+    def init_source_metadata(self, model):
         """initiate metadata"""
         # given a model, extract the cast start_end times and set them on self
-        if hasattr(model, "forecast"):
-            self.forecast_metadata.init_from_model_cast_metadata(
-                model.forecast.metadata
-            )
-        if hasattr(model, "hindcast"):
-            self.hindcast_metadata.init_from_model_cast_metadata(
-                model.hindcast.metadata
-            )
-        if hasattr(model, "nowcast"):
-            self.nowcast_metadata.init_from_model_cast_metadata(model.nowcast.metadata)
+        all_sources = [k for k in model.keys()]
+        for k in all_sources:
+            src = model[k]
+            srcmeta = SourceMetadata()
+            srcmeta.init_from_model_source(src)
+            self.sources.append(srcmeta)
 
     def compute_env_params(self):
         """compute env params"""
@@ -198,10 +194,10 @@ class Metadata:
         returns a JSON compatible dict of the data
         """
         dict_ = dataclasses.asdict(self)
-        dict_["env_params"] = list(self.env_params)
-        dict_["forecast_metadata"] = self.forecast_metadata.as_pyson()
-        dict_["hindcast_metadata"] = self.hindcast_metadata.as_pyson()
-        dict_["nowcast_metadata"] = self.nowcast_metadata.as_pyson()
+        #dict_["env_params"] = list(self.env_params)
+        dict_["sources"] = []
+        for s in self.sources:
+            dict_["sources"].append(s.as_pyson())
         return dict_
 
 

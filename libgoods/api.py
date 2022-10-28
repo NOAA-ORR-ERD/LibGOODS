@@ -13,9 +13,8 @@ import pandas as pd
 import os
 import numpy as np
 
-from . import FileTooBigError, NonIntersectingSubsetError
+from . import FileTooBigError, NonIntersectingSubsetError, file_processing, utilities, model_fetch
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
-from . import file_processing, utilities, model_fetch
 
 from libgoods import model
 
@@ -235,18 +234,19 @@ def get_model_file(
     
     return target_pth
 
-def generate_subset_xds(self,
-                        identifier,
+def generate_subset_xds(identifier,
                         model_source,
                         start,
                         end,
                         bounds,
                         surface_only,
                         cross_dateline,
-                        which_data='surface_currents'):
+                        request_type):
 
     '''
     Generates a subset xarray dataset. Does NOT actually get the data
+
+    bounds: expects (w, s, e, n)
     '''
 
     cat = env_models[identifier]
@@ -259,11 +259,32 @@ def generate_subset_xds(self,
     ds = source.to_dask()
     meta = get_model_info(identifier)
 
+    ep = ENVIRONMENTAL_PARAMETERS
+    env_params = []
+    if 'currents' in request_type:
+        if surface_only:
+            env_params += ep['surface currents']
+        else:
+            env_params += ep['3D currents']
+    if 'temperature' in request_type:
+        if surface_only:
+            env_params += ep['surface temperature']
+        else:
+            env_params += ep['3D temperature']
+    if 'winds' in request_type:
+        env_params += ep['surface winds']
+    if 'ice' in request_type:
+        env_params += ep['ice']
+
     ds = model_fetch.select_surface(ds)  # eventually check env params
-    ds_ss = ds.em.filter(ENVIRONMENTAL_PARAMETERS[which_data])
+    ds_ss = ds.em.filter(env_params)
     bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
     ds_ss = ds_ss.em.sub_grid(bbox=bounds)
     if meta["bounding_box"][2] > 180:
         ds_ss = model_fetch.rotate_longitude(ds_ss)
 
     return ds_ss
+
+def request_subset(xds, output_pth):
+    xds.to_netcdf(output_pth)
+    return output_pth
