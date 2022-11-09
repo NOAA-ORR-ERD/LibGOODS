@@ -226,8 +226,8 @@ def get_model_file(
     source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
     ds = source.to_dask()
     meta = get_model_info(model_id)
-
-    target_pth = model.fetch_model(ds, meta, utilities.flatten_bbox(bounds), target_pth)
+   
+    target_pth = model.fetch_model(ds, meta, bounds, target_pth, which_data=environmental_parameters)
     
     #Example of how to use old code. Leave for now, but can delete eventually.
     #target_pth = model.fetch_model_oldcode(source.urlpath,meta,utilities.flatten_bbox(bounds),start,end,target_pth)
