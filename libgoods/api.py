@@ -234,6 +234,15 @@ def get_model_file(
     
     return target_pth
 
+def get_timestamps(model_catalog, model_source, min_resolution=900):
+    '''
+    Returns a sorted list of datetime objects, representative of the time coordinate in a model source.
+
+    If a model source has a higher resolution (smaller) than the min_resolution, the returned array length
+    may be shorter than the number of time coordinates in a model source. 
+    '''
+
+
 def generate_subset_xds(identifier,
                         model_source,
                         start,
@@ -275,6 +284,8 @@ def generate_subset_xds(identifier,
         env_params += ep['surface winds']
     if 'ice' in request_type:
         env_params += ep['ice']
+
+    env_params = [param for sublist in env_params for param in sublist] #flatten
 
     ds = model_fetch.select_surface(ds)  # eventually check env params
     ds_ss = ds.em.filter(env_params)
