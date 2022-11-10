@@ -1,26 +1,23 @@
-"""run TBOFS example"""
-import json
-import os
-from libgoods import roms_model, temp_files_dir
+from libgoods import api
+import datetime
 
+model_id = 'TBOFS'
+model_source = 'coops-forecast-agg'
+start = datetime.datetime.today()
+end = start + datetime.timedelta(days=2)
+bounds = [-82.9, 27.3, -82.6, 27.7]
+env_params = ["surface currents","surface winds"]
+target_pth = 'tbofs_test.nc'
 
-with open("..\\libgoods\\current_sources\\tbofs.json", "r") as f:
-    model_info = json.load(f)
+out_file = api.get_model_file(
+    model_id,
+    model_source,
+    start,
+    end,
+    bounds,
+    surface_only=True,
+    environmental_parameters=env_params,
+    # cross_dateline=False,
+    # max_filesize=None,
+    target_pth=target_pth)
 
-url = model_info["url"]
-
-tbofs = roms_model.roms(url)
-
-subset_box = [  # south lat, west lon, north lat, east lon
-    27.499,
-    -82.827,
-    27.725,
-    -82.607,
-]
-
-tbofs.get_dimensions()
-tbofs.when()
-
-tbofs.subset(subset_box)
-ofn = os.path.join(temp_files_dir, "TBOFS.nc")
-tbofs.write_nc(var_map=None, ofn=ofn)
