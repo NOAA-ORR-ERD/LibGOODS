@@ -268,23 +268,7 @@ def generate_subset_xds(identifier,
     ds = source.to_dask()
     meta = get_model_info(identifier)
 
-    ep = ENVIRONMENTAL_PARAMETERS
-    env_params = []
-    if 'currents' in request_type:
-        if surface_only:
-            env_params += ep['surface currents']
-        else:
-            env_params += ep['3D currents']
-    if 'temperature' in request_type:
-        if surface_only:
-            env_params += ep['surface temperature']
-        else:
-            env_params += ep['3D temperature']
-    if 'winds' in request_type:
-        env_params += ep['surface winds']
-    if 'ice' in request_type:
-        env_params += ep['ice']
-
+    env_params = [ENVIRONMENTAL_PARAMETERS[rt] for rt in request_type]
     env_params = [param for sublist in env_params for param in sublist] #flatten
 
     ds = model_fetch.select_surface(ds)  # eventually check env params
