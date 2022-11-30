@@ -4,8 +4,7 @@ from libgoods import model_fetch
 from dask.diagnostics import ProgressBar
 
 main_cat = mc.setup()
-
-bounds = [-82.8, 27.7, -82.5, 27.5]
+bounds = [-82.9, 27.3, -82.6, 27.7]
 model_id = 'TBOFS'
 model_source = 'coops-forecast-noagg'
 cat = main_cat[model_id][model_source]    
