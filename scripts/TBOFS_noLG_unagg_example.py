@@ -16,7 +16,8 @@ end = start + datetime.timedelta(days=2)
 mc.select_date_range(cat,start_date=start,end_date=end) #this could alternatively be done on the xarray ds
 
 print('to dask')
-ds = cat.to_dask()
+with ProgressBar():
+ ds = cat.to_dask()
 
 print('subsetting')
 ds = model_fetch.select_surface(ds)
