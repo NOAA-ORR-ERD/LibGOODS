@@ -164,7 +164,8 @@ class roms(curv_model.curv):
 
             # Copy NetCDF attributes:
             for attr in var_in.ncattrs():
-                var_out.setncattr(attr, var_in.getncattr(attr))
+                #var_out.setncattr(attr, var_in.getncattr(attr))
+                var_out.setncattr(attr, getattr(var_in,attr))
 
         if not grid_only:
             # data_vars = ['u','v','temp','salt']
@@ -172,7 +173,6 @@ class roms(curv_model.curv):
 
             for var in data_vars:
                 # Create variable in new file:
-                print(var)
                 var_in = nc_in.variables[var]
                 coords = var_in.coordinates
 
@@ -254,6 +254,7 @@ class roms(curv_model.curv):
                         var_out.setncattr(attr, coords.replace("s_rho ", ""))
                     else:
                         if attr != "_FillValue":
-                            var_out.setncattr(attr, var_in.getncattr(attr))
+                            #var_out.setncattr(attr, var_in.getncattr(attr))
+                            var_out.setncattr(attr, getattr(var_in,attr))
 
         nc_out.close()
