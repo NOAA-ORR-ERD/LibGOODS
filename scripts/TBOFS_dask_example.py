@@ -1,3 +1,10 @@
+'''
+This one uses to_dask on the entire file set
+The "to_dask" method is in model_catalogs.process but I think ultimately relies on intake-xarray.to_dask
+which I also think at some point uses xarray.open_mfdataset but I am not completely sure
+
+Once the xarray dataset is in memory, we call to_netcdf
+'''
 import model_catalogs as mc
 import datetime
 from libgoods import model_fetch

@@ -172,7 +172,6 @@ class roms(curv_model.curv):
 
             for var in data_vars:
                 # Create variable in new file:
-                print(var)
                 var_in = nc_in.variables[var]
                 coords = var_in.coordinates
 
