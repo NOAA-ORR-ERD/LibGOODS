@@ -1,11 +1,8 @@
 extract_model
-netCDF4
+netCDF4=1.6.0  # multithreading not supported in newer ones
 numpy
 # requirements for libgoods
 python>=3.8,<3.11
 requests
 shapely
-
-
-# Not yet available on conda-forge
-# model_catalogs
+model_catalogs
