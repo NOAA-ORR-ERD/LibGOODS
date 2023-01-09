@@ -1,8 +1,7 @@
-extract_model
-netCDF4=1.6.0  # multithreading not supported in newer ones
-numpy
-# requirements for libgoods
 python>=3.8,<3.11
+extract_model
+netCDF4=1.6.0  # multithreading not supported in newer versions
+numpy
 requests
 shapely
 model_catalogs
