@@ -17,6 +17,8 @@ from . import FileTooBigError, NonIntersectingSubsetError, file_processing, util
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
 
 from libgoods import model
+from importlib import reload
+reload(model)
 
 try:
     import model_catalogs as mc
@@ -240,7 +242,7 @@ def request_subset(xds, output_pth):
     return output_pth
     
     
-def get_model_file(
+def get_model_file(   
     model_id,
     model_source,
     start,
@@ -251,6 +253,7 @@ def get_model_file(
     # cross_dateline=False,
     # max_filesize=None,
     target_pth=None,
+    method=0, #0=new code, 1=Amy's old code
 ):
     """
     Get the actual model data as a netcdf file. NOT USED BY WebGNOME!!
@@ -260,8 +263,7 @@ def get_model_file(
     :param model_source (forecast/nowcast etc) -- !!!naming conventions are changing soon
     :params start: start time of to subset to (date string)
     :params end: end time to subset to (date string)
-    :param bounds: bounds to subset to -- if the implementation doesn't
-                   support polygons, the bounding box of the bounds will be used.
+    :param bounds: bounds to subset to -- (using (x1,y1,x2,y2) format at present
 
 
     :param environmental_parameters: which environmental parameters to extract
@@ -287,13 +289,15 @@ def get_model_file(
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError()
 
-    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
-    ds = source.to_dask()
+
     meta = get_model_info(model_id)
    
-    target_pth = model.fetch_model(ds, meta, bounds, target_pth, which_data=environmental_parameters)
+    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
     
-    #Example of how to use old code. Leave for now, but can delete eventually.
-    #target_pth = model.fetch_model_oldcode(source.urlpath,meta,utilities.flatten_bbox(bounds),start,end,target_pth)
+    if method==0:       
+        ds = source.to_dask()
+        target_pth = model.fetch_model(ds, meta, bounds, target_pth, which_data=environmental_parameters)
+    else:
+        model.fetch_model_oldcode(source.urlpath,meta,bounds,start,end,target_pth)
     
     return target_pth
