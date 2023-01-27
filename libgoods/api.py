@@ -12,6 +12,7 @@ from shapely.geometry import Polygon, MultiPoint
 import pandas as pd
 import os
 import numpy as np
+import pickle
 
 from . import FileTooBigError, NonIntersectingSubsetError, file_processing, utilities, model_fetch
 from .model import ENVIRONMENTAL_PARAMETERS, Metadata
@@ -236,6 +237,17 @@ def generate_subset_xds(identifier,
         ds_ss = model_fetch.rotate_longitude(ds_ss)
 
     return ds_ss
+
+def subset_process_func(request_args, mq):
+    try:
+        result = generate_subset_xds(**request_args)
+        mq.put('success')
+        mq.put(pickle.dumps(result))
+    except Exception as e:
+        mq.put('error')
+        mq.put(str(e))
+        raise e
+
 
 def request_subset(xds, output_pth):
     xds.to_netcdf(output_pth)
