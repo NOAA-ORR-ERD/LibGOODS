@@ -3,124 +3,14 @@ Core API for accessing model results
 
 These are the functions that the WebGNOME client will call
 
-Functions return JSON-compatible dicts
+
 """
 
-from pathlib import Path
-import warnings
-from shapely.geometry import Polygon, MultiPoint
-import pandas as pd
+
 import os
 import numpy as np
-import pickle
 
-from . import FileTooBigError, NonIntersectingSubsetError, file_processing, utilities, model_fetch
-from .model import ENVIRONMENTAL_PARAMETERS, Metadata
-
-from libgoods import model
-from importlib import reload
-reload(model)
-
-try:
-    import model_catalogs as mc
-
-    env_models = mc.setup()
-    all_metas = {m: Metadata().init_from_model(env_models[m]) for m in env_models}
-except ImportError:
-    warnings.warn("model_catalogs not found: libgoods API will not work")
-
-
-##################
-# utility functions -- implementation, not API
-##################
-
-
-def _filter_by_env_params(mdl_meta, ev_p):
-    """
-    :param mdl_meta: model Metadata object
-    :param ev_p: list of environmental parameter (string) or singular string
-    """
-    # filter models out if they do not have required env_params
-    if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
-        # assume singular string
-        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
-            raise KeyError("{} is not a valid environmental parameter".format(ev_p))
-        return ev_p in mdl_meta.env_params
-    else:
-        # assume multiple filter parameters eg ['surface currents', 'surface winds']
-        return all([param in mdl_meta.env_params for param in ev_p])
-
-
-def _filter_by_bb_intersection(mdl_meta, poly_bounds):
-    """
-    :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon (map) boundary.
-           Coords must be in (-180, -90), (180, 90) range
-    """
-    bb = np.array(mdl_meta.bounding_box)
-    if np.any(bb > 180):
-        bb[0] -= 360
-        bb[2] -= 360
-    bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
-    return bb_poly.intersects(poly_bounds)
-
-
-def _filter_by_poly_bounds(mdl_meta, poly_bounds):
-    """
-    :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon (map) boundary.
-           Coords must be in (-180, -90), (180, 90) range
-    """
-    model_bounds = np.array(mdl_meta.bounding_poly)
-    if np.any(model_bounds[:, 0] > 180):
-        model_bounds[:, 0] = model_bounds[:, 0] - 360
-    model_bounds_poly = Polygon(model_bounds)
-    return model_bounds_poly.intersects(poly_bounds)
-
-
-###########
-# API functions -- these are what WebGNOME will call
-###########
-
-
-def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env_params=None):
-    """
-    Filters a provided list of model metadata via three criteria:
-    1. Intersects with provided polygon boundary
-    2. Model ids and source locations
-    3. Present environmental parameters
-
-    :param models_metadatas: list of model Metadata objects
-    :param map_bounds: list of tuples (coordinates), or shapely Polygon, or None
-    :param model_ids_sourcest: dict with keys as names of models and lists of sources
-    :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
-        see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
-    """
-    retlist = models_metadatas
-    if model_ids_sources is not None:
-        retlist = [m for m in retlist if m.identifier in model_ids_sources.keys()]
-        
-        #we might want to make the sorting on source optional so we can return all w/o specifying
-        for ii,m in enumerate(retlist):
-            sources = m.sources
-            keep_source_list = []
-            for source in sources:
-                if source.name in model_ids_sources[m.identifier]:
-                    keep_source_list.append(source)
-            retlist[ii].sources = keep_source_list
-            
-
-    if map_bounds is not None:
-        map_bounds = (
-            Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
-        )
-        retlist = [m for m in retlist if _filter_by_bb_intersection(m, map_bounds)]
-
-    if env_params is not None:
-        retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
-
-    return retlist
-
+from . import FileTooBigError, NonIntersectingSubsetError, file_processing, utilities, model_catalogs
 
 def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=False):
     """
@@ -142,7 +32,8 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    retval = filter_models(
+    all_metas = model_catalogs.get_metadata();
+    retval = utilities.filter_models(
         all_metas.values(),
         model_ids_sources=model_ids_sources,
         map_bounds=map_bounds,
@@ -154,92 +45,52 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     return retval
 
 
-def get_model_info(model_name,model_source=None):
+def get_model_info(model_id,model_source=None):
     """
     Return metadata about a particular model
 
-    :param model_name: the name (unique ID) of the model.
+    :param model_id: the name (unique ID) of the model
+    :param model_source: the source the model output is being requested from. Will also add 
+    actual_start/end to the metadata
 
-    :returns: libgoods.models.Metadata object with metadata of the model.
+    :returns: libgoods.metadata.Metadata object with metadata of the model.
 
     TODO?? -- return only meta for specific source?
 
     """
-    if model_name not in env_models:
-        raise KeyError(f"{model_name} is not a valid model name")
-    else:
-        meta = all_metas[model_name].as_pyson()
-        if model_source is not None:
-            m = env_models[model_name][model_source]
-            mc.find_availability(m)            
-            meta['actual_start'] = m.metadata['start_datetime']
-            meta['actual_end'] = m.metadata['end_datetime']
+    meta = model_catalogs.get_model_info(model_id,model_source)
+    return meta
 
-        return meta
-
-
-def check_subset_overlap(cat, time_range=None, xy_bounds=None):
+def get_model_ss(   
+    model_id,
+    model_source,
+    start,
+    end,
+    bounds,
+    surface_only=True,   
+    cross_dateline=False,
+    environmental_parameters="surface currents"):
     """
-    TODO FINISH TIME RANGE CHECKING
-    This function checks if a given time range and xy_bounds overlap with
-    the model dimensions. If a param is None it is not checked. If both are None
-    True is returned
-
-    :param cat: model_catalog entry
-    :param time_range: iterable pair of python datetime.datetime objects or None
-    :param xy_bounds: iterable pairs of [lon, lat], or None
+   
+    
     """
-    overlap = True
-    metadata = Metadata().init_from_model(cat)
+    ds = model_catalogs.generate_subset_xds(model_id,
+                                            model_source,
+                                            start,
+                                            end,
+                                            bounds,
+                                            surface_only,
+                                            cross_dateline,
+                                            environmental_parameters)
+                                       
+    return ds
 
-    if time_range is not None:
-        pass
-    if xy_bounds is not None:
-        subset_xy_bounds = Polygon(xy_bounds)
-        overlap = overlap and _filter_by_poly_bounds(metadata, subset_xy_bounds)
-    return overlap
+    
 
-def generate_subset_xds(identifier,
-                        model_source,
-                        start,
-                        end,
-                        bounds,
-                        surface_only,
-                        cross_dateline,
-                        request_type):
+def get_model_output(xds, output_pth):
 
-    '''
-    Generates a subset xarray dataset. Does NOT actually get the data
+    output_path = model_catalogs.request_subset(xds, output_pth)
 
-    bounds: expects (w, s, e, n)
-    '''
-
-    cat = env_models[identifier]
-
-    polybounds = utilities.bbox2polygon(bounds)
-    if not check_subset_overlap(cat, [start, end], polybounds):
-        # no overlap in at least one dimension
-        raise NonIntersectingSubsetError()
-    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
-    ds = source.to_dask()
-    meta = get_model_info(identifier)
-    if isinstance(request_type, list):
-        env_params = [ENVIRONMENTAL_PARAMETERS[rt] for rt in request_type]
-        env_params = [param for sublist in env_params for param in sublist] #flatten
-    else:
-        env_params = ENVIRONMENTAL_PARAMETERS[request_type]
-
-    ds = model_fetch.select_surface(ds)  # eventually check env params
-    ds_ss = ds.em.filter(env_params)
-    bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
-    ds_ss = ds_ss.em.sub_grid(bbox=bounds)
-    if meta["bounding_box"][2] > 180:
-        ds_ss = model_fetch.rotate_longitude(ds_ss)
-
-    return ds_ss
-
-def request_subset(xds, output_pth):
-    xds.to_netcdf(output_pth)
     return output_pth
     
     
