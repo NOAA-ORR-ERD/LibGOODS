@@ -5,8 +5,6 @@ These are the functions that the WebGNOME client will call
 
 
 """
-
-
 import os
 import numpy as np
 
@@ -61,7 +59,7 @@ def get_model_info(model_id,model_source=None):
     meta = model_catalogs.get_model_info(model_id,model_source)
     return meta
 
-def get_model_ss(   
+def model_ss(   
     model_id,
     model_source,
     start,
@@ -74,6 +72,8 @@ def get_model_ss(
    
     
     """
+    
+
     ds = model_catalogs.generate_subset_xds(model_id,
                                             model_source,
                                             start,
@@ -82,6 +82,8 @@ def get_model_ss(
                                             surface_only,
                                             cross_dateline,
                                             environmental_parameters)
+    # else:
+        # ds = model.get_ss(model
                                        
     return ds
 
