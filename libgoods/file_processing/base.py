@@ -20,9 +20,11 @@ class nc:
     # Individual model var_maps will map to these names
     data_vars = ["u", "v", "ice_u", "ice_v", "ice_thickness", "ice_fraction"]
 
-    def open_nc(self, FileName=None, GridFileName=None):
+    def open_nc(self, FileName=None, GridFileName=None, tvar=None):
         """
         Load from OpenDAP URL or local netCDF file
+        Option for using separate grid file
+        If tvar is not none, add formatted start/end date
         """
         if FileName is not None:
             self.FileName = FileName
@@ -38,41 +40,48 @@ class nc:
             self.GridDataset = Dataset(GridFileName)
         else:
             self.GridDataset = None
+            
+        if tvar is not None:
+            t = self.Dataset.variables[tvar]
+            self.start_date = num2date(t[0],t.units).strftime()
+            self.end_date = num2date(t[-1],t.units).strftime()
 
-    def get_data(self, bounds, cross_dateline, max_filesize, target_dir=None):
+            
 
-        """
-        NOTE: This "does it all" -- i.e. it assumes you are already happy with the subset selection
-        box -- often we want to check the size of a subset before we do the download
+    # def get_data(self, bounds, cross_dateline, max_filesize, target_dir=None):
 
-        :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...]
-        """
-        try:
-            bounding_box = flatten_bbox(polygon2bbox(bounds))
-        except ValueError:
-            raise NotImplementedError("Only rectangular bounds are supported")
+        # """
+        # NOTE: This "does it all" -- i.e. it assumes you are already happy with the subset selection
+        # box -- often we want to check the size of a subset before we do the download
 
-        # bounds = [south_lat,west_lon,north_lat,east_lon]
-        url = self.url
-        var_map = self.var_map
+        # :param: bounds Sequence of (lon,lat) pairs e.g., [(lon,lat),(lon,lat)...]
+        # """
+        # try:
+            # bounding_box = flatten_bbox(polygon2bbox(bounds))
+        # except ValueError:
+            # raise NotImplementedError("Only rectangular bounds are supported")
 
-        self.get_dimensions(var_map)
-        self.subset(bounding_box)
+        # # bounds = [south_lat,west_lon,north_lat,east_lon]
+        # url = self.url
+        # var_map = self.var_map
 
-        # until I add time selection this will get a reasonal time slice for latest TBOFS/HYCOM
-        tlen = len(self.time)
-        if self.metadata.identifier == "TBOFS":
-            t_index = [tlen - 72, tlen, 1]
-        else:
-            t_index = [40, 70, 1]
+        # self.get_dimensions(var_map)
+        # self.subset(bounding_box)
 
-        fn = self.default_filename
-        if target_dir is None:
-            target_dir = temp_files_dir
-        fp = os.path.join(target_dir, fn)
-        self.write_nc(var_map, fp, t_index=t_index)
+        # # until I add time selection this will get a reasonal time slice for latest TBOFS/HYCOM
+        # tlen = len(self.time)
+        # if self.metadata.identifier == "TBOFS":
+            # t_index = [tlen - 72, tlen, 1]
+        # else:
+            # t_index = [40, 70, 1]
 
-        return fp
+        # fn = self.default_filename
+        # if target_dir is None:
+            # target_dir = temp_files_dir
+        # fp = os.path.join(target_dir, fn)
+        # self.write_nc(var_map, fp, t_index=t_index)
+
+        # return fp
 
     def update(self, FileName):
         """

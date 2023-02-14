@@ -16,25 +16,29 @@ def get_metadata():
     all_metas = {m: Metadata().init_from_model(env_models[m]) for m in env_models}
     return(all_metas)
 
-def get_model_info(model_id,model_source):
+def get_model_info(model_id,model_source,add_time_bounds=False):
     """
-    Returns metadata about a particular model and adds the 
+    Returns metadata about a particular model and (optionally) adds the 
     start end time of the selected source of the model output.
+    This can be an expensive operation as it calls to_dask on the catalog
     """   
     try:
         cat = env_models[model_id]
     except KeyError:
         print(f"{model_id} is not a valid model name")       
     else:
-        meta = Metadata().init_from_model(cat).as_pyson()
-        if model_source is not None:
+        meta = Metadata().init_from_model(cat).as_pyson()        
+        try:
             m = cat[model_source]
-            mc.find_availability(m)            
-            meta['actual_start'] = m.metadata['start_datetime']
-            meta['actual_end'] = m.metadata['end_datetime']  
+            meta['urlpath'] = m.urlpath #needed by nc4 code
+            if add_time_bounds:
+                mc.find_availability(m)            
+                meta['actual_start'] = m.metadata['start_datetime']
+                meta['actual_end'] = m.metadata['end_datetime']  
+        except KeyError:
+            print(f"{model_source} is not a valid source for this model")      
         return meta
-
-        
+     
 def generate_subset_xds(identifier,
                         model_source,
                         start,
@@ -52,11 +56,7 @@ def generate_subset_xds(identifier,
 
     cat = env_models[identifier]
 
-    polybounds = utilities.bbox2polygon(bounds)
-    meta = Metadata().init_from_model(cat)
-    if not utilities.check_subset_overlap(meta, [start, end], polybounds):
-        # no overlap in at least one dimension
-        raise NonIntersectingSubsetError()
+
     source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
     ds = source.to_dask()
     meta = get_model_info(identifier,model_source)

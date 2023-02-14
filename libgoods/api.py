@@ -8,7 +8,7 @@ These are the functions that the WebGNOME client will call
 import os
 import numpy as np
 
-from . import FileTooBigError, NonIntersectingSubsetError, file_processing, utilities, model_catalogs
+from . import utilities, model_dask, model_nc4
 
 def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=False):
     """
@@ -30,7 +30,7 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = model_catalogs.get_metadata();
+    all_metas = model_dask.get_metadata();
     retval = utilities.filter_models(
         all_metas.values(),
         model_ids_sources=model_ids_sources,
@@ -43,9 +43,9 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     return retval
 
 
-def get_model_info(model_id,model_source=None):
+def get_model_info(model_id,model_source,axiom=False):
     """
-    Return metadata about a particular model
+    Return metadata about a particular model from a particular access source
 
     :param model_id: the name (unique ID) of the model
     :param model_source: the source the model output is being requested from. Will also add 
@@ -55,11 +55,22 @@ def get_model_info(model_id,model_source=None):
 
     TODO?? -- return only meta for specific source?
 
+    The axiom pathway uses model_catalogs.find_availability which can be slow
+    Otherwise, we use a netCDF4 variable retrieval to get the start/end date based on the url
     """
-    meta = model_catalogs.get_model_info(model_id,model_source)
+    if axiom:
+        meta = model_dask.get_model_info(model_id,model_source,add_time_bounds=True)
+    else:
+        meta = model_dask.get_model_info(model_id,model_source) #use the model_catalogs code to get metadata    
+        #this is annoying but the metadata object has all the sources -- have to figure out which one to extract standard_names from
+        for src in meta['sources']:
+            if src['name'] == model_source:
+                snames = src['standard_names']
+        tvar = snames['time']
+        meta = model_nc4.add_time_bounds(meta,tvar)
     return meta
 
-def model_ss(   
+def get_model_subset(   
     model_id,
     model_source,
     start,
@@ -67,14 +78,20 @@ def model_ss(
     bounds,
     surface_only=True,   
     cross_dateline=False,
-    environmental_parameters="surface currents"):
+    environmental_parameters="surface currents",
+    axiom=False):
     """
-   
+    The nc4 code returns a model object that has info about the grid and subset indices
+    The dask code returns an xarray dataset -- both work ok with api (can be pickled)
     
     """
-    
-
-    ds = model_catalogs.generate_subset_xds(model_id,
+    polybounds = utilities.bbox2polygon(bounds)
+    meta = get_model_info(model_id,model_source)
+    if not utilities.subset_intersects_model_boundary(meta['bounding_poly'], polybounds):
+        # no overlap in at least one dimension
+        raise NonIntersectingSubsetError()
+    if axiom:
+        ds = model_dask.generate_subset_xds(model_id,
                                             model_source,
                                             start,
                                             end,
@@ -82,76 +99,36 @@ def model_ss(
                                             surface_only,
                                             cross_dateline,
                                             environmental_parameters)
-    # else:
-        # ds = model.get_ss(model
-                                       
+    else:
+        if 'ROMS' in meta['html_desc']: #add this to the yaml files
+            grid = 'ROMS'
+        elif 'POM' in meta['html_desc']:
+            grid = 'POM'
+        else:
+            grid= 'unknown'
+            
+        ds = model_nc4.get_model_subset(meta['urlpath'],
+                                start,
+                                end,
+                                bounds,
+                                surface_only=surface_only,
+                                cross_dateline=cross_dateline,
+                                environmental_parameters = environmental_parameters,
+                                grid = grid)
+                                            
+                              
     return ds
 
     
 
-def get_model_output(xds, output_pth):
+def get_model_output(xds, output_pth, axiom=False):
 
-    output_path = model_catalogs.request_subset(xds, output_pth)
-
+    if axiom:
+        output_path = model_dask.request_subset(xds, output_pth)
+    else:
+        output_path = model_nc4.get_model_output(xds, output_pth)
+    
     return output_pth
     
     
-def get_model_file(   
-    model_id,
-    model_source,
-    start,
-    end,
-    bounds,
-    surface_only=True,
-    environmental_parameters="surface currents",
-    # cross_dateline=False,
-    # max_filesize=None,
-    target_pth=None,
-    method=0, #0=new code, 1=Amy's old code
-):
-    """
-    Get the actual model data as a netcdf file. NOT USED BY WebGNOME!!
-    left here for now but probably don't need this anymore.
 
-    :param model_id: ID (name) of the model
-    :param model_source (forecast/nowcast etc) -- !!!naming conventions are changing soon
-    :params start: start time of to subset to (date string)
-    :params end: end time to subset to (date string)
-    :param bounds: bounds to subset to -- (using (x1,y1,x2,y2) format at present
-
-
-    :param environmental_parameters: which environmental parameters to extract
-
-    :param cross_dateline=False: whether the subset crosses the dateline
-
-    :param max_filesize = None: maximum filesize to generate -- if the file will
-                          be larger than this, raise a FileTooBigError
-
-    :param target_dir: full path of file to write the output too -- if None, it will be put in a temp dir or local dir.
-
-
-    :returns: filepath
-    """
-
-    if target_pth is None:
-        target_pth = os.path.abspath("output.nc")
-
-    cat = env_models[model_id]
-
-    polybounds = utilities.bbox2polygon(bounds)
-    if not check_subset_overlap(cat, [start, end], polybounds):
-        # no overlap in at least one dimension
-        raise NonIntersectingSubsetError()
-
-
-    meta = get_model_info(model_id)
-   
-    source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
-    
-    if method==0:       
-        ds = source.to_dask()
-        target_pth = model.fetch_model(ds, meta, bounds, target_pth, which_data=environmental_parameters)
-    else:
-        model.fetch_model_oldcode(source.urlpath,meta,bounds,start,end,target_pth)
-    
-    return target_pth

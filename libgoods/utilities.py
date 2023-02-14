@@ -143,13 +143,14 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     return bb_poly.intersects(poly_bounds)
 
 
-def _filter_by_poly_bounds(mdl_meta, poly_bounds):
+def subset_intersects_model_boundary(model_bounds, poly_bounds):
     """
-    :param mdl_meta: model Metadata object
+    :param model_bounds: model boundary from metadata
     :param poly_bounds: shapely Polygon (map) boundary.
            Coords must be in (-180, -90), (180, 90) range
     """
-    model_bounds = np.array(mdl_meta.bounding_poly)
+    poly_bounds = Polygon(poly_bounds)
+    model_bounds = np.array(model_bounds)
     if np.any(model_bounds[:, 0] > 180):
         model_bounds[:, 0] = model_bounds[:, 0] - 360
     model_bounds_poly = Polygon(model_bounds)
@@ -194,23 +195,23 @@ def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env
 
     return retlist
     
-def check_subset_overlap(meta, time_range=None, xy_bounds=None):
-    """
-    TODO FINISH TIME RANGE CHECKING
-    This function checks if a given time range and xy_bounds overlap with
-    the model dimensions. If a param is None it is not checked. If both are None
-    True is returned
+# def check_subset_overlap(meta, time_range=None, xy_bounds=None):
+    # """
+    # TODO FINISH TIME RANGE CHECKING
+    # This function checks if a given time range and xy_bounds overlap with
+    # the model dimensions. If a param is None it is not checked. If both are None
+    # True is returned
 
-    :param cat: model_catalog entry
-    :param time_range: iterable pair of python datetime.datetime objects or None
-    :param xy_bounds: iterable pairs of [lon, lat], or None
-    """
-    overlap = True
+    # :param cat: model_catalog entry
+    # :param time_range: iterable pair of python datetime.datetime objects or None
+    # :param xy_bounds: iterable pairs of [lon, lat], or None
+    # """
+    # overlap = True
     
 
-    if time_range is not None:
-        pass
-    if xy_bounds is not None:
-        subset_xy_bounds = Polygon(xy_bounds)
-        overlap = overlap and _filter_by_poly_bounds(meta, subset_xy_bounds)
-    return overlap
+    # if time_range is not None:
+        # pass
+    # if xy_bounds is not None:
+        # subset_xy_bounds = Polygon(xy_bounds)
+        # overlap = overlap and filter_by_poly_bounds(meta, subset_xy_bounds)
+    # return overlap

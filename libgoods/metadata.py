@@ -73,7 +73,7 @@ class SourceMetadata:
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
     # dict associating CF name to variable name in data
-    # standard_names: dict = dataclasses.field(default_factory=dict)
+    standard_names: dict = dataclasses.field(default_factory=dict)
     env_params: set = dataclasses.field(default_factory=set)
 
     def init_from_model_source(self, src):
@@ -83,6 +83,7 @@ class SourceMetadata:
         self.period = src.metadata.get("output_period_(hr)", 0)
         self.start = src.metadata["overall_start_datetime"]
         self.end = src.metadata["overall_end_datetime"]
+        self.standard_names = src.metadata["standard_names"]
         # self.standard_names = metadata['standard_names']
         self.env_params = SourceMetadata.get_env_params(src.metadata)
         return self
@@ -159,7 +160,7 @@ class Metadata:
 
     def init_source_metadata(self, model):
         """initiate metadata"""
-        # given a model, extract the cast start_end times and set them on self
+        # given a model, extract the source start_end times and set them on self
         all_sources = [k for k in model.keys()]
         for k in all_sources:
             src = model[k]
