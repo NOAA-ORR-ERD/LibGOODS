@@ -17,4 +17,5 @@ curr_mover = gs.PyCurrentMover(current_file)
 
 map = gs.MapFromBNA(mapfile)
 
+bounds = (map.map_bounds.min(axis=0), map.map_bounds.max(axis=0)
 

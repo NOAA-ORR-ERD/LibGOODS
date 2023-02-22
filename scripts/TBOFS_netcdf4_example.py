@@ -46,7 +46,7 @@ for count, url in enumerate(urls):
             ofn = output_dir / f'tbofs_nc_{count:0>3}.nc'
             model.write_nc(var_map=var_map, ofn=ofn)
             break
-        # seems to be different type each time :-(
+        # seems to be different type of error each time :-(
         except Exception as err:
             num_fails += 1
             print(f"problem with Server:\n {ofn} {num_fails} times")

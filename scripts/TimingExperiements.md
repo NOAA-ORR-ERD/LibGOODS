@@ -29,7 +29,7 @@ dask.config.set(scheduler='synchronous')
 Then it ran:
 
 process took:  12.52 minutes
-
+process took:  9.62 minutes
 
 But with occasional:
 
@@ -66,7 +66,7 @@ from dask.distributed import Client
 client = Client()
 dask.config.set(scheduler='distributed')
 ```
-Same (similar) fail as with "processes" -- perhaps netcdf$ is not picklable, and thus not usabae in multipel processes?
+Same (similar) fail as with "processes" -- perhaps netcdf4 is not picklable, and thus not usabae in multipel processes?
 
 
 
