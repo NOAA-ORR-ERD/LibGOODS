@@ -66,7 +66,7 @@ def test_polygon2bbox_bad(bounds):
 
 def test_bbox2polygon():
 
-    bbox = ((-88, 23), (-87, 24))
+    bbox = (-88, 23, -87, 24)
     bounds = utilities.bbox2polygon(bbox)
 
     assert bounds == [(-88, 24), (-87, 24), (-87, 23), (-88, 23)]
@@ -77,4 +77,5 @@ def test_flatten_bbox():
     bbox = ((-88, 23), (-87, 24))
     fbbox = utilities.flatten_bbox(bbox)
 
-    assert fbbox == (23, -88, 24, -87)
+    assert fbbox == (-88, 23, -87, 24)
+
