@@ -1,0 +1,7 @@
+TBOFS_results/*
+test_tbofs_dask.nc
+test_tbofs_dask_single_threded.nc
+test_tbofs_dask_synchronous.nc
+test_tbofs_dask_threaded.nc
+test_tbofs_mf.nc
+
