@@ -63,11 +63,15 @@ def get_model_info(model_id,model_source,axiom=False):
     else:
         meta = model_dask.get_model_info(model_id,model_source) #use the model_catalogs code to get metadata    
         #this is annoying but the metadata object has all the sources -- have to figure out which one to extract standard_names from
-        for src in meta['sources']:
+        snames = None
+        for src in meta['sources']:          
             if src['name'] == model_source:
                 snames = src['standard_names']
-        tvar = snames['time']
-        meta = model_nc4.add_time_bounds(meta,tvar)
+        if snames is None: #in case the source was not found
+            raise KeyError('Incorrect source: ', model_source)
+        else:
+            tvar = snames['time']
+            meta = model_nc4.add_time_bounds(meta,tvar)
     return meta
 
 def get_model_subset(   
