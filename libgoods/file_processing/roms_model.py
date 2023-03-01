@@ -48,7 +48,7 @@ class roms(curv_model.curv):
         d_index=-1,
         is3d=False,
         grid_only=False,
-        dl=0,
+        dl=False,
     ):
         """
         Write a ROMS model file

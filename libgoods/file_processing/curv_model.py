@@ -98,16 +98,17 @@ class curv(base.nc):
         var_map,
         ofn="test.nc",
         t_index=None,
+        d_index=-1,
         is3d=False,
-        grid_only=False,
-        zind=-1,
-        dl=True,
-        flipud=False,
+        grid_only=False,      
+        dl=False,
     ):
         """
         Write a curvilinear grid with u/v on center points (may or may not have grid
         cell lat/lons)
         """
+        
+        flipud = False #not sure if we need this anymore but it used to be an input param to make grids increasing in latitude
         nc_in = self.Dataset
         nc_in.set_auto_maskandscale(False)
 
@@ -188,7 +189,7 @@ class curv(base.nc):
                                 var_out[i, :] = np.flipud(
                                     var_in[
                                         tt,
-                                        zind,
+                                        d_index,
                                         self.y[0] : self.y[1],
                                         self.x[0] : self.x[1],
                                     ]
@@ -196,7 +197,7 @@ class curv(base.nc):
                         else:
                             var_out[:] = var_in[
                                 t_index[0] : t_index[1] : t_index[2],
-                                zind,
+                                d_index,
                                 self.y[0] : self.y[1],
                                 self.x[0] : self.x[1],
                             ]
