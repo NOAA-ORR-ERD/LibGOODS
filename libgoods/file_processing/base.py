@@ -117,7 +117,7 @@ class nc:
             start = datetime.datetime.strptime(start, fmt)
         if not isinstance(end, datetime.datetime):
             end = datetime.datetime.strptime(end, fmt)
-        t1 = [i for i, dt in enumerate(dts) if dt >= start][0]
+        t1 = [i for i, dt in enumerate(dts) if dt >= start][0] 
         t2 = [i for i, dt in enumerate(dts) if dt <= end][-1] + 1
 
         return t1, t2

@@ -29,7 +29,7 @@ dask.config.set(scheduler='synchronous')
 main_cat = mc.setup()
 bounds = [-82.9, 27.3, -82.6, 27.7]
 model_id = 'TBOFS'
-model_source = 'coops-forecast-noagg'
+model_source = 'coops-forecast-agg'
 cat = main_cat[model_id][model_source]
 
 start = datetime.datetime.today()

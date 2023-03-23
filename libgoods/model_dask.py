@@ -39,6 +39,13 @@ def get_model_info(model_id,model_source,add_time_bounds=False):
             print(f"{model_source} is not a valid source for this model")      
         return meta
      
+def get_urllist_unagg(model_id,model_source,start,end):
+    
+    source = mc.select_date_range(env_models[model_id][model_source], start_date=start, end_date=end)
+    
+    return source.urlpath
+
+
 def generate_subset_xds(identifier,
                         model_source,
                         start,

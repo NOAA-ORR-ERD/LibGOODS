@@ -8,7 +8,9 @@ These are the functions that the WebGNOME client will call
 import os
 import numpy as np
 
-from . import utilities, model_dask, model_nc4
+from . import utilities, model_dask, model_nc4, NonIntersectingSubsetError 
+from .metadata import ENVIRONMENTAL_PARAMETERS as EP_map
+
 
 def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=False):
     """
@@ -58,11 +60,11 @@ def get_model_info(model_id,model_source,axiom=False):
     The axiom pathway uses model_catalogs.find_availability which can be slow
     Otherwise, we use a netCDF4 variable retrieval to get the start/end date based on the url
     """
-    if axiom:
+    if axiom or ('noagg' in model_source):
         meta = model_dask.get_model_info(model_id,model_source,add_time_bounds=True)
     else:
         meta = model_dask.get_model_info(model_id,model_source) #use the model_catalogs code to get metadata    
-        #this is annoying but the metadata object has all the sources -- have to figure out which one to extract standard_names from
+        #this is annoying but the metadata object has all the sources -- have to figure out which one to extract standard_names from           
         snames = None
         for src in meta['sources']:          
             if src['name'] == model_source:
@@ -104,6 +106,16 @@ def get_model_subset(
                                             cross_dateline,
                                             environmental_parameters)
     else:
+        if 'noagg' in model_source: #need to build urllist
+            urlpath = model_dask.get_urllist_unagg(model_id,model_source,start,end)
+        else:
+            urlpath = meta['urlpath']
+    
+        if isinstance(environmental_parameters, list):
+            var_list = [var for param in environmental_parameters for var in EP_map[param]]
+        else:
+            var_list = EP_map[environmental_parameters]
+ 
         if 'ROMS' in meta['html_desc']: #add this to the yaml files
             grid = 'ROMS'
         elif 'POM' in meta['html_desc']:
@@ -111,13 +123,13 @@ def get_model_subset(
         else:
             grid= 'unknown'
             
-        ds = model_nc4.get_model_subset(meta['urlpath'],
+        ds = model_nc4.get_model_subset(urlpath,
                                 start,
                                 end,
-                                bounds,
+                                list(bounds),
                                 surface_only=surface_only,
                                 cross_dateline=cross_dateline,
-                                environmental_parameters = environmental_parameters,
+                                var_list = var_list,
                                 grid = grid)
                                             
                               

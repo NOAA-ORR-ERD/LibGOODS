@@ -95,7 +95,7 @@ class curv(base.nc):
 
     def write_nc(
         self,
-        var_map,
+        var_map={"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"},
         ofn="test.nc",
         t_index=None,
         d_index=-1,

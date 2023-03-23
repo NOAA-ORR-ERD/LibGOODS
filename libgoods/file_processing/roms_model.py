@@ -49,6 +49,7 @@ class roms(curv_model.curv):
         is3d=False,
         grid_only=False,
         dl=False,
+        include_wind=False,
     ):
         """
         Write a ROMS model file
@@ -120,7 +121,6 @@ class roms(curv_model.curv):
             try:
                 dim1 = var_in.dimensions[0]
             except IndexError:
-                print("exception with variable:", var_in)
                 var_out = nc_out.createVariable(var, var_in.dtype, ())
                 var_out[:] = var_in[:]
             else:
@@ -170,6 +170,12 @@ class roms(curv_model.curv):
         if not grid_only:
             # data_vars = ['u','v','temp','salt']
             data_vars = ["u", "v"]
+            
+            if is3d:
+                data_vars.extend(["zeta"])
+                
+            if include_wind: #This is specific to NOAA/COOPS OFS
+                data_vars.extend(["Uwind","Vwind"])
 
             for var in data_vars:
                 # Create variable in new file:
@@ -177,12 +183,19 @@ class roms(curv_model.curv):
                 coords = var_in.coordinates
 
                 if is3d:
-                    dims = (
-                        self.time_dimension[0],
-                        var_in.dimensions[1],
-                        var_in.dimensions[2],
-                        var_in.dimensions[3],
-                    )
+                    try:
+                        dims = (
+                            self.time_dimension[0],
+                            var_in.dimensions[1],
+                            var_in.dimensions[2],
+                            var_in.dimensions[3],
+                        )
+                    except IndexError: #no depth dimension (e.g. zeta)
+                        dims = (
+                            self.time_dimension[0],
+                            var_in.dimensions[1],
+                            var_in.dimensions[2],
+                        )
                     if coords.find("lon_u") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
@@ -202,27 +215,43 @@ class roms(curv_model.curv):
                             self.x[0] : self.x[1],
                         ]
                     elif coords.find("lon_rho") > -1:
-                        var_out = nc_out.createVariable(var, var_in.dtype, dims)
-                        # Copy data:
-                        var_out[:] = var_in[
-                            t_index[0] : t_index[1] : t_index[2],
-                            :,
-                            self.y[0] : self.y[1],
-                            self.x[0] : self.x[1],
-                        ]
+                        if len(var_in.dimensions) == 4:
+                            var_out = nc_out.createVariable(var, var_in.dtype, dims)
+                            # Copy data:
+                            var_out[:] = var_in[
+                                t_index[0] : t_index[1] : t_index[2],
+                                :,
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
+                        else: #zeta does not have depth
+                            var_out = nc_out.createVariable(var, var_in.dtype, dims)
+                            # Copy data:
+                            var_out[:] = var_in[
+                                t_index[0] : t_index[1] : t_index[2],
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
+                        
                     else:
                         print(
                             "Variable dimensions could not be determined - skipping",
                             var,
                         )
-                        continue
-
-                else:
-                    dims = (
-                        self.time_dimension[0],
-                        var_in.dimensions[2],
-                        var_in.dimensions[3],
-                    )
+                        continue   
+                else: #surface only               
+                    try:
+                        dims = (
+                            self.time_dimension[0],
+                            var_in.dimensions[2],
+                            var_in.dimensions[3],
+                        )
+                    except IndexError: #no depth dimension (e.g. wind)
+                        dims = (
+                            self.time_dimension[0],
+                            var_in.dimensions[1],
+                            var_in.dimensions[2],
+                        )
                     if coords.find("lon_u") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
@@ -241,6 +270,25 @@ class roms(curv_model.curv):
                             self.y[0] : self.y[1] - 1,
                             self.x[0] : self.x[1],
                         ]
+                    elif coords.find("lon_rho") > -1:
+                        if len(var_in.dimensions) == 4:
+                            var_out = nc_out.createVariable(var, var_in.dtype, dims)
+                            # Copy data:
+                            var_out[:] = var_in[
+                                t_index[0] : t_index[1] : t_index[2],
+                                d_index,
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
+                        else: #zeta does not have depth
+                            var_out = nc_out.createVariable(var, var_in.dtype, dims)
+                            # Copy data:
+                            var_out[:] = var_in[
+                                t_index[0] : t_index[1] : t_index[2],
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
+                        
                     else:
                         print(
                             "Variable dimensions could not be determined - skipping",

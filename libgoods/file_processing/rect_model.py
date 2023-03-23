@@ -42,7 +42,7 @@ class rect(base.nc):
 
     def subset(self, bbox, stride=1, dl=0):
         """
-        bbox = [slat,wlon,nlat,elon]
+        bbox = [wlon,slat,elon,nlat]
 
         """
         subset_lat = np.nonzero(
@@ -66,7 +66,13 @@ class rect(base.nc):
 
     def write_nc(
         self,
-        var_map,
+        var_map = {
+            "time": "time",
+            "lon": "lon",
+            "lat": "lat",
+            "u": "water_u",
+            "v": "water_v",
+        },
         ofn="test.nc",
         t_index=None,
         d_index=0,
