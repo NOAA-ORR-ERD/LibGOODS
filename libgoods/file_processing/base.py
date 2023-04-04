@@ -2,7 +2,6 @@
 Base model class
 """
 #!/usr/bin/env python
-from __future__ import print_function
 import numpy as np
 from netCDF4 import Dataset, MFDataset, num2date
 from libgoods import temp_files_dir

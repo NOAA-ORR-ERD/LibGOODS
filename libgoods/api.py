@@ -115,22 +115,51 @@ def get_model_subset(
             var_list = [var for param in environmental_parameters for var in EP_map[param]]
         else:
             var_list = EP_map[environmental_parameters]
- 
+        
+        if 'eastward_wind' in var_list:
+            include_wind = True
+        else:
+            include_wind = False
+        
+        #TODO: parse from standard names - this is a kludge        
         if 'ROMS' in meta['html_desc']: #add this to the yaml files
             grid = 'ROMS'
+            if isinstance(urlpath,list):
+                var_map = {"time": "ocean_time"}
+            else:
+                var_map = {"time": "time"}
         elif 'POM' in meta['html_desc']:
             grid = 'POM'
+            var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
         else:
-            grid= 'unknown'
-            
+            grid = 'unknown'
+            #TODO: parse from standard names - this is a kludge
+            if include_wind: #only one regular grid wind model (no hydro models with winds so this works for now
+                var_map = {
+                    "time": "time",
+                    "lon": "lon",
+                    "lat": "lat",
+                    "u": "u-component_of_wind_height_above_ground",
+                    "v": "v-component_of_wind_height_above_ground",
+                    }
+            else:         
+                var_map = {
+                    "time": "time",
+                    "lon": "lon",
+                    "lat": "lat",
+                    "u": "water_u",
+                    "v": "water_v",
+                    }
+        
         ds = model_nc4.get_model_subset(urlpath,
                                 start,
                                 end,
                                 list(bounds),
                                 surface_only=surface_only,
                                 cross_dateline=cross_dateline,
-                                var_list = var_list,
-                                grid = grid)
+                                var_map = var_map,
+                                grid = grid,
+                                include_wind = include_wind)
                                             
                               
     return ds

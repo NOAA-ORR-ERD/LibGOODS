@@ -79,6 +79,7 @@ class rect(base.nc):
         is3d=False,
         grid_only=False,
         dl=0,
+        include_wind=False,
     ):
         """
         Write a rectangular grid model file

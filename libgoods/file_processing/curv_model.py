@@ -102,6 +102,7 @@ class curv(base.nc):
         is3d=False,
         grid_only=False,      
         dl=False,
+        include_wind=False,
     ):
         """
         Write a curvilinear grid with u/v on center points (may or may not have grid

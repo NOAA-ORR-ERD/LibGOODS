@@ -23,12 +23,19 @@ def get_model_subset(
     bounds,
     surface_only=True,
     cross_dateline=False,
-    var_list=[],
-    grid=None
+    var_map = {
+            "time": "time",
+            "lon": "lon",
+            "lat": "lat",
+            "u": "water_u",
+            "v": "water_v",
+            },
+    grid=None,
+    include_wind=False, #this is only used for the hydro models that include wind - its a kludge and needs to be rethought (i.e. use var_map?)
     ):
 
     """
-
+    TO DO: THIS IS OUT OF DATE
     :param model_id: ID (name) of the model
     :param model_source (forecast/nowcast etc) -- !!!naming conventions are changing soon
     :params start: start time of to subset to (date string)
@@ -41,29 +48,12 @@ def get_model_subset(
     :returns: file processing model object
     """
     #source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
-    if 'eastward_wind' in var_list:
-        include_wind = True
-    else:
-        include_wind = False
 
-    
     if grid == "ROMS":
         model = file_processing.roms()
-        if isinstance(url,list):
-            var_map = {"time": "ocean_time"}
-        else:
-            var_map = {"time": "time"}
-    elif grid == "POM":
-        var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
+    elif grid == "POM":        
         model = file_processing.curv()
-    else:
-        var_map = {
-            "time": "time",
-            "lon": "lon",
-            "lat": "lat",
-            "u": "water_u",
-            "v": "water_v",
-        }
+    else:      
         model = file_processing.rect()
 
     model.open_nc(url)
