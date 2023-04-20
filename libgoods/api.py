@@ -32,7 +32,7 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = model_dask.get_metadata();
+    all_metas = model_dask.get_metadata()
     retval = utilities.filter_models(
         all_metas.values(),
         model_ids_sources=model_ids_sources,

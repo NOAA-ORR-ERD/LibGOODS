@@ -2,9 +2,10 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'CBOFS'
+model_id = 'DBOFS'
 #env_params = "surface winds"
 env_params = ["surface currents","surface winds"]
+axiom = False
 
 EXAMPLE_BBOXES = {
     "CBOFS": (-76.5, 36.75, -75.25, 37.75),
@@ -58,9 +59,9 @@ bounds = EXAMPLE_BBOXES[model_id]
     
 
 print('subsetting')
-ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params)
+ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params,axiom=axiom)
 
 print('downloading output')
 ofn = os.path.join('output',model_id + '.nc')
-ofn = api.get_model_output(ds,ofn)
+ofn = api.get_model_output(ds,ofn,axiom=axiom)
 

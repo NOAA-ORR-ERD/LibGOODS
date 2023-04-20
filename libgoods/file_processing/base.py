@@ -106,17 +106,21 @@ class nc:
         print("Time step: ", dt, "in units of", self.time_units)
         print("Length:", len(self.time))
 
-    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S"):
+    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S", buffer_hrs=6):
         """
         Start/end are strings in format %Y-%m-%dT%H:%M:%S
         or datetimes
+        
+        Buffer_hrs - adds a default 6 hour buffer to start and end times since model timestep may not align with chosen start/end time
         """
         dts = num2date(self.time, self.time_units)
         if not isinstance(start, datetime.datetime):
-            start = datetime.datetime.strptime(start, fmt)
+            start = datetime.datetime.strptime(start, fmt) 
         if not isinstance(end, datetime.datetime):
             end = datetime.datetime.strptime(end, fmt)
-        t1 = [i for i, dt in enumerate(dts) if dt >= start][0] 
-        t2 = [i for i, dt in enumerate(dts) if dt <= end][-1] + 1
+            
+        buffer = datetime.timedelta(hours=buffer_hrs) 
+        t1 = [i for i, dt in enumerate(dts) if dt >= start-buffer][0] 
+        t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] + 1
 
         return t1, t2
