@@ -98,7 +98,7 @@ class curv(base.nc):
         var_map={"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"},
         ofn="test.nc",
         t_index=None,
-        d_index=-1,
+        d_index=0,
         is3d=False,
         grid_only=False,      
         dl=False,

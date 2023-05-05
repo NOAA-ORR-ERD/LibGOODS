@@ -51,7 +51,7 @@ def get_model_subset(
 
     if grid == "ROMS":
         model = file_processing.roms()
-    elif grid == "POM":        
+    elif grid == "curv":        
         model = file_processing.curv()
     else:      
         model = file_processing.rect()

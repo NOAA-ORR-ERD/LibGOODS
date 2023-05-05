@@ -129,10 +129,13 @@ def get_model_subset(
             else:
                 var_map = {"time": "time"}
         elif 'POM' in meta['html_desc']:
-            grid = 'POM'
+            grid = 'curv'
             var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
+        elif 'interpolated to regular grid' in meta['html_desc']:
+            grid = 'curv'
+            var_map = {"time": "time", "lon": "Longitude", "lat": "Latitude", "u": "u_eastward", "v": "v_northward"}
         else:
-            grid = 'unknown'
+            grid = 'reg'
             #TODO: parse from standard names - this is a kludge
             if include_wind: #only one regular grid wind model (no hydro models with winds so this works for now
                 var_map = {

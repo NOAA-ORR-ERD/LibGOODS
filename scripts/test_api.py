@@ -2,18 +2,19 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'DBOFS'
-#env_params = "surface winds"
-env_params = ["surface currents","surface winds"]
+model_id = 'NYOFS'
+env_params = "surface currents"
+#env_params = ["surface currents"]
 axiom = False
 
 EXAMPLE_BBOXES = {
     "CBOFS": (-76.5, 36.75, -75.25, 37.75),
     "CIOFS": (-154.5, 58.0, -151.0, 60.0),
     "CREOFS": (-123.9, 46.1, -123.6, 46.3),
+    "CREOFS_RGRID": (-123.9, 46.1, -123.6, 46.3),
     "DBOFS": (-75.5, 38.5, -74.5, 39.25),
     "GFS-1-2DEG": (-85.0, 25.0, -60.0, 48.0),
-    "GFS-1-4DEG": (-85.0, 25.0, -60.0, 48.0),
+    "GFS_1_4DEG": (-85.0, 25.0, -60.0, 48.0),
     "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
     "GOMOFS": (-70, 41, -66, 44),
     "GOFS": (-79.10, 31.84, -68.159, 42.29),
@@ -25,6 +26,7 @@ EXAMPLE_BBOXES = {
     "NYOFS": (-74.1, 40.49, -73.95, 40.61),
     "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
     "TBOFS": (-82.9, 27.3, -82.6, 27.7),
+    "WCOFS": (-122.0, 25.0, -115.0, 35.0),
 }
 
 supported_models = {    
@@ -43,16 +45,18 @@ supported_models = {
                     'TBOFS':['coops-forecast-agg',],
                     'NYOFS':['coops-forecast-agg',],
                     'GOMOFS':['coops-forecast-agg',],
-                    'GFS-1-4DEG':['ucar-forecast-agg',],
+                    'GFS_1_4DEG':['ucar-forecast-agg',],
                     'GFS-1-2DEG':['ucar-forecast-agg',],
-                    'GFS-1DEG':['ucar-forecast-agg',]
+                    'GFS-1DEG':['ucar-forecast-agg',],
+                    'WCOFS':['ioos-forecast-agg',],
+                    'CREOFS_RGRID':['ioos-forecast-agg',],
                     }
                         
 
 model_source = supported_models[model_id][0]
 
 start = datetime.datetime.today()
-end = start + datetime.timedelta(days=1)
+end = start + datetime.timedelta(days=2)
 
 bounds = EXAMPLE_BBOXES[model_id]
 
