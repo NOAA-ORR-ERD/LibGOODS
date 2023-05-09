@@ -2,9 +2,9 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'NYOFS'
-env_params = "surface currents"
-#env_params = ["surface currents"]
+model_id = 'NGOFS2_RGRID'
+#env_params = "surface winds"
+env_params = ["surface currents"]
 axiom = False
 
 EXAMPLE_BBOXES = {
@@ -27,6 +27,7 @@ EXAMPLE_BBOXES = {
     "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
     "TBOFS": (-82.9, 27.3, -82.6, 27.7),
     "WCOFS": (-122.0, 25.0, -115.0, 35.0),
+    "NGOFS2_RGRID": (-90.8,28.76,-89.06,29.7),
 }
 
 supported_models = {    
@@ -50,12 +51,14 @@ supported_models = {
                     'GFS-1DEG':['ucar-forecast-agg',],
                     'WCOFS':['ioos-forecast-agg',],
                     'CREOFS_RGRID':['ioos-forecast-agg',],
+                    'NGOFS2_RGRID':['ioos-forecast-agg',],
                     }
                         
 
 model_source = supported_models[model_id][0]
 
 start = datetime.datetime.today()
+#start = datetime.datetime(2023,5,7,21,0,0)
 end = start + datetime.timedelta(days=2)
 
 bounds = EXAMPLE_BBOXES[model_id]

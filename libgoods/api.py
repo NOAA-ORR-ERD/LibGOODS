@@ -131,7 +131,7 @@ def get_model_subset(
         elif 'POM' in meta['html_desc']:
             grid = 'curv'
             var_map = {"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"}
-        elif 'interpolated to regular grid' in meta['html_desc']:
+        elif 'interpolated onto a regular grid' in meta['html_desc']:
             grid = 'curv'
             var_map = {"time": "time", "lon": "Longitude", "lat": "Latitude", "u": "u_eastward", "v": "v_northward"}
         else:

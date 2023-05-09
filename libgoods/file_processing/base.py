@@ -120,7 +120,8 @@ class nc:
             end = datetime.datetime.strptime(end, fmt)
             
         buffer = datetime.timedelta(hours=buffer_hrs) 
+        #ADD error checking -- this crashes if start is greater than dts[-1]
         t1 = [i for i, dt in enumerate(dts) if dt >= start-buffer][0] 
-        t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] + 1
+        t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] 
 
         return t1, t2
