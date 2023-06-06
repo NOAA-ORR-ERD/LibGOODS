@@ -49,16 +49,19 @@ class roms(curv_model.curv):
         is3d=False,
         grid_only=False,
         dl=False,
-        include_wind=False,
     ):
         """
         Write a ROMS model file
         Note: some of these input params aren't used at present; trying to have same params as other grid types
 
         """
+        include_wind = False
         if var_map is not None:
             # allow some default variable name overriding
-            pass
+            if "eastward_wind" in var_map:
+                include_wind=True
+                uwind = var_map["eastward_wind"]
+                vwind = var_map["northward_wind"]
 
         nc_in = self.Dataset
         nc_in.set_auto_maskandscale(False)
@@ -174,8 +177,8 @@ class roms(curv_model.curv):
             if is3d:
                 data_vars.extend(["zeta"])
                 
-            if include_wind: #This is specific to NOAA/COOPS OFS
-                data_vars.extend(["Uwind","Vwind"])
+            if include_wind: 
+                data_vars.extend([uwind,vwind])
 
             for var in data_vars:
                 # Create variable in new file:

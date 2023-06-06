@@ -2,9 +2,11 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'NGOFS2_RGRID'
+model_id = 'CIOFS'
+model_source = 'coops-forecast-agg'
+
 #env_params = "surface winds"
-env_params = ["surface currents"]
+env_params = ["surface currents","surface winds"]
 axiom = False
 
 EXAMPLE_BBOXES = {
@@ -55,7 +57,7 @@ supported_models = {
                     }
                         
 
-model_source = supported_models[model_id][0]
+#model_source = supported_models[model_id][0]
 
 start = datetime.datetime.today()
 #start = datetime.datetime(2023,5,7,21,0,0)
@@ -63,7 +65,8 @@ end = start + datetime.timedelta(days=2)
 
 bounds = EXAMPLE_BBOXES[model_id]
 
-    
+print(model_id)
+print(model_source)   
 
 print('subsetting')
 ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params,axiom=axiom)

@@ -14,10 +14,24 @@ class nc:
     """
     Base model class
     """
-
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names
-    data_vars = ["u", "v", "ice_u", "ice_v", "ice_thickness", "ice_fraction"]
+    data_vars = [
+    'air_temperature',
+    'angle_of_rotation_from_east_to_x',
+    'dew_point_temperature',
+    'eastward_sea_water_velocity',
+    'eastward_wind',
+    'northward_sea_water_velocity',
+    'northward_wind',
+    'sea_floor_depth',
+    'sea_ice_area_fraction',
+    'sea_ice_thickness',
+    'sea_surface_elevation',
+    'sea_water_temperature',
+    'sea_water_practical_salinity',
+    'upward_sea_water_velocity',
+    'wind_gust']
 
     def open_nc(self, FileName=None, GridFileName=None, tvar=None):
         """
@@ -120,7 +134,12 @@ class nc:
             end = datetime.datetime.strptime(end, fmt)
             
         buffer = datetime.timedelta(hours=buffer_hrs) 
-        #ADD error checking -- this crashes if start is greater than dts[-1]
+        
+        # if start > dts[-1]:
+            # raise IndexError()
+        # elif end < dts[0]:
+            # raise IndexError()
+            
         t1 = [i for i, dt in enumerate(dts) if dt >= start-buffer][0] 
         t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] 
 
