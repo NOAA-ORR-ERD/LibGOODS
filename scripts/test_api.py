@@ -2,11 +2,11 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'CIOFS'
-model_source = 'coops-forecast-agg'
+model_id = 'GOFS'
+model_source = 'hycom-forecast-agg'
 
 #env_params = "surface winds"
-env_params = ["surface currents","surface winds"]
+env_params = ["surface currents"]
 axiom = False
 
 EXAMPLE_BBOXES = {
@@ -19,7 +19,7 @@ EXAMPLE_BBOXES = {
     "GFS_1_4DEG": (-85.0, 25.0, -60.0, 48.0),
     "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
     "GOMOFS": (-70, 41, -66, 44),
-    "GOFS": (-79.10, 31.84, -68.159, 42.29),
+    "GOFS": (-126, 46, -123, 50),
     "LEOFS": (-83.6, 41.5, -82.6, 42.1),
     "LMHOFS": (-88, 41.57, -86, 44),
     "LOOFS": (-78.6, 43.4, -77.1, 43.7),
@@ -60,7 +60,7 @@ supported_models = {
 #model_source = supported_models[model_id][0]
 
 start = datetime.datetime.today()
-#start = datetime.datetime(2023,5,7,21,0,0)
+#start = datetime.datetime(2023,6,3,21,0,0)
 end = start + datetime.timedelta(days=2)
 
 bounds = EXAMPLE_BBOXES[model_id]

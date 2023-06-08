@@ -110,17 +110,16 @@ def get_model_subset(
             urlpath = meta['urlpath']
         
         var_map = filter_var_map(var_list, meta['sources'][0]['standard_names'])
-        try:            
-            ds = model_nc4.get_model_subset(urlpath,
-                                    start,
-                                    end,
-                                    list(bounds),
-                                    surface_only=surface_only,
-                                    cross_dateline=cross_dateline,
-                                    var_map = var_map,
-                                    grid = meta['grid_type'])
-        except:
-            ds = None
+          
+        ds = model_nc4.get_model_subset(urlpath,
+                                start,
+                                end,
+                                list(bounds),
+                                surface_only=surface_only,
+                                cross_dateline=cross_dateline,
+                                var_map = var_map,
+                                grid = meta['grid_type'])
+
                                             
                               
     return ds
@@ -132,11 +131,8 @@ def get_model_output(xds, output_pth, axiom=False):
     if axiom:
         output_path = model_dask.request_subset(xds, output_pth)
     else:
-        try:
-            output_path = model_nc4.get_model_output(xds, output_pth)
-        except:
-            output_path = None
-    
+        output_path = model_nc4.get_model_output(xds, output_pth)
+
     return output_pth
     
     

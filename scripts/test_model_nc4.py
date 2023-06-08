@@ -1,10 +1,11 @@
 from libgoods import model_nc4 as model
 import datetime
 
-url = 'https://eds.ioos.us/thredds/dodsC/ioos/ofs/ngofs2/forecast/regulargrid/NGOFS2_Forecast_Regulargrid_best.ncd'
-#url = "http://tds.ioos.us/thredds/dodsC/ioos/ofs/nyofs/forecast/fields/NYOFS_Forecast_Fields_best.ncd"
+# url = 'https://eds.ioos.us/thredds/dodsC/ioos/ofs/ngofs2/forecast/regulargrid/NGOFS2_Forecast_Regulargrid_best.ncd'
+url = "http://tds.ioos.us/thredds/dodsC/ioos/ofs/nyofs/forecast/fields/NYOFS_Forecast_Fields_best.ncd"
 
-var_map = {'time':'time','longitude':'Longitude','latitude':'Latitude','eastward_sea_water_velocity':'u_eastward','northward_sea_water_velocity':'v_northward','mask':'mask'}
+# var_map = {'time':'time','longitude':'Longitude','latitude':'Latitude','eastward_sea_water_velocity':'u_eastward','northward_sea_water_velocity':'v_northward','mask':'mask'}
+var_map = {'time':'time','longitude':'lon','latitude':'lat','eastward_sea_water_velocity':'u','northward_sea_water_velocity':'v','mask':'mask'}
 start = datetime.datetime.today()
 end = start + datetime.timedelta(days=1)
 bounds = [-90.8,28.76,-89.06,29.7]
