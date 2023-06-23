@@ -48,19 +48,7 @@ def check_valid_box(bbox, system="all"):
     return True
 
 
-def shift_lon_coords(coords, system):
-    """
-    shift longitude to the defined system
-    """
 
-
-def detect_lon_coords(coords, system):
-    """
-    detects the longitude coords system
-
-     - -180 -- 180
-     - 0 -- 360
-    """
 
 
 def polygon2bbox(bounds):
@@ -195,23 +183,3 @@ def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env
 
     return retlist
     
-# def check_subset_overlap(meta, time_range=None, xy_bounds=None):
-    # """
-    # TODO FINISH TIME RANGE CHECKING
-    # This function checks if a given time range and xy_bounds overlap with
-    # the model dimensions. If a param is None it is not checked. If both are None
-    # True is returned
-
-    # :param cat: model_catalog entry
-    # :param time_range: iterable pair of python datetime.datetime objects or None
-    # :param xy_bounds: iterable pairs of [lon, lat], or None
-    # """
-    # overlap = True
-    
-
-    # if time_range is not None:
-        # pass
-    # if xy_bounds is not None:
-        # subset_xy_bounds = Polygon(xy_bounds)
-        # overlap = overlap and filter_by_poly_bounds(meta, subset_xy_bounds)
-    # return overlap

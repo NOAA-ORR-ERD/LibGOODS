@@ -24,5 +24,10 @@ temp_files_dir.mkdir(parents=True, exist_ok=True)
 
 class NonIntersectingSubsetError(ValueError):
     """
-    provided subset does not overlap in at least one dimension
+    provided bounds does not overlap with model domain
+    """
+    
+class NonIntersectingTimeInterval(ValueError):
+    """
+    provided time bounds do not overlap with model time availability
     """

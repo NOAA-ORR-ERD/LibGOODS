@@ -8,7 +8,7 @@ These are the functions that the WebGNOME client will call
 import os
 import numpy as np
 
-from . import utilities, model_dask, model_nc4, NonIntersectingSubsetError 
+from . import utilities, model_catalogs, model_nc4, NonIntersectingSubsetError, NonIntersectingTimeInterval 
 from .metadata import get_var_list_standard_names, filter_var_map
 
 
@@ -32,7 +32,7 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = model_dask.get_metadata()
+    all_metas = model_catalogs.get_metadata()
     retval = utilities.filter_models(
         all_metas.values(),
         model_ids_sources=model_ids_sources,
@@ -61,9 +61,9 @@ def get_model_info(model_id,model_source,axiom=False):
     Otherwise, we use a netCDF4 variable retrieval to get the start/end date based on the url
     """
     if axiom or ('noagg' in model_source):
-        meta = model_dask.get_model_info(model_id,model_source,add_time_bounds=True)
+        meta = model_catalogs.get_model_info(model_id,model_source,add_time_bounds=True)
     else:
-        meta = model_dask.get_model_info(model_id,model_source) #use the model_catalogs code to        
+        meta = model_catalogs.get_model_info(model_id,model_source) #use the model_catalogs code to        
         tvar_name = meta['sources'][0]['standard_names']['time']
         meta = model_nc4.add_time_bounds(meta,tvar_name)
     return meta
@@ -80,7 +80,7 @@ def get_model_subset(
     axiom=False):
     """
     The nc4 code returns a model object that has info about the grid and subset indices
-    The dask code returns an xarray dataset -- both work ok with api (can be pickled)
+    The model_catalogs code returns an xarray dataset -- both work ok with api (can be pickled)
     
     """
     polybounds = utilities.bbox2polygon(bounds)
@@ -93,7 +93,7 @@ def get_model_subset(
     var_list = get_var_list_standard_names(environmental_parameters)
             
     if axiom:
-        ds = model_dask.generate_subset_xds(model_id,
+        ds = model_catalogs.generate_subset_xds(model_id,
                                             model_source,
                                             start,
                                             end,
@@ -105,7 +105,7 @@ def get_model_subset(
         
         #build url list if unaggregated
         if 'noagg' in model_source: 
-            urlpath = model_dask.get_urllist_unagg(model_id,model_source,start,end)
+            urlpath = model_catalogs.get_urllist_unagg(model_id,model_source,start,end)
         else:
             urlpath = meta['urlpath']
         
@@ -129,7 +129,7 @@ def get_model_subset(
 def get_model_output(xds, output_pth, axiom=False):
 
     if axiom:
-        output_path = model_dask.request_subset(xds, output_pth)
+        output_path = model_catalogs.request_subset(xds, output_pth)
     else:
         output_path = model_nc4.get_model_output(xds, output_pth)
 

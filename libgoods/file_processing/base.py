@@ -120,7 +120,7 @@ class nc:
         print("Time step: ", dt, "in units of", self.time_units)
         print("Length:", len(self.time))
 
-    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S", buffer_hrs=6):
+    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S"):
         """
         Start/end are strings in format %Y-%m-%dT%H:%M:%S
         or datetimes
@@ -131,16 +131,23 @@ class nc:
         if not isinstance(start, datetime.datetime):
             start = datetime.datetime.strptime(start, fmt) 
         if not isinstance(end, datetime.datetime):
-            end = datetime.datetime.strptime(end, fmt)
-            
-        buffer = datetime.timedelta(hours=buffer_hrs) 
+            end = datetime.datetime.strptime(end, fmt)         
+   
+        t1 = [i for i, dt in enumerate(dts) if dt <= start]
+        if len(t1) == 0:
+            t1 = 0 #all time values are > than start time
+        elif len(t1) == len(dts):
+            raise ValueError('Specified start time is later than model end time')
+        else:
+            t1 = t1[-1]
+               
+        t2 = [i for i, dt in enumerate(dts) if dt > end]
+        if len(t2) == 0:
+            t2 = len(dts)-1 #all time values < end time
+        elif len(t2)==len(dts):
+            raise ValueError('Specified end time is before the model start time')
+        else:
+            t2 = t2[0] + 1
+    
         
-        # if start > dts[-1]:
-            # raise IndexError()
-        # elif end < dts[0]:
-            # raise IndexError()
-            
-        t1 = [i for i, dt in enumerate(dts) if dt >= start-buffer][0] 
-        t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] 
-
         return t1, t2

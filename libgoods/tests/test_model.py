@@ -1,65 +1,60 @@
 """
-tests of the data models base class
+tests of the data models base class (file_processing/base)
 """
-
 import pytest
+from libgoods.file_processing import base
+import datetime
+from netCDF4 import num2date
+import numpy as np
 
-pytest.skip("Skipping -- obsolete", allow_module_level=True)
+model = base.nc()
 
-import copy
+model.time_units = 'hours since 2023-06-01 00:00'
+model.time = np.arange(0,72)
+    
+def test_get_timeslice_indices_valid():
 
-from libgoods.model import Model, Metadata, CastMetadata
+    start = datetime.datetime(2023,6,1,0,0)
+    end = datetime.datetime(2023,6,3,23,0)
+    t_ind = model.get_timeslice_indices(start,end)
+    
+    assert num2date(model.time,model.time_units)[t_ind[0]] == start
+    assert num2date(model.time,model.time_units)[t_ind[-1]] == end
 
-sample_NYOFS_forecast_metadata = {
-    "axis": {"T": "time", "X": "nx", "Y": "ny"},
-    #'catalog_dir': 'c:/users/jay.hennen/documents/code/libgoods/model_catalogs/model_catalogs/catalogs/complete/',
-    "output_period_(hr)": 1,
-    "overall_end_datetime": "48 hours after present time",
-    "overall_start_datetime": "7 days before present time",
-    "standard_names": {
-        "eastward_sea_water_velocity": "u",
-        "eastward_wind": "air_u",
-        "northward_sea_water_velocity": "v",
-        "northward_wind": "air_v",
-        "ocean_sigma_coordinate": "sigma",
-        "sea_floor_depth": "depth",
-        "sea_surface_elevation": "zeta",
-        "time": "time",
-        "upward_sea_water_velocity": "w",
-    },
-}
+def test_get_timeslice_indices_before_range():
+
+    start = datetime.datetime(2021,6,1,0,0)
+    end = datetime.datetime(2021,6,3,23,0)
+    with pytest.raises(ValueError):
+        t_ind = model.get_timeslice_indices(start,end)
+
+def test_get_timeslice_indices_valid():
+
+    start = datetime.datetime(2023,6,1,0,0)
+    end = datetime.datetime(2023,6,3,23,0)
+    t_ind = model.get_timeslice_indices(start,end)
+    
+    assert num2date(model.time,model.time_units)[t_ind[0]] == start
+    assert num2date(model.time,model.time_units)[t_ind[-1]] == end
+
+def test_get_timeslice_indices_after_range():
+
+    start = datetime.datetime(2027,6,1,0,0)
+    end = datetime.datetime(2027,6,3,23,0)
+    with pytest.raises(ValueError):
+        t_ind = model.get_timeslice_indices(start,end)    
+
+    
+def test_get_timeslice_indices_overlap():
+
+    start = datetime.datetime(2023,5,31,0,0)
+    end = datetime.datetime(2027,6,5,23,0)
+    t_ind = model.get_timeslice_indices(start,end) 
+    
+    assert t_ind[0] == 0
+    assert t_ind[1] == len(model.time)-1
 
 
-class TestCastMetadata:
-    def test_construction(self):
-        cm = CastMetadata()
-        assert isinstance(cm.env_params, set)
-        assert len(cm.env_params) == 0
-        cm.init_from_model_cast_metadata(sample_NYOFS_forecast_metadata)
-        assert "eastward_wind" in cm.standard_names
-        assert "surface winds" in cm.env_params or "winds" in cm.env_params
 
 
-class TestMetadata:
-    def test_construction(self):
-        md = Metadata()
-        assert len(md.env_params) == 0
-        assert isinstance(md.forecast_metadata, CastMetadata)
 
-    def test_env_params(self):
-        md = Metadata()
-        edited_sample_data = copy.deepcopy(sample_NYOFS_forecast_metadata)
-        del edited_sample_data["standard_names"]["eastward_wind"]
-        md.forecast_metadata.init_from_model_cast_metadata(edited_sample_data)
-        md.nowcast_metadata.init_from_model_cast_metadata(
-            sample_NYOFS_forecast_metadata
-        )
-        md.hindcast_metadata.init_from_model_cast_metadata(
-            sample_NYOFS_forecast_metadata
-        )
-        md.compute_env_params()
-        # winds aren't in forecast, so they won't appear in the overall metadata either.
-        assert "surface winds" not in md.env_params
-        assert "surface winds" in md.nowcast_metadata.env_params
-        assert "surface winds" in md.hindcast_metadata.env_params
-        assert "surface winds" not in md.forecast_metadata.env_params

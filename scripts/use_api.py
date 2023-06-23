@@ -2,12 +2,14 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'GOFS'
-model_source = 'hycom-forecast-agg'
+model_id = 'NGOFS2'
+model_source = 'coops-forecast-noagg'
 
-#env_params = "surface winds"
 env_params = ["surface currents"]
-axiom = False
+axiom = True #if True, use dask/xarry; else use netCDF4 manual manipulation
+
+start = datetime.datetime.today()
+end = start + datetime.timedelta(days=2)
 
 EXAMPLE_BBOXES = {
     "CBOFS": (-76.5, 36.75, -75.25, 37.75),
@@ -56,12 +58,6 @@ supported_models = {
                     'NGOFS2_RGRID':['ioos-forecast-agg',],
                     }
                         
-
-#model_source = supported_models[model_id][0]
-
-start = datetime.datetime.today()
-#start = datetime.datetime(2023,6,3,21,0,0)
-end = start + datetime.timedelta(days=2)
 
 bounds = EXAMPLE_BBOXES[model_id]
 
