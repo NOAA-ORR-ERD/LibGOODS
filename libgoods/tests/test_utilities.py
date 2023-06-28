@@ -3,7 +3,6 @@ Tests  for the libgoods.utilities package
 """
 
 from libgoods import utilities
-
 import pytest
 
 
@@ -58,6 +57,7 @@ def test_polygon2bbox_good():
         [(-130, 45), (-130, 50), (-125), (-125, 45)],
     ],
 )  # noqa
+
 def test_polygon2bbox_bad(bounds):
 
     with pytest.raises(ValueError):
@@ -79,3 +79,27 @@ def test_flatten_bbox():
 
     assert fbbox == (-88, 23, -87, 24)
 
+
+def test_bbox_out_of_model_bounds():
+    
+    bad_bbox = (-88, 23, -87, 24)
+    model_bdry = [(-130, 42),
+        (-130, 45),
+        (-120, 45),
+        (-120, 42),
+        (-130, 42)
+        ]
+    
+    assert utilities.subset_intersects_model_boundary(utilities.bbox2polygon(bad_bbox), model_bdry) == False
+   
+def test_bbox_in_model_bounds():
+    
+    good_bbox = (-126, 42.5,-124, 44)
+    model_bdry = [(-130, 42),
+        (-130, 45),
+        (-120, 45),
+        (-120, 42),
+        (-130, 42)
+        ]
+    
+    assert utilities.subset_intersects_model_boundary(utilities.bbox2polygon(good_bbox), model_bdry) == True

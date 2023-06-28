@@ -4,6 +4,45 @@ assorted utilities useful for libgoods
 import numpy as np
 from shapely.geometry import Polygon, MultiPoint
 
+def get_example_bbox(model_id):
+
+    bboxes = {
+        "CBOFS": (-76.5, 36.75, -75.25, 37.75),
+        "CBOFS-REGULARGRID": (-76.5, 36.75, -75.25, 37.75),
+        "CIOFS": (-154.5, 58.0, -151.0, 60.0),
+        "CIOFS-REGULARGRID": (-154.5, 58.0, -151.0, 60.0),
+        "CREOFS": (-123.9, 46.1, -123.6, 46.3),
+        "CREOFS-REGULARGRID": (-123.9, 46.1, -123.6, 46.3),
+        "DBOFS": (-75.5, 38.5, -74.5, 39.25),
+        "DBOFS-REGULARGRID": (-75.5, 38.5, -74.5, 39.25),
+        "GFS-1-2DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GFS-1-4DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GOMOFS": (-70, 41, -66, 44),
+        "GOMOFS-2DS": (-70, 41, -66, 44),
+        "GOMOFS-REGULARGRID": (-70, 41, -66, 44),
+        "HYCOM": (-79.10, 31.84, -68.159, 42.29),
+        "LEOFS": (-83.6, 41.5, -82.6, 42.1),
+        "LEOFS-REGULARGRID": (-83.6, 41.5, -82.6, 42.1),
+        "LMHOFS": (-88, 41.57, -86, 44),
+        "LMHOFS-REGULARGRID": (-88, 41.57, -86, 44),
+        "LOOFS": (-78.6, 43.4, -77.1, 43.7),
+        "LSOFS": (-89.4, 47.0, -86.4, 47.75),
+        "NGOFS2": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2-2DS": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2-REGULARGRID": (-91.5, 29.25, -91, 29.75),
+        "NYOFS": (-74.1, 40.49, -73.95, 40.61),
+        "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
+        "SFBOFS-REGULARGRID": (-122.55, 37.75, -122.4, 37.9),
+        "TBOFS": (-82.9, 27.3, -82.6, 27.7),
+        "TBOFS-REGULARGRID": (-82.9, 27.3, -82.6, 27.7),
+        "WCOFS": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS-2DS": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS-REGULARGRID": (-122.0, 25.0, -115.0, 35.0),
+    }
+    
+    return bboxes[model_id]
+
 def check_valid_latitude(lat):
     """make sure lat is valid"""
 
