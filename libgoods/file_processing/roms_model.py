@@ -64,10 +64,12 @@ class roms(curv_model.curv):
                 vwind = var_map["northward_wind"]
 
         nc_in = self.Dataset
-        nc_in.set_auto_maskandscale(False)
+        #nc_in.set_auto_maskandscale(False)
+        nc_in.set_auto_scale(False)
         if self.GridDataset is not None:
             nc_grid = self.GridDataset
-            nc_grid.set_auto_maskandscale(False)
+            #nc_grid.set_auto_maskandscale(False)
+            nc_grid.set_auto_scale(False)
         else:
             nc_grid = nc_in
 

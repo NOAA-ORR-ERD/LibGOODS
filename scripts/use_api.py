@@ -2,11 +2,11 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'NGOFS2'
-model_source = 'coops-forecast-noagg'
+model_id = 'CIOFS'
+model_source = 'ioos-forecast-agg'
 
 env_params = ["surface currents"]
-axiom = True #if True, use dask/xarry; else use netCDF4 manual manipulation
+axiom = False #if True, use dask/xarry; else use netCDF4 manual manipulation
 
 start = datetime.datetime.today()
 end = start + datetime.timedelta(days=2)
@@ -60,7 +60,7 @@ supported_models = {
                         
 
 bounds = EXAMPLE_BBOXES[model_id]
-
+#bounds = [-83.17, 27.03, -82.38, 28.03]
 print(model_id)
 print(model_source)   
 
