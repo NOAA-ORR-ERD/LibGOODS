@@ -14,10 +14,24 @@ class nc:
     """
     Base model class
     """
-
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names
-    data_vars = ["u", "v", "ice_u", "ice_v", "ice_thickness", "ice_fraction"]
+    data_vars = [
+    'air_temperature',
+    'angle_of_rotation_from_east_to_x',
+    'dew_point_temperature',
+    'eastward_sea_water_velocity',
+    'eastward_wind',
+    'northward_sea_water_velocity',
+    'northward_wind',
+    'sea_floor_depth',
+    'sea_ice_area_fraction',
+    'sea_ice_thickness',
+    'sea_surface_elevation',
+    'sea_water_temperature',
+    'sea_water_practical_salinity',
+    'upward_sea_water_velocity',
+    'wind_gust']
 
     def open_nc(self, FileName=None, GridFileName=None, tvar=None):
         """
@@ -106,7 +120,7 @@ class nc:
         print("Time step: ", dt, "in units of", self.time_units)
         print("Length:", len(self.time))
 
-    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S", buffer_hrs=6):
+    def get_timeslice_indices(self, start, end, fmt="%Y-%m-%dT%H:%M:%S"):
         """
         Start/end are strings in format %Y-%m-%dT%H:%M:%S
         or datetimes
@@ -117,11 +131,23 @@ class nc:
         if not isinstance(start, datetime.datetime):
             start = datetime.datetime.strptime(start, fmt) 
         if not isinstance(end, datetime.datetime):
-            end = datetime.datetime.strptime(end, fmt)
-            
-        buffer = datetime.timedelta(hours=buffer_hrs) 
-        #ADD error checking -- this crashes if start is greater than dts[-1]
-        t1 = [i for i, dt in enumerate(dts) if dt >= start-buffer][0] 
-        t2 = [i for i, dt in enumerate(dts) if dt <= end+buffer][-1] 
-
+            end = datetime.datetime.strptime(end, fmt)         
+   
+        t1 = [i for i, dt in enumerate(dts) if dt <= start]
+        if len(t1) == 0:
+            t1 = 0 #all time values are > than start time
+        elif len(t1) == len(dts):
+            raise ValueError('Specified start time is later than model end time')
+        else:
+            t1 = t1[-1]
+               
+        t2 = [i for i, dt in enumerate(dts) if dt > end]
+        if len(t2) == 0:
+            t2 = len(dts)-1 #all time values < end time
+        elif len(t2)==len(dts):
+            raise ValueError('Specified end time is before the model start time')
+        else:
+            t2 = t2[0] + 1
+    
+        
         return t1, t2

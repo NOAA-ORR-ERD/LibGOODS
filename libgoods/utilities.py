@@ -3,6 +3,49 @@ assorted utilities useful for libgoods
 """
 import numpy as np
 from shapely.geometry import Polygon, MultiPoint
+import re
+import pandas as pd
+import datetime as dt
+import fnmatch
+
+def get_example_bbox(model_id):
+
+    bboxes = {
+        "CBOFS": (-76.5, 36.75, -75.25, 37.75),
+        "CBOFS-REGULARGRID": (-76.5, 36.75, -75.25, 37.75),
+        "CIOFS": (-154.5, 58.0, -151.0, 60.0),
+        "CIOFS-REGULARGRID": (-154.5, 58.0, -151.0, 60.0),
+        "CREOFS": (-123.9, 46.1, -123.6, 46.3),
+        "CREOFS-REGULARGRID": (-123.9, 46.1, -123.6, 46.3),
+        "DBOFS": (-75.5, 38.5, -74.5, 39.25),
+        "DBOFS-REGULARGRID": (-75.5, 38.5, -74.5, 39.25),
+        "GFS-1-2DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GFS-1-4DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GOMOFS": (-70, 41, -66, 44),
+        "GOMOFS-2DS": (-70, 41, -66, 44),
+        "GOMOFS-REGULARGRID": (-70, 41, -66, 44),
+        "HYCOM": (-79.10, 31.84, -68.159, 42.29),
+        "LEOFS": (-83.6, 41.5, -82.6, 42.1),
+        "LEOFS-REGULARGRID": (-83.6, 41.5, -82.6, 42.1),
+        "LMHOFS": (-88, 41.57, -86, 44),
+        "LMHOFS-REGULARGRID": (-88, 41.57, -86, 44),
+        "LOOFS": (-78.6, 43.4, -77.1, 43.7),
+        "LSOFS": (-89.4, 47.0, -86.4, 47.75),
+        "NGOFS2": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2-2DS": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2-REGULARGRID": (-91.5, 29.25, -91, 29.75),
+        "NYOFS": (-74.1, 40.49, -73.95, 40.61),
+        "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
+        "SFBOFS-REGULARGRID": (-122.55, 37.75, -122.4, 37.9),
+        "TBOFS": (-82.9, 27.3, -82.6, 27.7),
+        "TBOFS-REGULARGRID": (-82.9, 27.3, -82.6, 27.7),
+        "WCOFS": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS-2DS": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS-REGULARGRID": (-122.0, 25.0, -115.0, 35.0),
+    }
+    
+    return bboxes[model_id]
 
 def check_valid_latitude(lat):
     """make sure lat is valid"""
@@ -48,19 +91,7 @@ def check_valid_box(bbox, system="all"):
     return True
 
 
-def shift_lon_coords(coords, system):
-    """
-    shift longitude to the defined system
-    """
 
-
-def detect_lon_coords(coords, system):
-    """
-    detects the longitude coords system
-
-     - -180 -- 180
-     - 0 -- 360
-    """
 
 
 def polygon2bbox(bounds):
@@ -195,23 +226,73 @@ def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env
 
     return retlist
     
-# def check_subset_overlap(meta, time_range=None, xy_bounds=None):
-    # """
-    # TODO FINISH TIME RANGE CHECKING
-    # This function checks if a given time range and xy_bounds overlap with
-    # the model dimensions. If a param is None it is not checked. If both are None
-    # True is returned
+def file2dt(filename):
+    """!!!!Copied from model_catalogs for convenience
+    Return Timestamp of NOAA OFS filename
+    ...without reading in the filename to xarray. See `docs <https://model-catalogs.readthedocs.io/en/latest/aggregations.html>`_ for details on the formula. Most NOAA OFS models have 1 timestep per file, but NYOFS has 6.
 
-    # :param cat: model_catalog entry
-    # :param time_range: iterable pair of python datetime.datetime objects or None
-    # :param xy_bounds: iterable pairs of [lon, lat], or None
-    # """
-    # overlap = True
-    
+    Parameters
+    ----------
+    filename : str
+        Filename for which to decipher datetime. Can be full path or just file name.
 
-    # if time_range is not None:
-        # pass
-    # if xy_bounds is not None:
-        # subset_xy_bounds = Polygon(xy_bounds)
-        # overlap = overlap and filter_by_poly_bounds(meta, subset_xy_bounds)
-    # return overlap
+    Returns
+    -------
+    Timestamp
+        datetime of the time(s) in the file.
+
+    Examples
+    --------
+    >>> url = 'https://www.ncei.noaa.gov/thredds/dodsC/model-cbofs-files/2022/07/nos.cbofs.fields.n001.20220701.t00z.nc'
+    >>> mc.filename2datetime(url)
+    Timestamp('2022-06-30 19:00:00')
+    """
+
+    # strip off path if present since can mess up the matching
+    filename = filename.split("/")[-1]
+
+    # read in date from filename
+    date = pd.to_datetime(filename, format="%Y%m%d", exact=False)  # has time 00:00
+
+    # pull timing cycle from filename
+    regex = re.compile(".t[0-9]{2}z.")
+    cycle = int(regex.findall(filename)[0][2:4])
+
+    # NYOFS: multiple times per file
+    if fnmatch.fnmatch(filename, "*.nowcast.*"):
+
+        date = [date + pd.Timedelta(f"{cycle - dt} hours") for dt in range(6)[::-1]]
+
+    # NYOFS: multiple times per file
+    elif fnmatch.fnmatch(filename, "*.forecast.*"):
+
+        # models all have different forecast lengths! Though only nyofs is left in this category
+        if "nyofs" in filename:
+            nfiles = 54
+
+        date = [date + pd.Timedelta(f"{cycle + 1 + dt} hours") for dt in range(nfiles)]
+
+    # Main style of NOAA OFS files, 1 file per time step
+    elif fnmatch.fnmatch(filename, "*.n???.*") or fnmatch.fnmatch(filename, "*.f???.*"):
+
+        # number of hours in repeat cycle for forecast
+        if "wcofs" in filename:
+            tshift = 24
+        else:
+            tshift = 6
+
+        # pull hours from filename
+        regex = re.compile(".[n,f][0-9]{3}.")
+        hour = int(regex.findall(filename)[0][2:-1])
+
+        # calculate hours
+        dt = cycle + hour
+
+        # if nowcast file, subtract dt hours
+        if fnmatch.fnmatch(filename, "*.n???.*"):
+            dt -= tshift
+
+        # construct datetime. dt might be negative.
+        date += pd.Timedelta(f"{dt} hours")
+
+    return date.to_pydatetime()

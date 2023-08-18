@@ -17,7 +17,6 @@ class rect(base.nc):
 
     def get_dimensions(self, var_map, get_time=True, get_xy=True, get_z=False):
         """get dimensions for roms models"""
-
         if get_time:
             self.time_varname = var_map["time"]
             self.time = self.Dataset.variables[var_map["time"]][:]
@@ -26,11 +25,13 @@ class rect(base.nc):
 
         if get_xy:
             if self.GridDataset is not None:
-                self.lon = self.GridDataset.variables[var_map["lon"]][:]
-                self.lat = self.GridDataset.variables[var_map["lat"]][:]
+                ds = self.GridDataset
             else:
-                self.lon = self.Dataset.variables[var_map["lon"]][:]
-                self.lat = self.Dataset.variables[var_map["lat"]][:]
+                ds = self.Dataset
+            self.lon = ds.variables[var_map["longitude"]][:]
+            self.lat = ds.variables[var_map["latitude"]][:]
+            self.lon_dimension = ds.variables[var_map["longitude"]].dimensions
+            self.lat_dimension = ds.variables[var_map["latitude"]].dimensions
             self.x = [0, len(self.lon), 1]
             self.y = [0, len(self.lat), 1]
 
@@ -66,20 +67,13 @@ class rect(base.nc):
 
     def write_nc(
         self,
-        var_map = {
-            "time": "time",
-            "lon": "lon",
-            "lat": "lat",
-            "u": "water_u",
-            "v": "water_v",
-        },
+        var_map,
         ofn="test.nc",
         t_index=None,
         d_index=0,
         is3d=False,
         grid_only=False,
         dl=0,
-        include_wind=False,
     ):
         """
         Write a rectangular grid model file
@@ -106,11 +100,11 @@ class rect(base.nc):
             tvar[:] = self.time[:]
             tvar.setncattr("units", self.time_units)
 
-        nc_out.createDimension("lat", self.y[1] - self.y[0])
-        nc_out.createDimension("lon", self.x[1] - self.x[0])
+        nc_out.createDimension(self.lat_dimension[0], self.y[1] - self.y[0])
+        nc_out.createDimension(self.lon_dimension[0], self.x[1] - self.x[0])
 
-        var_in = nc_grid.variables[var_map["lon"]]
-        var_out = nc_out.createVariable("lon", var_in.dtype, ("lon"))
+        var_in = nc_grid.variables[var_map["longitude"]]
+        var_out = nc_out.createVariable(var_map["longitude"], var_in.dtype, self.lon_dimension)
         lon = var_in[self.x[0] : self.x[1] : self.x[2]]
         if dl == 0:
             var_out[:] = (lon > 180).choose(lon, lon - 360)
@@ -120,8 +114,8 @@ class rect(base.nc):
         for attr in var_in.ncattrs():
             var_out.setncattr(attr, var_in.getncattr(attr))
 
-        var_in = nc_grid.variables[var_map["lat"]]
-        var_out = nc_out.createVariable("lat", var_in.dtype, ("lat"))
+        var_in = nc_grid.variables[var_map["latitude"]]
+        var_out = nc_out.createVariable(var_map["latitude"], var_in.dtype, self.lat_dimension)
         var_out[:] = var_in[self.y[0] : self.y[1] : self.y[2]]
         # Copy NetCDF attributes:
         for attr in var_in.ncattrs():
@@ -148,7 +142,7 @@ class rect(base.nc):
                     data_vars.append(var_map[var])
 
             for var in data_vars:
-                # Create variable in new file:
+                # Create variable in new file
                 var_in = nc_in.variables[var]
                 dims = (
                     self.time_dimension[0],
@@ -177,5 +171,9 @@ class rect(base.nc):
                 for attr in var_in.ncattrs():
                     if attr != "_FillValue":
                         var_out.setncattr(attr, var_in.getncattr(attr))
+                        
+                if not hasattr(var_out,'missing_value'): #need to check for nans
+                    if np.isnan(var_out).any():
+                        var_out.setncattr('missing_value', np.nan)
 
         nc_out.close()

@@ -9,7 +9,7 @@ end = datetime.datetime.today() + datetime.timedelta(days=3)
 ds = rect_model.rect()
 ds.open_nc(url)
  
-var_map = {'time':'time','u':'Uwind','v':'Vwind','lon':'lon','lat':'lat'}
+var_map = {'time':'time','eastward_wind':'Uwind','northward_wind':'Vwind','longitude':'lon','latitude':'lat'}
 ds.get_dimensions(var_map)
 
 ts = ds.get_timeslice_indices(start, end)

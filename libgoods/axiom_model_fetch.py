@@ -36,7 +36,7 @@ class FetchConfig:
     start: pd.Timestamp
     end: pd.Timestamp
     bbox: Optional[Tuple[float, float, float, float]]
-    timing: str
+    model_source: str
     standard_names: List[str] = field(default_factory=lambda: DEFAULT_STANDARD_NAMES)
     surface_only: bool = False
 
@@ -65,13 +65,13 @@ def get_times(model_name: str) -> Mapping[str, pd.Timestamp]:
     """Return a mapping of a source to the start and end datetimes."""
     main_cat = mc.setup()
     cat = mc.find_availability(main_cat[model_name])
-    timing_date_map = {}
-    for timing in cat:
-        timing_date_map[timing] = (
-            pd.Timestamp(cat[timing].metadata["start_datetime"]),
-            pd.Timestamp(cat[timing].metadata["end_datetime"]),
+    source_date_map = {}
+    for model_source in cat:
+        source_date_map[model_source] = (
+            pd.Timestamp(cat[model_source].metadata["start_datetime"]),
+            pd.Timestamp(cat[model_source].metadata["end_datetime"]),
         )
-    return timing_date_map
+    return source_date_map
 
 
 def get_source_online_status(model_name: str) -> Mapping[str, bool]:
@@ -79,16 +79,16 @@ def get_source_online_status(model_name: str) -> Mapping[str, bool]:
     yesterday = pd.Timestamp.today() - pd.Timedelta("1 day")
     main_cat = mc.setup()
     statuses = {}
-    for timing in main_cat[model_name]:
-        main_cat[model_name][timing]._pick()
-        urlpath = main_cat[model_name][timing]._source(yesterday=yesterday).urlpath
+    for model_source in main_cat[model_name]:
+        main_cat[model_name][model_source]._pick()
+        urlpath = main_cat[model_name][model_source]._source(yesterday=yesterday).urlpath
         if isinstance(urlpath, list):
             urlpath = urlpath[0]
         resp = requests.get(urlpath + ".das")
         if resp.status_code != 200:
-            statuses[timing] = False
+            statuses[model_source] = False
         else:
-            statuses[timing] = True
+            statuses[model_source] = True
     return statuses
 
 
@@ -179,7 +179,7 @@ def fetch(fetch_config: FetchConfig):
     Parameters
     ----------
     fetch_config : FetchConfig
-        The configuration object which contains the model name, timing, start/end dates of the
+        The configuration object which contains the model name, model_source, start/end dates of the
         request, etc.
     """
     print("Setting up source catalog")
@@ -187,14 +187,14 @@ def fetch(fetch_config: FetchConfig):
         main_cat = mc.setup()
 
     print(
-        f"Generating catalog specific for {fetch_config.model_name} {fetch_config.timing}"
+        f"Generating catalog specific for {fetch_config.model_name} {fetch_config.model_source}"
     )
     with Timer("\tSpecific catalog generated in {}"):
         source = mc.select_date_range(
             main_cat[fetch_config.model_name],
             start_date=fetch_config.start,
             end_date=fetch_config.end,
-            timing=fetch_config.timing,
+            model_source=fetch_config.model_source,
         )
 
     print("Getting xarray dataset for model data")

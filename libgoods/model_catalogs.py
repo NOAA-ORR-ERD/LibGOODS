@@ -1,4 +1,4 @@
-from .metadata import Metadata, ENVIRONMENTAL_PARAMETERS
+from .metadata import Metadata
 import model_catalogs as mc
 from . import model_fetch, utilities, NonIntersectingSubsetError 
 
@@ -27,8 +27,8 @@ def get_model_info(model_id,model_source,add_time_bounds=False):
     except KeyError:
         print(f"{model_id} is not a valid model name")       
     else:
-        meta = Metadata().init_from_model(cat).as_pyson()        
         try:
+            meta = Metadata().init_from_model(cat,source=model_source).as_pyson()        
             m = cat[model_source]
             meta['urlpath'] = m.urlpath #needed by nc4 code
             if add_time_bounds:
@@ -37,23 +37,40 @@ def get_model_info(model_id,model_source,add_time_bounds=False):
                 meta['actual_end'] = m.metadata['end_datetime']  
         except KeyError:
             print(f"{model_source} is not a valid source for this model")      
-        return meta
+        else:
+            return meta
      
-def get_urllist_unagg(model_id,model_source,start,end):
+def get_urllist_unagg(model_id,model_source,start,end,filename_only=False):
+
+    '''
+    Get a list of individual files needed to make an aggregation based on start/end dates
+    
+    :param model_id: A valid model ID for model_catalogs, e.g., 'CBOFS'
+    :param model_source: Which source to request model files from, e.g. "coops-forecast-noagg'
+    :param start: Requested model output start time (datetime)
+    :param end: Requested model output end time (datetime)
+    :param filename_only: Return only the file name - not the entire URL
+    '''
     
     source = mc.select_date_range(env_models[model_id][model_source], start_date=start, end_date=end)
     
-    return source.urlpath
+    fnames = source.urlpath
+    
+    if filename_only:
+        fnames = [f.split('/')[-1] for f in fnames]
+        
+    
+    return fnames
 
 
-def generate_subset_xds(identifier,
+def generate_subset_xds(model_id,
                         model_source,
                         start,
                         end,
                         bounds,
                         surface_only,
                         cross_dateline,
-                        request_type):
+                        var_list):
 
     '''
     Generates a subset xarray dataset. Does NOT actually get the data
@@ -61,21 +78,17 @@ def generate_subset_xds(identifier,
     bounds: expects (w, s, e, n)
     '''
 
-    cat = env_models[identifier]
+    cat = env_models[model_id]
 
 
     source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
     ds = source.to_dask()
-    meta = get_model_info(identifier,model_source)
-    if isinstance(request_type, list):
-        env_params = [ENVIRONMENTAL_PARAMETERS[rt] for rt in request_type]
-        env_params = [param for sublist in env_params for param in sublist] #flatten
-    else:
-        env_params = ENVIRONMENTAL_PARAMETERS[request_type]
+    meta = get_model_info(model_id,model_source)
+
 
     ds = model_fetch.select_surface(ds)  # eventually check env params
-    ds_ss = ds.em.filter(env_params)
-    bounds = model_fetch.rotate_bbox(meta["identifier"], bounds)
+    ds_ss = ds.em.filter(var_list)
+    bounds = model_fetch.rotate_bbox(model_id, bounds)
     ds_ss = ds_ss.em.sub_grid(bbox=bounds)
     if meta["bounding_box"][2] > 180:
         ds_ss = model_fetch.rotate_longitude(ds_ss)

@@ -1,5 +1,5 @@
 from . import file_processing, utilities
-from .metadata import Metadata, ENVIRONMENTAL_PARAMETERS
+from .metadata import Metadata
 from netCDF4 import Dataset, num2date
 """
 This leverages Amy's old libGOODS code to determine subset size and write the output
@@ -21,17 +21,10 @@ def get_model_subset(
     start,
     end,
     bounds,
+    var_map,
     surface_only=True,
     cross_dateline=False,
-    var_map = {
-            "time": "time",
-            "lon": "lon",
-            "lat": "lat",
-            "u": "water_u",
-            "v": "water_v",
-            },
     grid=None,
-    include_wind=False, #this is only used for the hydro models that include wind - its a kludge and needs to be rethought (i.e. use var_map?)
     ):
 
     """
@@ -48,13 +41,17 @@ def get_model_subset(
     :returns: file processing model object
     """
     #source = mc.select_date_range(cat[model_source], start_date=start, end_date=end)
-
-    if grid == "ROMS":
-        model = file_processing.roms()
-    elif grid == "curv":        
-        model = file_processing.curv()
-    else:      
+    if grid == "unstructured":
+        pass #not implemented yet
+    elif grid == "curvilinear":
+        if 'longitude' in var_map:
+            model = file_processing.curv()
+        else:
+            model = file_processing.roms()
+    elif grid == 'rectangular':      
         model = file_processing.rect()
+    else:
+        raise KeyError("Grid must be specified as unstructured, curvilinear, or rectangular")
 
     model.open_nc(url)
     # get dimensions to determine subset
@@ -77,14 +74,13 @@ def get_model_subset(
     model.nbytes = 1000 #api will look for this -- have to figure out how to add something
     model.is3d = not(surface_only)
     model.var_map = var_map
-    model.include_wind = include_wind
-    
+
     return model
 
     
 def get_model_output(model, output_pth):
 
     model.update(model.urlpath) #this was removed for api (nc4 Dataset can't be pickled)
-    model.write_nc(var_map=model.var_map,ofn=output_pth,t_index=model.tindex,is3d=model.is3d,include_wind=model.include_wind)
+    model.write_nc(var_map=model.var_map,ofn=output_pth,t_index=model.tindex,is3d=model.is3d)
     
     

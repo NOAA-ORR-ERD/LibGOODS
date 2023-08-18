@@ -30,11 +30,11 @@ class curv(base.nc):
 
         if get_xy:
             if self.GridDataset is not None:
-                self.lon = self.GridDataset.variables[var_map["lon"]][:]
-                self.lat = self.GridDataset.variables[var_map["lat"]][:]
+                self.lon = self.GridDataset.variables[var_map["longitude"]][:]
+                self.lat = self.GridDataset.variables[var_map["latitude"]][:]
             else:
-                self.lon = self.Dataset.variables[var_map["lon"]][:]
-                self.lat = self.Dataset.variables[var_map["lat"]][:]
+                self.lon = self.Dataset.variables[var_map["longitude"]][:]
+                self.lat = self.Dataset.variables[var_map["latitude"]][:]
 
             self.x = [0, self.lon.shape[1]]
             self.y = [0, self.lat.shape[0]]
@@ -95,14 +95,13 @@ class curv(base.nc):
 
     def write_nc(
         self,
-        var_map={"time": "time", "lon": "lon", "lat": "lat", "u": "u", "v": "v"},
+        var_map,
         ofn="test.nc",
         t_index=None,
         d_index=0,
         is3d=False,
         grid_only=False,      
         dl=False,
-        include_wind=False,
     ):
         """
         Write a curvilinear grid with u/v on center points (may or may not have grid
@@ -137,8 +136,7 @@ class curv(base.nc):
         # nc_out.createDimension('s_rho',1)
 
         # List of variables to potentially copy
-        grid_vars = ["lon", "lat", "mask", "lonc", "latc"]
-
+        grid_vars = ["longitude", "latitude", "mask"]
         for var in grid_vars:
             if var in var_map:
                 # Create variable in new file:
@@ -153,7 +151,6 @@ class curv(base.nc):
                     if dl is True:
                         lon = (lon < 0).choose(lon, lon + 360)
                     if flipud:
-                        print("flipping")
                         var_out[:] = lon.transpose()
                     else:
                         var_out[:] = lon
@@ -170,9 +167,8 @@ class curv(base.nc):
                 # Copy NetCDF attributes:
                 for attr in var_in.ncattrs():
                     var_out.setncattr(attr, var_in.getncattr(attr))
-
+        
         if not grid_only:
-
             for var in self.data_vars:
                 if var in var_map:
                     # Create variable in new file:

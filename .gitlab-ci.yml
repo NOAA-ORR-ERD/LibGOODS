@@ -33,8 +33,7 @@ test_libgoods:
   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
   script:
     - git clone --depth 1 -b main https://github.com/NOAA-ORR-ERD/model_catalogs.git
-    - conda install mamba
-    - mamba install -y python=$PYTHON_VER 
+    - conda install -y python=$PYTHON_VER 
                                           --file model_catalogs/conda-requirements.txt
                                           --file conda_requirements_test.txt
                                           --file conda_requirements.txt

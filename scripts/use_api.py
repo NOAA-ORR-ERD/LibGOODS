@@ -2,10 +2,14 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'NGOFS2_RGRID'
-#env_params = "surface winds"
+model_id = 'CIOFS'
+model_source = 'ioos-forecast-agg'
+
 env_params = ["surface currents"]
-axiom = False
+axiom = False #if True, use dask/xarry; else use netCDF4 manual manipulation
+
+start = datetime.datetime.today()
+end = start + datetime.timedelta(days=2)
 
 EXAMPLE_BBOXES = {
     "CBOFS": (-76.5, 36.75, -75.25, 37.75),
@@ -17,7 +21,7 @@ EXAMPLE_BBOXES = {
     "GFS_1_4DEG": (-85.0, 25.0, -60.0, 48.0),
     "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
     "GOMOFS": (-70, 41, -66, 44),
-    "GOFS": (-79.10, 31.84, -68.159, 42.29),
+    "GOFS": (-126, 46, -123, 50),
     "LEOFS": (-83.6, 41.5, -82.6, 42.1),
     "LMHOFS": (-88, 41.57, -86, 44),
     "LOOFS": (-78.6, 43.4, -77.1, 43.7),
@@ -55,15 +59,10 @@ supported_models = {
                     }
                         
 
-model_source = supported_models[model_id][0]
-
-start = datetime.datetime.today()
-#start = datetime.datetime(2023,5,7,21,0,0)
-end = start + datetime.timedelta(days=2)
-
 bounds = EXAMPLE_BBOXES[model_id]
-
-    
+#bounds = [-83.17, 27.03, -82.38, 28.03]
+print(model_id)
+print(model_source)   
 
 print('subsetting')
 ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params,axiom=axiom)
