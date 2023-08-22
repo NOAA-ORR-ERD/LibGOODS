@@ -33,6 +33,7 @@ Model.subset_info(query_params) => info about subset
 
 import dataclasses
 import shapely.wkt as wkt
+from shapely.geometry.multipolygon import MultiPolygon
 
 """
 The following is a mapping of 'environmental conditions concepts' to the standard names 
@@ -179,8 +180,11 @@ class Metadata:
         self.regional = Metadata.regional_test(m)
         bb = m.metadata["bounding_box"]
         self.bounding_box = bb  # [(a, b) for a, b in zip(bb[::2],bb[1::2])]
+        bounding_poly = wkt.loads(m.metadata["geospatial_bounds"])
+        if isinstance(bounding_poly, MultiPolygon):
+            bounding_poly = bounding_poly.convex_hull
         self.bounding_poly = list(
-            wkt.loads(m.metadata["geospatial_bounds"]).boundary.coords
+            bounding_poly.boundary.coords
         )
         self.grid_type = m.metadata["grid_type"]
         grid_dim_keyname = [n for n in m.metadata.keys() if "grid_dim_" in n][0]
