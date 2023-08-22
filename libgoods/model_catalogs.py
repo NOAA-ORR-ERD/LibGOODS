@@ -1,6 +1,6 @@
 from .metadata import Metadata
 import model_catalogs as mc
-from . import model_fetch, utilities, NonIntersectingSubsetError 
+from . import axiom_model_fetch, utilities, NonIntersectingSubsetError 
 
 """
 This works specifically with model_catalogs using dask and xarray
@@ -86,12 +86,12 @@ def generate_subset_xds(model_id,
     meta = get_model_info(model_id,model_source)
 
 
-    ds = model_fetch.select_surface(ds)  # eventually check env params
+    ds = axiom_model_fetch.select_surface(ds)  # eventually check env params
     ds_ss = ds.em.filter(var_list)
-    bounds = model_fetch.rotate_bbox(model_id, bounds)
+    bounds = axiom_model_fetch.rotate_bbox(model_id, bounds)
     ds_ss = ds_ss.em.sub_grid(bbox=bounds)
     if meta["bounding_box"][2] > 180:
-        ds_ss = model_fetch.rotate_longitude(ds_ss)
+        ds_ss = axiom_model_fetch.rotate_longitude(ds_ss)
 
     return ds_ss
 

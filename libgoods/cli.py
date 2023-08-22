@@ -12,7 +12,7 @@ import xarray as xr
 import requests
 import model_catalogs as mc
 
-from libgoods.model_fetch import (
+from libgoods.axiom_model_fetch import (
     fetch,
     get_times,
     FetchConfig,
