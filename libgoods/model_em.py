@@ -84,7 +84,7 @@ def get_model_subset(
         else:
             ds = xr.open_dataset(f, engine=engine, decode_times=True, preload_varmap=preload_varmap, drop_variables=drop_variables)
 
-        ds = em.preprocess(ds)
+        #ds = em.preprocess(ds) #this can take a really long time
         
         #get time units from first file then use this when writing subsequent files so they all have the same time base
         if get_time_units:

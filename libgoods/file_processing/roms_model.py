@@ -186,7 +186,7 @@ class roms(curv_model.curv):
                 # Create variable in new file:
                 var_in = nc_in.variables[var]
                 coords = var_in.coordinates
-
+                                  
                 if is3d:
                     try:
                         dims = (
@@ -204,16 +204,16 @@ class roms(curv_model.curv):
                     if coords.find("lon_u") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
-                        var_out[:] = var_in[
+                        data = var_in[
                             t_index[0] : t_index[1] : t_index[2],
                             :,
                             self.y[0] : self.y[1],
                             self.x[0] : self.x[1] - 1,
-                        ]
+                            ]
                     elif coords.find("lon_v") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
-                        var_out[:] = var_in[
+                        data = var_in[
                             t_index[0] : t_index[1] : t_index[2],
                             :,
                             self.y[0] : self.y[1] - 1,
@@ -223,7 +223,7 @@ class roms(curv_model.curv):
                         if len(var_in.dimensions) == 4:
                             var_out = nc_out.createVariable(var, var_in.dtype, dims)
                             # Copy data:
-                            var_out[:] = var_in[
+                            data = var_in[
                                 t_index[0] : t_index[1] : t_index[2],
                                 :,
                                 self.y[0] : self.y[1],
@@ -232,7 +232,7 @@ class roms(curv_model.curv):
                         else: #zeta does not have depth
                             var_out = nc_out.createVariable(var, var_in.dtype, dims)
                             # Copy data:
-                            var_out[:] = var_in[
+                            data = var_in[
                                 t_index[0] : t_index[1] : t_index[2],
                                 self.y[0] : self.y[1],
                                 self.x[0] : self.x[1],
@@ -260,7 +260,7 @@ class roms(curv_model.curv):
                     if coords.find("lon_u") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
-                        var_out[:] = var_in[
+                        data = var_in[
                             t_index[0] : t_index[1] : t_index[2],
                             d_index,
                             self.y[0] : self.y[1],
@@ -269,7 +269,7 @@ class roms(curv_model.curv):
                     elif coords.find("lon_v") > -1:
                         var_out = nc_out.createVariable(var, var_in.dtype, dims)
                         # Copy data:
-                        var_out[:] = var_in[
+                        data = var_in[
                             t_index[0] : t_index[1] : t_index[2],
                             d_index,
                             self.y[0] : self.y[1] - 1,
@@ -279,7 +279,7 @@ class roms(curv_model.curv):
                         if len(var_in.dimensions) == 4:
                             var_out = nc_out.createVariable(var, var_in.dtype, dims)
                             # Copy data:
-                            var_out[:] = var_in[
+                            data = var_in[
                                 t_index[0] : t_index[1] : t_index[2],
                                 d_index,
                                 self.y[0] : self.y[1],
@@ -288,7 +288,7 @@ class roms(curv_model.curv):
                         else: #zeta does not have depth
                             var_out = nc_out.createVariable(var, var_in.dtype, dims)
                             # Copy data:
-                            var_out[:] = var_in[
+                            data = var_in[
                                 t_index[0] : t_index[1] : t_index[2],
                                 self.y[0] : self.y[1],
                                 self.x[0] : self.x[1],
@@ -300,7 +300,11 @@ class roms(curv_model.curv):
                             var,
                         )
                         continue
-
+                
+                #check for nans - replace with zero
+                data[np.where(np.isnan(data))] = 0
+                var_out[:] = data
+                
                 # Copy NetCDF attributes:
                 for attr in var_in.ncattrs():
                     if attr == "coordinates":

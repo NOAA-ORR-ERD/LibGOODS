@@ -12,8 +12,8 @@ model_type = 'SELFE'
 #snames_of_vars_to_include = ['sea_water_x_velocity','sea_water_y_velocity','upward_sea_water_velocity'] #ROMS
 snames_of_vars_to_include = None #don't filter vars
 
-start = datetime.datetime(2023,8,17)
-end = datetime.datetime(2023,8,19)
+start = datetime.datetime(2023,8,22)
+end = datetime.datetime(2023,8,26)
 bbox = (-124.33,45.98,-123.06,46.41)
 #bbox = utilities.get_example_bbox(model_id)
 
