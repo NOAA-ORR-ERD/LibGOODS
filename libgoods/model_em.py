@@ -72,56 +72,61 @@ def get_model_subset(
     
     for f in fpath:
         #this derives the saved file name from the input -- should probably have option to pass in desired name
-        print(f)
+
         if os.path.exists(f): #local file
             fname=os.path.split(f)[-1].split('.nc')[0] + '_ss.nc' 
         else: #url
             fname=f.split('/')[-1]
         ofname = os.path.join(out_dir, fname)
 
-        if preload_varmap is None: #this keyword only works with triangularmesh "engine". Ugh.
-            ds = xr.open_dataset(f, engine=engine, decode_times=True, drop_variables=drop_variables)
+        if os.path.exists(ofname):
+            print('Already subset ', fname)
+        
         else:
-            ds = xr.open_dataset(f, engine=engine, decode_times=True, preload_varmap=preload_varmap, drop_variables=drop_variables)
+            print(f)
+            if preload_varmap is None: #this keyword only works with triangularmesh "engine". Ugh.
+                ds = xr.open_dataset(f, engine=engine, decode_times=True, drop_variables=drop_variables)
+            else:
+                ds = xr.open_dataset(f, engine=engine, decode_times=True, preload_varmap=preload_varmap, drop_variables=drop_variables)
 
-        #ds = em.preprocess(ds) #this can take a really long time
-        
-        #get time units from first file then use this when writing subsequent files so they all have the same time base
-        if get_time_units:
-            t_units = ds.time.encoding['units']
-            get_time_units = False
+            #ds = em.preprocess(ds) #this can take a really long time
+
+            #get time units from first file then use this when writing subsequent files so they all have the same time base
+            if get_time_units:
+                t_units = ds.time.encoding['units']
+                get_time_units = False
+
+            if start is not None and end is not None:
+                #TODO: make this smarter to use > start and/or < end etc
+                ds = ds.sel(time=slice(start,end))
+
+            if surface_only:
+                ds = select_surface(ds)
+                keep_vertical_coords = False
+            else:
+                keep_vertical_coords = True
+
+            if snames_of_vars_to_include:
+                ds = ds.em.filter(snames_of_vars_to_include, model_type=model_type,keep_vertical_coords=keep_vertical_coords) 
+
+            if bounds is not None:
+                ds = ds.em.sub_grid(bbox=bounds, model_type=model_type)  
+
+            if time_dim is None:
+                for td in ['time','ocean_time','MT','T']:
+                    try:
+                        ds.dims[td]
+                        time_dim = td
+                        break
+                    except KeyError: #then what?
+                        pass
+
+            ds.time.encoding['units'] = t_units
+
+            ds.to_netcdf(ofname,unlimited_dims=time_dim)
+            ds.close()  
     
-        if start is not None and end is not None:
-            #TODO: make this smarter to use > start and/or < end etc
-            ds = ds.sel(time=slice(start,end))
-        
-        if surface_only:
-            ds = select_surface(ds)
-            keep_vertical_coords = False
-        else:
-            keep_vertical_coords = True
-            
-        if snames_of_vars_to_include:
-            ds = ds.em.filter(snames_of_vars_to_include, model_type=model_type,keep_vertical_coords=keep_vertical_coords) 
-        
-        if bounds is not None:
-            ds = ds.em.sub_grid(bbox=bounds, model_type=model_type)  
-            
-        if time_dim is None:
-            for td in ['time','ocean_time','MT','T']:
-                try:
-                    ds.dims[td]
-                    time_dim = td
-                    break
-                except KeyError: #then what?
-                    pass
-                    
-        ds.time.encoding['units'] = t_units
-        
-        ds.to_netcdf(ofname,unlimited_dims=time_dim)
-        
         newfilelist.append(ofname)
-        ds.close()
                 
     return newfilelist
     

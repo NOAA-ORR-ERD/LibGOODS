@@ -5,4 +5,7 @@ numpy
 requests
 shapely
 model_catalogs
+s3fs
+pandas
+
 
