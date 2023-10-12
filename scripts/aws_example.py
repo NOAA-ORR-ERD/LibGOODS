@@ -3,20 +3,19 @@ import datetime
 import os
 from libgoods import aws, model_em, utilities
 
-model_id = 'CREOFS'
-out_dir = 'creofs'
-model_type = 'SELFE'
+model_id = 'LMHOFS'
+out_dir = 'lmhofs'
+model_type = 'FVCOM'
 
 #to filter out only specific data variables of interest we need to provide standard_names used in model output attributes (or set to None to include all vars)
 #snames_of_vars_to_include = ['eastward_sea_water_velocity','Northward_sea_water_velocity'] #NGOFS2
 #snames_of_vars_to_include = ['sea_water_x_velocity','sea_water_y_velocity','upward_sea_water_velocity'] #ROMS
-snames_of_vars_to_include = None #don't filter vars
+#snames_of_vars_to_include = None #don't filter vars
 
-start = datetime.datetime(2023,8,22)
-end = datetime.datetime(2023,8,26)
+start = datetime.datetime(2023,9,22)
+end = datetime.datetime(2023,9,25)
 bbox = (-124.33,45.98,-123.06,46.41)
 #bbox = utilities.get_example_bbox(model_id)
-
 
 #Use model catalogs to get filelist from TDS
 model_catalogs = False

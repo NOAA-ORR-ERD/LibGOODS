@@ -2,7 +2,7 @@ from libgoods import api
 import datetime
 import os
 
-model_id = 'CIOFS'
+model_id = 'TBOFS'
 model_source = 'ioos-forecast-agg'
 
 env_params = ["surface currents"]
@@ -65,7 +65,7 @@ print(model_id)
 print(model_source)   
 
 print('subsetting')
-ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params,axiom=axiom)
+ds = api.get_model_subset(model_id,model_source,start,end,bounds,surface_only=True,environmental_parameters=env_params)
 
 print('downloading output')
 ofn = os.path.join('output',model_id + '.nc')
