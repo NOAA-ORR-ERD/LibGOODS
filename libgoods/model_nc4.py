@@ -21,7 +21,7 @@ def get_model_subset(
     start,
     end,
     bounds,
-    var_map,
+    var_dict,
     surface_only=True,
     cross_dateline=False,
     grid=None,
@@ -44,7 +44,7 @@ def get_model_subset(
     if grid == "unstructured":
         pass #not implemented yet
     elif grid == "curvilinear":
-        if 'longitude' in var_map:
+        if 'longitude' in var_dict:
             model = file_processing.curv()
         else:
             model = file_processing.roms()
@@ -56,7 +56,7 @@ def get_model_subset(
     model.open_nc(url)
     # get dimensions to determine subset
         
-    model.get_dimensions(var_map=var_map)
+    model.get_dimensions(var_map=var_dict)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
         bounds[0] = bounds[0] + 360
         bounds[2] = bounds[2] + 360
@@ -73,7 +73,7 @@ def get_model_subset(
     model.tindex = [t1,t2, 1]
     model.nbytes = 1000 #api will look for this -- have to figure out how to add something
     model.is3d = not(surface_only)
-    model.var_map = var_map
+    model.var_map = var_dict
 
     return model
 
