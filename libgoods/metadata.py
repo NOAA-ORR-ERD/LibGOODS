@@ -31,23 +31,6 @@ Model.subset_info(query_params) => info about subset
   - Estimated File Size
 """
 
-EP_map = {
-    "surface winds": ["eastward_wind", "northward_wind"],
-    "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
-    "3D currents": [
-        "eastward_sea_water_velocity",
-        "northward_sea_water_velocity",
-        "upward_sea_water_velocity",
-    ],
-    "surface temperature": ["sea_surface_temperature"],
-    "3D temperature": ["sea_water_temperature"],
-    "ice": [
-        "eastward_sea_ice_velocity",
-        "northward_sea_ice_velocity",
-        "sea_ice_area_fraction",
-    ],
-}
-
 import yaml
 import dataclasses
 from pathlib import Path
@@ -165,11 +148,6 @@ class Metadata:
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
         """        
         return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 596510f2d57fee83cacba285ec5da012d92e5544
     
     def as_pyson(self):
         """
@@ -206,22 +184,7 @@ class SourceMetadata:
         self.env_params = get_env_params(src["metadata"]["standard_names"])
         self.args = src["args"]
         return self
-<<<<<<< HEAD
-        
-=======
 
-    # @staticmethod
-    # def get_env_params(metadata):
-        # """return env parameters"""
-        # param metadata: dict of fore/now/hindcast metadata from catalog
-
-        # return {
-            # k
-            # for k, v in EP_map.items()
-            # if all([subv in metadata["standard_names"] for subv in v])
-        # }
-
->>>>>>> 596510f2d57fee83cacba285ec5da012d92e5544
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data
