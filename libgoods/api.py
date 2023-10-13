@@ -8,7 +8,8 @@ These are the functions that the WebGNOME client will call
 import os
 import numpy as np
 
-from . import utilities, model_nc4, NonIntersectingSubsetError, NonIntersectingTimeInterval 
+from . import model_nc4 as model
+from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeInterval 
 from .standard_names import get_standard_names
 from . import metadata
 
@@ -60,7 +61,9 @@ def get_model_info(model_id,model_source):
     meta = metadata.get_metadata_for_model(model_id,model_source) 
     tvar_name = meta['sources'][0]['standard_names']['time']
     meta['urlpath'] = meta['sources'][0]['args']['urlpath']
-    meta = model_nc4.add_time_bounds(meta,tvar_name)
+    stime,etime = model.get_time_bounds(meta['urlpath'],tvar_name)
+    meta['actual_start'] = stime
+    meta['actual_end'] = etime
     
     return meta
 
@@ -89,6 +92,7 @@ def get_model_subset(
 
     """
     polybounds = utilities.bbox2polygon(bounds)
+    
     meta = get_model_info(model_id,model_source)
     
     if not utilities.subset_intersects_model_boundary(meta['bounding_poly'], polybounds):
@@ -105,7 +109,7 @@ def get_model_subset(
     snames_list = get_standard_names(environmental_parameters) #these are what we want to include
     snames_dict = meta['sources'][0]['standard_names']
     var_dict = {x: snames_dict[x] for x in snames_list if x in snames_dict}
-    ds = model_nc4.get_model_subset(urlpath,
+    ds = model.get_model_subset(urlpath,
                             start,
                             end,
                             list(bounds),
@@ -122,7 +126,7 @@ def get_model_subset(
 
 def get_model_output(xds, output_pth):
 
-    output_path = model_nc4.get_model_output(xds, output_pth)
+    output_path = model.get_model_output(xds, output_pth)
 
     return output_pth
     

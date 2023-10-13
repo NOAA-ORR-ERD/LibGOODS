@@ -1,20 +1,18 @@
 from . import file_processing, utilities
-from .metadata import Metadata
 from netCDF4 import Dataset, num2date
 """
 This leverages Amy's old libGOODS code to determine subset size and write the output
 """
 
-def add_time_bounds(meta,tvar):
+def get_time_bounds(url,tvar):
     """
-    Adds the start/end times to the metadata object
+    Determine the start/end times 
     """   
           
     model = file_processing.base.nc()
-    model.open_nc(FileName=meta['urlpath'], tvar=tvar)
-    meta['actual_start'] = model.start_date
-    meta['actual_end'] = model.end_date
-    return meta
+    model.open_nc(FileName=url, tvar=tvar)
+
+    return model.start_date, model.end_date
         
 def get_model_subset(    
     url,
