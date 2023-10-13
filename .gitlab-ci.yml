@@ -32,15 +32,11 @@ test_libgoods:
   allow_failure: false
   image: registry.orr.noaa.gov/erd/centos-conda/centos7-python$PYTHON_VER
   script:
-    - git clone --depth 1 -b main https://github.com/NOAA-ORR-ERD/model_catalogs.git
     - conda install -y python=$PYTHON_VER 
-                                          --file model_catalogs/conda-requirements.txt
                                           --file conda_requirements_test.txt
                                           --file conda_requirements.txt
 
-    - pip install -r model_catalogs/pip-requirements.txt
 
-    - pushd model_catalogs && pip install . && popd
     - pip install ./
 
     - cd ../  # make sure that it won't find the source package.
