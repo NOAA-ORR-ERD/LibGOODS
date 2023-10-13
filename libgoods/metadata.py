@@ -72,6 +72,7 @@ def get_metadata_for_model(model,source):
     Return the metadata for a particular model/source
     
     """
+
     yaml_file = Path(yaml_file_directory,model.lower()+'.yaml')
     meta = Metadata().init_from_yaml(yaml_file,source=source).as_pyson()        
     #meta['urlpath'] = m.urlpath #needed by nc4 code
@@ -164,6 +165,11 @@ class Metadata:
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
         """        
         return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 596510f2d57fee83cacba285ec5da012d92e5544
     
     def as_pyson(self):
         """
@@ -200,7 +206,22 @@ class SourceMetadata:
         self.env_params = get_env_params(src["metadata"]["standard_names"])
         self.args = src["args"]
         return self
+<<<<<<< HEAD
         
+=======
+
+    # @staticmethod
+    # def get_env_params(metadata):
+        # """return env parameters"""
+        # param metadata: dict of fore/now/hindcast metadata from catalog
+
+        # return {
+            # k
+            # for k, v in EP_map.items()
+            # if all([subv in metadata["standard_names"] for subv in v])
+        # }
+
+>>>>>>> 596510f2d57fee83cacba285ec5da012d92e5544
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data

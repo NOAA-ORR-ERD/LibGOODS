@@ -86,8 +86,7 @@ def get_model_subset(
     :params surface_only: boolean to select only surface values
     :param cross_dateline: boolean to specify dateline cross TODO: check implementation
     :param environmental_parameters: which variables to include, e.g., "surface currents" - see standard_names for mapping
-    
-    
+
     """
     polybounds = utilities.bbox2polygon(bounds)
     meta = get_model_info(model_id,model_source)
