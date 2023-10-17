@@ -8,12 +8,11 @@ url = 'http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NEC
 #url = 'http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NECOFS_FVCOM_OCEAN_MASSBAY_FORECAST.nc'
 
 #to filter out only specific data variables of interest we need to provide standard_names used in model output attributes (or set to None to include all vars)
-#snames_of_vars_to_include = ['eastward_sea_water_velocity','northward_sea_water_velocity']
-snames_of_vars_to_include = None 
+snames_of_vars_to_include = ['eastward_sea_water_velocity','northward_sea_water_velocity']
 model_type = 'FVCOM'
 
-start = '2023-08-15'
-end = '2023-8-17'
+start = '2023-10-16'
+end = '2023-10-17'
 bbox = (-71.59,40.88,-68.45,42.52)
 
 

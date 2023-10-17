@@ -60,7 +60,8 @@ def get_model_subset(
     drop_variables = None
     if model_type == 'FVCOM':
         drop_variables = ['Itime', 'Itime2']
-        preload_varmap = {'siglay': 'sigma_layers','siglev': 'sigma_levels'}
+        #preload_varmap = {'siglay': 'sigma_layers','siglev': 'sigma_levels'}
+        preload_varmap = {'siglay': 'sigma_layers'} #NECOFS
         bounds = rotate_bbox(bounds) #TODO: need to determine if necessary
         
     if out_dir is None:
