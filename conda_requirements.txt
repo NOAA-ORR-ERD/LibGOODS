@@ -1,4 +1,4 @@
-python>=3.8,<3.11
+python>=3.8
 extract_model
 netCDF4=1.6.0  # multithreading not supported in newer versions
 numpy

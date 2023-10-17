@@ -67,6 +67,37 @@ def get_model_info(model_id,model_source):
     
     return meta
 
+def validate_subset(
+    model_id,
+    model_source,
+    start,
+    end,
+    bounds
+    ):
+    """
+    Validate the desired subset (in space and time) by ensuring that there is 
+    overlap with the time bounds and grid bounds of the selected model
+    
+    :param model_id: the name (unique ID) of the model as defined in the yaml files
+    :param model_source: the source the model output is being requested from
+    :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
+        or datetimes)
+    :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
+        or datetimes)
+    :param bounds: spatial bounds to subset -- (west, south, east, north)
+
+
+    """
+    
+    polybounds = utilities.bbox2polygon(bounds)
+    
+    meta = get_model_info(model_id,model_source)
+    if not utilities.subset_intersects_model_boundary(meta['bounding_poly'], polybounds):
+        # no overlap in at least one dimension
+        return NonIntersectingSubsetError()
+        
+    return True
+
 def get_model_subset(   
     model_id,
     model_source,
@@ -95,9 +126,7 @@ def get_model_subset(
     
     meta = get_model_info(model_id,model_source)
     
-    if not utilities.subset_intersects_model_boundary(meta['bounding_poly'], polybounds):
-        # no overlap in at least one dimension
-        raise NonIntersectingSubsetError()
+
                    
     #build url list if unaggregated
     if 'noagg' in model_source: 
