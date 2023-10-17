@@ -14,32 +14,41 @@ Installation
 
 This project relies on conda for installation and managing of the project dependencies.
 
-1. `Download and install miniconda for your operating system <https://docs.conda.io/en/latest/miniconda.html>`_.
+It is tested with the packages from the conda-forge project:
 
-2.  Clone this repository with `git`.
+https://conda-forge.org/
 
-3.  Once conda is available build the environment for this project with. Note: Below we use an
-    environment name of ``libgoods`` but you can choose any environment name.
+And works best with conda-forge packages
+
+1. Download and install:
+`miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ or
+`miniforge <https://github.com/conda-forge/miniforge/releases>`_
+for your operating system.
+
+2. If you are using miniconda (or Anaconda), add the conda-forge channel to your configuration, and set `channel_priority` to strict::
+
+  conda config --add channels conda-forge
+  conda config --set channel_priority strict
+
+3.  Clone this repository with `git`.
+
+4.  Once conda is available build the environment for this project with.
+
+    .. note:: Below we use an environment name of ``libgoods`` but you can choose any environment name.
 
     .. code-block::
 
-       conda env create --name libgoods -c conda-forge python=3.9
+       conda create --name libgoods python=3.9 --file conda_requirements.txt
        conda activate libgoods
 
-    The above command creates a new conda environment titled ``libgoods`` and installs Python 3.9 from
-    conda-forge.
+    The above command creates a new conda environment titled ``libgoods`` with Python 3.9 and libgoods' dependencies
 
-4. Install project dependencies
 
-   .. code-block::
-
-      conda install -c conda-forge --file conda_requirements.txt
-
-5. Install test dependencies
+5. If you want to run the tests, you need the dependencies
 
    .. code-block::
 
-      conda install -c conda-forge --file conda_requirements_test.txt
+      conda install --file conda_requirements_test.txt
 
 6. Install the local package for development:
 
@@ -47,13 +56,22 @@ This project relies on conda for installation and managing of the project depend
 
       pip install -e .
 
-6. Install ``model_catalogs``.
+7. Install ``model_catalogs``.
+
+   The model_catalogs project may be required for some libgoods functionality.
+
+   It can be installed with conda
+
+   .. code-block::
+
+     conda install model_catalogs
+
+   Or from source:
 
    Clone the repository at
    `https://github.com/NOAA-ORR-ERD/model_catalogs <https://github.com/NOAA-ORR-ERD/model_catalogs>`_
    and follow the instructions for installing the project. A summary of the steps:
 
-   .. code-block::
 
       cd ../..
       git clone https://github.com/NOAA-ORR-ERD/model_catalogs/
@@ -66,11 +84,13 @@ This project relies on conda for installation and managing of the project depend
 To run precommit checks
 -----------------------
 
-Install necessary packages, listed in `conda-requirements-dev.txt`, with
+NOTE: this may no longer be functional
+
+Install necessary packages, listed in `conda_requirements_dev.txt`, with
 
 .. code-block::
 
-   conda install -c conda-forge --file conda-requirements-dev.txt
+   conda install --file conda_requirements_dev.txt
 
 Then to keep your code linted, and especially before pushing any code, run:
 
@@ -79,66 +99,37 @@ Then to keep your code linted, and especially before pushing any code, run:
    pre-commit run --all-files
 
 
-
-Command-Line Examples
----------------------
-
-Usage
-^^^^^
-
-.. code-block::
-
-   usage: fetch-model [-h] [-t {hindcast,nowcast,forecast}] [-s START] [-e END] [-f] [--bbox [BBOX]] [--surface] [-n STANDARD_NAMES]
-                      [-o OUTPUT] [-l] [--show-bounds]
-                      [model_name]
-
-   Fetch model output.
-
-   positional arguments:
-     model_name            Name of the model
-
-   optional arguments:
-     -h, --help            show this help message and exit
-     -t {hindcast,nowcast,forecast}, --timing {hindcast,nowcast,forecast}
-                           Model Timing Choice.
-     -s START, --start START
-                           Request start time
-     -e END, --end END     Request end time
-     -f, --force           Overwrite existing files
-     --bbox [BBOX]         Specify the bounding box
-     --surface             Fetch only surface data.
-     -n STANDARD_NAMES, --standard-names STANDARD_NAMES
-                           Comma-delimited list of standard names to filter.
-     -o OUTPUT, --output OUTPUT
-     -l, --list-models     Print the available models and exit.
-     --show-bounds         Show the bounds of the model and exit.
-
 Examples
 --------
 
-The following example downloads HYCOM, subsets the data to a bounded region by 0° Longitude, 0°
-Latitude, and 10° Longitude, 10° Latitude for the dates below.
-
-.. code-block::
-
-   fetch-model HYCOM --surface --bbox 0,0,10,10 -t forecast -s 2022-08-15 -e 2022-08-16
+libgoods is designed to be used in a Python scripting environment.
 
 
-By default the fetch-model command line interface will download to a new folder called output
-wherever the command is invoked. Clients can specify an output directory or the output filename
-explicitly with the ``-o`` argument.
+NOTE: let's put some examples in here, or ...
+
+    .. The following example downloads HYCOM, subsets the data to a bounded region by 0° Longitude, 0°
+    .. Latitude, and 10° Longitude, 10° Latitude for the dates below.
+
+    .. .. code-block::
+
+    ..    fetch-model HYCOM --surface --bbox 0,0,10,10 -t forecast -s 2022-08-15 -e 2022-08-16
 
 
-The following example lists all the models available to the interface.
+    .. By default the fetch-model command line interface will download to a new folder called output
+    .. wherever the command is invoked. Clients can specify an output directory or the output filename
+    .. explicitly with the ``-o`` argument.
 
 
-.. code-block::
-
-   fetch-model -l
+    .. The following example lists all the models available to the interface.
 
 
-The following example displays the model's bounding box:
+    .. .. code-block::
 
-.. code-block::
+    ..    fetch-model -l
 
-   fetch-model LEOFS --show-bounds
+
+    .. The following example displays the model's bounding box:
+
+    .. .. code-block::
+
+    ..    fetch-model LEOFS --show-bounds
