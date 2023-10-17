@@ -16,7 +16,7 @@ before_script:
 
 configure_env:
   stage: .pre
-  image: registry.orr.noaa.gov/erd/centos-conda/IMAGE_NAME$PYTHON_VER
+  image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
   before_script:
     - echo '' # manual override of before_script because we're on runner 12.3 and inherit options are only 12.9+
   script:
@@ -31,7 +31,7 @@ configure_env:
 test_libgoods:
   stage: test
   allow_failure: false
-  image: registry.orr.noaa.gov/erd/centos-conda/IMAGE_NAME$PYTHON_VER
+  image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
   script:
     - conda install -y python=$PYTHON_VER 
                                           --file conda_requirements_test.txt
