@@ -4,14 +4,11 @@ __init__.py for libgoods package
 
 from pathlib import Path
 
-__version__ = "2.0.1"
-
-import os
+__version__ = "2.0.2"
 
 
 class FileTooBigError(ValueError):
     """class for file too big"""
-
     pass
 
 
@@ -26,7 +23,8 @@ class NonIntersectingSubsetError(ValueError):
     """
     provided bounds does not overlap with model domain
     """
-    
+
+
 class NonIntersectingTimeInterval(ValueError):
     """
     provided time bounds do not overlap with model time availability
