@@ -27,7 +27,7 @@ def test_get_metadata():
 
     # could check more, but why?
     assert md["name"] == DummyCurrentsCAROMS.metadata.name
-    assert md["product_type"] is "hindcast"
+    assert md["product_type"] == "hindcast"
     # just checking it there, not the values
     assert md["hindcast_start"] != ""
     assert md["hindcast_end"] != ""
