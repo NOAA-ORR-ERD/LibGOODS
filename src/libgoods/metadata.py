@@ -40,28 +40,33 @@ from .standard_names import get_env_params
 
 yaml_file_directory = Path(__file__).parent / 'yaml_files'
 
+
 def get_all_metadata():
     """
-    Loop though all the files in the yaml files directory and return a 
+    Loop though all the files in the yaml files directory and return a
     dict of the metadata for all models
     """
-    
-    flist = [f for  f in yaml_file_directory.glob('*.yaml')]
-    all_metas = {f.name.split('.')[0].upper(): Metadata().init_from_yaml(f) for f in flist}
-    return(all_metas)
 
-def get_metadata_for_model(model,source):
+    flist = yaml_file_directory.glob('*.yaml')
+    all_metas = {
+        f.name.split('.')[0].upper(): Metadata().init_from_yaml(f)
+        for f in flist
+    }
+    return (all_metas)
+
+
+def get_metadata_for_model(model, source):
     """
     Return the metadata for a particular model/source
-    
+
     """
 
-    yaml_file = Path(yaml_file_directory,model.lower()+'.yaml')
-    meta = Metadata().init_from_yaml(yaml_file,source=source).as_pyson()        
-    #meta['urlpath'] = m.urlpath #needed by nc4 code
-    return(meta)
-            
-       
+    yaml_file = Path(yaml_file_directory, model.lower() + '.yaml')
+    meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
+    # meta['urlpath'] = m.urlpath #needed by nc4 code
+    return (meta)
+
+
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
@@ -74,7 +79,7 @@ class Metadata:
     grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
     has_depth: bool = True
     dimensions: tuple = ()
-    sources : list = dataclasses.field(default_factory=list)
+    sources: list = dataclasses.field(default_factory=list)
     env_params: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
@@ -86,15 +91,15 @@ class Metadata:
 
     def init_from_yaml(self, yaml_file, source=None):
         """initiate a model"""
-        # given a model, extract the data and set on self. If source is None, 
+        # given a model, extract the data and set on self. If source is None,
         # get metadata for all sources
-        
-        with open(yaml_file,'r') as file:
+
+        with open(yaml_file, 'r') as file:
             model_info = yaml.full_load(file)
-        yaml_bdry_file = yaml_file_directory /'boundaries' / yaml_file.name
-        with open(yaml_bdry_file,'r') as file:
+        yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
+        with open(yaml_bdry_file, 'r') as file:
             model_info.update(yaml.full_load(file))
-        self.identifier = model_info["name"]    
+        self.identifier = model_info["name"]
         self.name = model_info["metadata"]["long_name"]
         self.description = model_info["description"]
         try:
@@ -107,11 +112,11 @@ class Metadata:
         bounding_poly = wkt.loads(model_info["wkt"])
         if isinstance(bounding_poly, MultiPolygon):
             bounding_poly = bounding_poly.convex_hull
-        self.bounding_poly = list(
-            bounding_poly.boundary.coords
-        )
+        self.bounding_poly = list(bounding_poly.boundary.coords)
         self.grid_type = model_info["metadata"]["grid_type"]
-        grid_dim_keyname = [n for n in model_info["metadata"].keys() if "grid_dim_" in n][0]
+        grid_dim_keyname = [
+            n for n in model_info["metadata"].keys() if "grid_dim_" in n
+        ][0]
         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
         self.dimensions = model_info["metadata"][grid_dim_keyname]
         self.init_source_metadata(model_info["sources"], source=source)
@@ -121,11 +126,13 @@ class Metadata:
     def init_source_metadata(self, sources, source):
         """initiate metadata"""
         # given a model, extract the source start_end times and set them on self
-        
+
         if source is not None:
-            all_sources = [source,]
+            all_sources = [
+                source,
+            ]
         else:
-            all_sources = [k for k in sources.keys()]    
+            all_sources = sources.keys()
         for k in all_sources:
             src = sources[k]
             srcmeta = SourceMetadata(name=k)
@@ -146,9 +153,9 @@ class Metadata:
         """
         Selection criteria for 'regional' flag in the metadata
         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
-        """        
+        """
         return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
-    
+
     def as_pyson(self):
         """
         returns a JSON compatible dict of the data
@@ -160,6 +167,7 @@ class Metadata:
             dict_["sources"].append(s.as_pyson())
         return dict_
 
+
 @dataclasses.dataclass
 class SourceMetadata:
     """source metadata"""
@@ -168,7 +176,7 @@ class SourceMetadata:
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
     name: str = ""
-    period: float = (0,)  # output period in hours
+    period: float = (0, )  # output period in hours
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
     # dict associating CF name to variable name in data
@@ -192,5 +200,3 @@ class SourceMetadata:
         dict_ = dataclasses.asdict(self)
         dict_["env_params"] = list(self.env_params)
         return dict_
-
-    

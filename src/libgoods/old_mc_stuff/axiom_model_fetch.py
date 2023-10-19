@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""A module containing code for fetching content from models."""
-import time
+"""
+A module containing code for fetching content from models.
+"""
+
 import warnings
 from typing import List, Tuple, Mapping, Optional
 from pathlib import Path
@@ -56,7 +58,7 @@ def select_surface(ds: xr.Dataset) -> xr.Dataset:
             vertical_dims.add(vertical_dim)
         sel_kwargs = {vdim: 0 for vdim in vertical_dims}
         return ds.isel(**sel_kwargs)
-    elif all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
+    elif all(ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]):
         return ds.cf.sel(Z=0, method="nearest")
     raise ValueError("Can't decode vertical coordinates.")
 

@@ -34,35 +34,26 @@ import yaml
 import dataclasses
 import shapely.wkt as wkt
 from shapely.geometry.multipolygon import MultiPolygon
-
 """
-The following is a mapping of 'environmental conditions concepts' to the standard names 
-used in the model_catalogs package. These are in turn mapped to the CF names within the 
-specific model output. Thus specifying "surface currents" will retrieve output in the 
+The following is a mapping of 'environmental conditions concepts' to the standard names
+used in the model_catalogs package. These are in turn mapped to the CF names within the
+specific model output. Thus specifying "surface currents" will retrieve output in the
 CF variables mapped to "eastward_sea_water_velocity" and "northward_sea_water_velocity"
 """
-standard_names = ['latitude',
-    'longitude',
-    'air_temperature',
-    'angle_of_rotation_from_east_to_x',
-    'dew_point_temperature',
-    'eastward_sea_water_velocity',
-    'eastward_wind',
-    'northward_sea_water_velocity',
-    'northward_wind',
-    'sea_floor_depth',
-    'sea_ice_area_fraction',
-    'sea_ice_thickness',
-    'sea_surface_elevation',
-    'sea_water_temperature',
-    'sea_water_practical_salinity',
-    'time',
-    'upward_sea_water_velocity',
-    'wind_gust']
-    
+standard_names = [
+    'latitude', 'longitude', 'air_temperature',
+    'angle_of_rotation_from_east_to_x', 'dew_point_temperature',
+    'eastward_sea_water_velocity', 'eastward_wind',
+    'northward_sea_water_velocity', 'northward_wind', 'sea_floor_depth',
+    'sea_ice_area_fraction', 'sea_ice_thickness', 'sea_surface_elevation',
+    'sea_water_temperature', 'sea_water_practical_salinity', 'time',
+    'upward_sea_water_velocity', 'wind_gust'
+]
+
 EP_map = {
     "surface winds": ["eastward_wind", "northward_wind"],
-    "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
+    "surface currents":
+    ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
     "3D currents": [
         "eastward_sea_water_velocity",
         "northward_sea_water_velocity",
@@ -77,6 +68,7 @@ EP_map = {
     ],
 }
 
+
 def get_var_list_standard_names(env_params):
 
     #determine which variables to include based on environmental params (e.g. "surface currents" and return their standard names
@@ -85,12 +77,13 @@ def get_var_list_standard_names(env_params):
     else:
         var_list = EP_map[env_params]
     return var_list
-        
+
+
 def filter_var_map(var_list, all_vars_map):
     #subset the dict mapping standard names to the variable names used in the file based on variables to include
-    
+
     #add time and lat/lon to var_list
-    var_list.extend(['time','longitude','latitude'])
+    var_list.extend(['time', 'longitude', 'latitude'])
     var_map = {x: all_vars_map[x] for x in var_list if x in all_vars_map}
     return var_map
 
@@ -103,7 +96,7 @@ class SourceMetadata:
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
     name: str = ""
-    period: float = (0,)  # output period in hours
+    period: float = (0, )  # output period in hours
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
     # dict associating CF name to variable name in data
@@ -157,7 +150,7 @@ class Metadata:
     dimensions: tuple = ()
     # timestep_interval: float = "" #'1', '0.5', etc
     # either forecast or hindcast info -- not both
-    sources : list = dataclasses.field(default_factory=list)
+    sources: list = dataclasses.field(default_factory=list)
     env_params: set = dataclasses.field(default_factory=set)
     """
     class to hold the core meta data for a data source
@@ -183,11 +176,10 @@ class Metadata:
         bounding_poly = wkt.loads(m.metadata["geospatial_bounds"])
         if isinstance(bounding_poly, MultiPolygon):
             bounding_poly = bounding_poly.convex_hull
-        self.bounding_poly = list(
-            bounding_poly.boundary.coords
-        )
+        self.bounding_poly = list(bounding_poly.boundary.coords)
         self.grid_type = m.metadata["grid_type"]
-        grid_dim_keyname = [n for n in m.metadata.keys() if "grid_dim_" in n][0]
+        grid_dim_keyname = [n for n in m.metadata.keys()
+                            if "grid_dim_" in n][0]
         self.has_depth = len(m.metadata[grid_dim_keyname]) == 4
         self.dimensions = m.metadata[grid_dim_keyname]
         # self.timestep_interval = self.get_output_interval(m)
@@ -198,11 +190,13 @@ class Metadata:
     def init_source_metadata(self, model, source):
         """initiate metadata"""
         # given a model, extract the source start_end times and set them on self
-        
+
         if source is not None:
-            all_sources = [source,]
+            all_sources = [
+                source,
+            ]
         else:
-            all_sources = [k for k in model.keys()]    
+            all_sources = [k for k in model.keys()]
         for k in all_sources:
             src = model[k]
             srcmeta = SourceMetadata()
@@ -237,7 +231,3 @@ class Metadata:
         for s in self.sources:
             dict_["sources"].append(s.as_pyson())
         return dict_
-
-
-
-    

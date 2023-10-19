@@ -65,7 +65,7 @@ class rect(base.nc):
         self.y = [subset_lat[0], subset_lat[-1] + 1, stride]
         self.x = [subset_lon[0], subset_lon[-1] + 1, stride]
 
-    def write_nc(
+    def write_nc(  # noqa: C901
         self,
         var_map,
         ofn="test.nc",
@@ -92,7 +92,7 @@ class rect(base.nc):
 
         if not grid_only:
             if t_index is not None:
-                self.time = self.time[t_index[0] : t_index[1] : t_index[2]]
+                self.time = self.time[t_index[0]:t_index[1]:t_index[2]]
             else:
                 t_index = [0, len(self.time), 1]
             nc_out.createDimension(self.time_dimension[0], None)
@@ -105,7 +105,7 @@ class rect(base.nc):
 
         var_in = nc_grid.variables[var_map["longitude"]]
         var_out = nc_out.createVariable(var_map["longitude"], var_in.dtype, self.lon_dimension)
-        lon = var_in[self.x[0] : self.x[1] : self.x[2]]
+        lon = var_in[self.x[0]:self.x[1]:self.x[2]]
         if dl == 0:
             var_out[:] = (lon > 180).choose(lon, lon - 360)
         else:
@@ -116,19 +116,17 @@ class rect(base.nc):
 
         var_in = nc_grid.variables[var_map["latitude"]]
         var_out = nc_out.createVariable(var_map["latitude"], var_in.dtype, self.lat_dimension)
-        var_out[:] = var_in[self.y[0] : self.y[1] : self.y[2]]
+        var_out[:] = var_in[self.y[0]:self.y[1]:self.y[2]]
         # Copy NetCDF attributes:
         for attr in var_in.ncattrs():
             var_out.setncattr(attr, var_in.getncattr(attr))
 
         if "mask" in var_map:
             var_in = nc_in.variables[var_map["mask"]]
-            coords = var_in.coordinates
             dims = (var_in.dimensions[-2], var_in.dimensions[-1])
             var_out = nc_out.createVariable("mask", var_in.dtype, dims)
-            var_out[:] = var_in[
-                self.y[0] : self.y[1] : self.y[2], self.x[0] : self.x[1] : self.x[2]
-            ]
+            var_out[:] = var_in[self.y[0]:self.y[1]:self.y[2],
+                                self.x[0]:self.x[1]:self.x[2]]
             # Copy NetCDF attributes:
             for attr in var_in.ncattrs():
                 var_out.setncattr(attr, var_in.getncattr(attr))
@@ -152,18 +150,16 @@ class rect(base.nc):
                 var_out = nc_out.createVariable(var, var_in.dtype, dims)
                 # Copy data:
                 if len(var_in.shape) == 4:
-                    var_out[:] = var_in[
-                        t_index[0] : t_index[1] : t_index[2],
-                        d_index,
-                        self.y[0] : self.y[1],
-                        self.x[0] : self.x[1],
-                    ]
+                    var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
+                                        d_index,
+                                        self.y[0]:self.y[1],
+                                        self.x[0]:self.x[1],
+                                        ]
                 elif len(var_in.shape) == 3:
-                    var_out[:] = var_in[
-                        t_index[0] : t_index[1] : t_index[2],
-                        self.y[0] : self.y[1],
-                        self.x[0] : self.x[1],
-                    ]
+                    var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
+                                        self.y[0]:self.y[1],
+                                        self.x[0]:self.x[1],
+                                        ]
 
                 # Copy NetCDF attributes:
                 if type(self.Dataset) is MFDataset:
@@ -171,8 +167,8 @@ class rect(base.nc):
                 for attr in var_in.ncattrs():
                     if attr != "_FillValue":
                         var_out.setncattr(attr, var_in.getncattr(attr))
-                        
-                if not hasattr(var_out,'missing_value'): #need to check for nans
+
+                if not hasattr(var_out, 'missing_value'):  # need to check for nans
                     if np.isnan(var_out).any():
                         var_out.setncattr('missing_value', np.nan)
 

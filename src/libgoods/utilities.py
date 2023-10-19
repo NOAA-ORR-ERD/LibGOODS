@@ -5,8 +5,8 @@ import numpy as np
 from shapely.geometry import Polygon, MultiPoint
 import re
 import pandas as pd
-import datetime as dt
 import fnmatch
+
 
 def get_example_bbox(model_id):
 
@@ -44,8 +44,9 @@ def get_example_bbox(model_id):
         "WCOFS-2DS": (-122.0, 25.0, -115.0, 35.0),
         "WCOFS-REGULARGRID": (-122.0, 25.0, -115.0, 35.0),
     }
-    
+
     return bboxes[model_id]
+
 
 def check_valid_latitude(lat):
     """make sure lat is valid"""
@@ -68,11 +69,11 @@ def check_valid_longitude(lon, system="all"):
     """
     COORDSYSTEMS = {"all"}
     if system not in {"all"}:
-        raise ValueError(f"Invalid coordinate system. Options are: {COORDSYSTEMS}")
+        raise ValueError(
+            f"Invalid coordinate system. Options are: {COORDSYSTEMS}")
     if not (-180.0 <= lon <= 360.0):
         raise ValueError(
-            f"longitude cannot be larger than 360 or less than -180. Got{lon}"
-        )
+            f"longitude cannot be larger than 360 or less than -180. Got{lon}")
 
     return True
 
@@ -89,9 +90,6 @@ def check_valid_box(bbox, system="all"):
     check_valid_longitude(bbox[0][0], system)
     check_valid_longitude(bbox[1][0], system)
     return True
-
-
-
 
 
 def polygon2bbox(bounds):
@@ -144,6 +142,7 @@ def flatten_bbox(bbox):
     max_lat = bbox[1][1]
     return (min_lon, min_lat, max_lon, max_lat)
 
+
 def _filter_by_env_params(mdl_meta, ev_p):
     """
     :param mdl_meta: model Metadata object
@@ -152,12 +151,14 @@ def _filter_by_env_params(mdl_meta, ev_p):
     # filter models out if they do not have required env_params
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
         # assume singular string
+        # Huh? where is ENVIRONMENTAL_PARAMETERS supposed to be from?
         if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
-            raise KeyError("{} is not a valid environmental parameter".format(ev_p))
+            raise KeyError(
+                "{} is not a valid environmental parameter".format(ev_p))
         return ev_p in mdl_meta.env_params
     else:
         # assume multiple filter parameters eg ['surface currents', 'surface winds']
-        return all([param in mdl_meta.env_params for param in ev_p])
+        return all(param in mdl_meta.env_params for param in ev_p)
 
 
 def _filter_by_bb_intersection(mdl_meta, poly_bounds):
@@ -188,7 +189,10 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds):
     return model_bounds_poly.intersects(poly_bounds)
 
 
-def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env_params=None):
+def filter_models(models_metadatas,
+                  map_bounds=None,
+                  model_ids_sources=None,
+                  env_params=None):
     """
     Filters a provided list of model metadata via three criteria:
     1. Intersects with provided polygon boundary
@@ -203,29 +207,32 @@ def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env
     """
     retlist = models_metadatas
     if model_ids_sources is not None:
-        retlist = [m for m in retlist if m.identifier in model_ids_sources.keys()]
-        
-        #we might want to make the sorting on source optional so we can return all w/o specifying
-        for ii,m in enumerate(retlist):
+        retlist = [
+            m for m in retlist if m.identifier in model_ids_sources.keys()
+        ]
+
+        # we might want to make the sorting on source optional so we can return all w/o specifying
+        for ii, m in enumerate(retlist):
             sources = m.sources
             keep_source_list = []
             for source in sources:
                 if source.name in model_ids_sources[m.identifier]:
                     keep_source_list.append(source)
             retlist[ii].sources = keep_source_list
-            
 
     if map_bounds is not None:
-        map_bounds = (
-            Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
-        )
-        retlist = [m for m in retlist if _filter_by_bb_intersection(m, map_bounds)]
+        map_bounds = (Polygon(map_bounds)
+                      if not isinstance(map_bounds, Polygon) else map_bounds)
+        retlist = [
+            m for m in retlist if _filter_by_bb_intersection(m, map_bounds)
+        ]
 
     if env_params is not None:
         retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
 
     return retlist
-    
+
+
 def file2dt(filename):
     """!!!!Copied from model_catalogs for convenience
     Return Timestamp of NOAA OFS filename
@@ -252,7 +259,8 @@ def file2dt(filename):
     filename = filename.split("/")[-1]
 
     # read in date from filename
-    date = pd.to_datetime(filename, format="%Y%m%d", exact=False)  # has time 00:00
+    date = pd.to_datetime(filename, format="%Y%m%d",
+                          exact=False)  # has time 00:00
 
     # pull timing cycle from filename
     regex = re.compile(".t[0-9]{2}z.")
@@ -261,7 +269,9 @@ def file2dt(filename):
     # NYOFS: multiple times per file
     if fnmatch.fnmatch(filename, "*.nowcast.*"):
 
-        date = [date + pd.Timedelta(f"{cycle - dt} hours") for dt in range(6)[::-1]]
+        date = [
+            date + pd.Timedelta(f"{cycle - dt} hours") for dt in range(6)[::-1]
+        ]
 
     # NYOFS: multiple times per file
     elif fnmatch.fnmatch(filename, "*.forecast.*"):
@@ -270,10 +280,14 @@ def file2dt(filename):
         if "nyofs" in filename:
             nfiles = 54
 
-        date = [date + pd.Timedelta(f"{cycle + 1 + dt} hours") for dt in range(nfiles)]
+        date = [
+            date + pd.Timedelta(f"{cycle + 1 + dt} hours")
+            for dt in range(nfiles)
+        ]
 
     # Main style of NOAA OFS files, 1 file per time step
-    elif fnmatch.fnmatch(filename, "*.n???.*") or fnmatch.fnmatch(filename, "*.f???.*"):
+    elif fnmatch.fnmatch(filename, "*.n???.*") or fnmatch.fnmatch(
+            filename, "*.f???.*"):
 
         # number of hours in repeat cycle for forecast
         if "wcofs" in filename:

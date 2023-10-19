@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 120
+extend-ignore =
+  # imports not in alphabetical order (time, os)
+  H306
+  # "print found" -- we actually  want prints in some places
+  T201
+exclude =
+  .git
+  .github
+  .gitlab-ci.yml
+  .gitignore
+  __pycache__
+  docs
+  source
+  conf.py
+  build
+  dist
+max-complexity = 10
