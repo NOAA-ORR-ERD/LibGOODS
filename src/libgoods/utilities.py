@@ -1,9 +1,11 @@
 """
 assorted utilities useful for libgoods
 """
-import numpy as np
-from shapely.geometry import Polygon, MultiPoint
+import datetime
 import re
+import numpy as np
+
+from shapely.geometry import Polygon, MultiPoint
 import pandas as pd
 import fnmatch
 
@@ -310,3 +312,44 @@ def file2dt(filename):
         date += pd.Timedelta(f"{dt} hours")
 
     return date.to_pydatetime()
+
+
+def round_dt_to_seconds(dt):
+    """
+    Round a datetime object to the nearest seconds
+    (remove milliseconnds)
+
+    example::
+
+    In [6]: dt = datetime.datetime(2023, 10, 20, 12, 5, 10, 6234)
+
+    In [7]: dt.isoformat()
+    Out[7]: '2023-10-20T12:05:10.006234'
+
+    In [8]: round_dt_to_seconds(dt).isoformat()
+    Out[8]: '2023-10-20T12:05:10'
+
+    """
+    dt += datetime.timedelta(seconds=0.5)
+    return dt.replace(microsecond=0)
+
+
+def round_dt_to_minutes(dt):
+def round_dt_to_seconds(dt):
+    """
+    Round a datetime object to the nearest minute
+    (remove seconds)
+
+    example::
+
+    In [16]: dt = datetime.datetime(2023, 10, 20, 12, 5, 30, 6234)
+
+    In [17]: dt.isoformat()
+    Out[17]: '2023-10-20T12:05:30.006234'
+
+    In [18]: round_dt_to_minutes(dt).isoformat()
+    Out[18]: '2023-10-20T12:06:00'
+    """
+
+    dt += datetime.timedelta(seconds=30)
+    return dt.replace(microsecond=0).replace(second=0)
