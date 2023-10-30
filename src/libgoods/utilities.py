@@ -6,6 +6,7 @@ from shapely.geometry import Polygon, MultiPoint
 import re
 import pandas as pd
 import fnmatch
+import datetime
 
 
 def get_example_bbox(model_id):
@@ -90,6 +91,26 @@ def check_valid_box(bbox, system="all"):
     check_valid_longitude(bbox[0][0], system)
     check_valid_longitude(bbox[1][0], system)
     return True
+
+def check_valid_interval(interval):
+    return (interval[0] < interval[1]) and len(interval) == 2 and all([isinstance(x, datetime.datetime) for x in interval])
+
+def check_valid_time_intersection(interval_1, interval_2):
+    """
+    Checks a time interval against another time interval
+    Currently, returns True if both intervals are valid, and
+    there is any overlap at all.
+    
+    :param interval_1: tuple of 2 datetimes
+    :param interval_2: tuple of 2 datetimes
+    :returns: bool
+    """
+    if not check_valid_interval(interval_1):
+        raise ValueError("Interval 1 is not valid")
+    if not check_valid_interval(interval_2):
+        raise ValueError("Interval 2 is not valid")
+    return (interval_1[0] < interval_2[1] and interval_1[1] > interval_2[0])
+    
 
 
 def polygon2bbox(bounds):
