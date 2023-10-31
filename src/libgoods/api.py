@@ -6,7 +6,7 @@ These are the functions that the WebGNOME client will call
 """
 
 from . import model_nc4 as model
-from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeInterval
+from . import utilities, NonIntersectingSubsetError
 from .standard_names import get_standard_names
 from . import metadata
 
@@ -98,7 +98,7 @@ def validate_subset(model_id, model_source, start, end, bounds):
     if not utilities.check_valid_time_intersection((start, end),
                                                    (meta['actual_start'],
                                                     meta['actual_end'])):
-        raise NonIntersectingTimeInterval('Subset does not intersect model time bounds')
+        raise NonIntersectingTimeIntervalError('Subset does not intersect model time bounds')
 
     return True
 
