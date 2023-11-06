@@ -93,7 +93,7 @@ def check_valid_box(bbox, system="all"):
     return True
 
 def check_valid_interval(interval):
-    return (interval[0] < interval[1]) and len(interval) == 2 and all([isinstance(x, datetime.datetime) for x in interval])
+    return (interval[0] <= interval[1]) and len(interval) == 2
 
 def check_valid_time_intersection(interval_1, interval_2):
     """
@@ -105,11 +105,13 @@ def check_valid_time_intersection(interval_1, interval_2):
     :param interval_2: tuple of 2 datetimes
     :returns: bool
     """
+    interval_1 = [datetime.datetime.fromisoformat(x) for x in interval_1]
+    interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
     if not check_valid_interval(interval_1):
-        raise ValueError("Interval 1 is not valid")
+        raise ValueError("Start is not before or equal to end for interval 1")
     if not check_valid_interval(interval_2):
-        raise ValueError("Interval 2 is not valid")
-    return (interval_1[0] < interval_2[1] and interval_1[1] > interval_2[0])
+        raise ValueError("Start is not before or equal to end for interval 2")
+    return (interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0])
     
 
 
