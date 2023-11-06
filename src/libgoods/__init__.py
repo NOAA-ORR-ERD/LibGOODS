@@ -25,7 +25,7 @@ class NonIntersectingSubsetError(ValueError):
     """
 
 
-class NonIntersectingTimeInterval(ValueError):
+class NonIntersectingTimeIntervalError(ValueError):
     """
     provided time bounds do not overlap with model time availability
     """
