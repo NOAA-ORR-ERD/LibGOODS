@@ -1,10 +1,13 @@
-import requests
-import os
-import s3fs
 import datetime
-from libgoods import utilities
+import os
 import pandas as pd
 import numpy as np
+import fnmatch
+import re
+import s3fs
+from siphon.catalog import TDSCatalog
+import requests
+
 """
 Notes on COOPS naming and aggregations:
 
@@ -62,6 +65,13 @@ coops_ofs = {
         'update_freq': 6,
         'cycles': [0, 6, 12, 18]
     },
+    'CBOFS': {
+        'output_ts': 1,
+        'fc': [1, 48],
+        'nc': [1, 2, 3, 4, 5, 6],
+        'update_freq': 6,
+        'cycles': [0, 6, 12, 18]
+    },
     'LMHOFS': {
         'output_ts': 1,
         'fc': [1, 120],
@@ -85,69 +95,152 @@ coops_ofs = {
     },
 }
 
+def file2dt(filename):
+    """
+    Return Timestamp of NOAA OFS filename based on naming convention. 
+    This is for OFS output with 1 timestep per file (everything but NYOFS)
 
-def get_coops_flist_for_download(model_id, start, end):
-    '''AWS S3 bucket has files sorted by model then into individual months
+    Parameters
+    ----------
+    filename : str
+        Filename for which to decipher datetime.
+        
+    Returns
+    -------
+    Timestamp
+        datetime of the time(s) in the file.
+
+    Examples
+    --------
+    >>> fname = 'nos.cbofs.fields.n001.20220701.t00z.nc'
+    >>> file2dt(fname)
+    Timestamp('2022-06-30 19:00:00')
+    """
+    ofs = filename.split('.')[1].upper()
+    
+    # read in date from filename
+    date = pd.to_datetime(filename, format="%Y%m%d",
+                          exact=False)  # has time 00:00
+
+    # pull timing cycle from filename
+    regex = re.compile(".t[0-9]{2}z.")
+    cycle = int(regex.findall(filename)[0][2:4])
+
+    # number of hours in repeat cycle for forecast
+    tshift = coops_ofs[ofs]['update_freq']
+
+    # pull hours from filename
+    regex = re.compile(".[n,f][0-9]{3}.")
+    hour = int(regex.findall(filename)[0][2:-1])
+
+    # calculate hours
+    dt = cycle + hour
+
+    # if nowcast file, subtract dt hours
+    if fnmatch.fnmatch(filename, "*.n???.*"):
+        dt -= tshift
+
+    # construct datetime. dt might be negative.
+    date += pd.Timedelta(f"{dt} hours")
+
+    return date.to_pydatetime()
+
+def get_tds_flist(model_id, start, end):
+    '''COOPS TDS has files sorted by model then into year/month/day
+    '''
+    
+    nc_list = []
+    fc_list = []
+    
+    # add some buffer for the file search (6 hrs the typical update cycle)
+    start = (start - datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))  
+    end = (end + datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))
+    ts = pd.date_range(start, end).strftime('%Y/%m/%d')
+    dirs_to_search = np.unique(ts)
+    thredds_root = 'https://opendap.co-ops.nos.noaa.gov/thredds/'
+    
+    # select all nowcast files that don't overlap
+    for d in dirs_to_search:
+        url = thredds_root + 'catalog/NOAA/' + model_id.upper() + '/MODELS/' + d + '/catalog.xml'
+        try:
+            cat = TDSCatalog(url)
+        except:
+            pass
+            
+        flist = cat.datasets
+        
+        for nc in coops_ofs[model_id.upper()]['nc']:
+            nc_list.extend(
+                [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
+        fc_list.extend([f for f in flist if 'fields.f' in f])
+        
+    flist = prune_files_to_daterange(nc_list,fc_list,start,end)
+    
+    return flist
+
+    
+def get_aws_flist(model_id, start, end):
+    '''AWS S3 bucket has files sorted by model then into year/month
     '''
     nc_list = []
     fc_list = []
 
     aws_root = 's3://noaa-nos-ofs-pds/'
 
-    # add some buffer for the file search
-    start = (start -
-             datetime.timedelta(hours=coops_ofs[model_id]['update_freq'])
-             )  # 6 hours is the typical update cycle
+    # add some buffer for the file search (6 hrs the typical update cycle)
+    start = (start - datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))  
     end = (end + datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))
     ts = pd.date_range(start, end).strftime('%Y%m')
     dirs_to_search = np.unique(ts)
 
     fs = s3fs.S3FileSystem(anon=True)
-    temp_nc_list = []
-    temp_fc_list = []
 
     # select all nowcast files that don't overlap
     for d in dirs_to_search:
         url = aws_root + model_id.lower() + '/netcdf/' + d + '/'
         flist = fs.ls(url)
         for nc in coops_ofs[model_id]['nc']:
-            temp_nc_list.extend(
+            nc_list.extend(
                 [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
-        temp_fc_list.extend([f for f in flist if 'fields.f' in f])
+        fc_list.extend([f for f in flist if 'fields.f' in f])
 
-    # keep nowcast files in time range
-    nc_list = []
-    for f in temp_nc_list:
-        dt = utilities.file2dt(f)
+    flist = prune_files_to_daterange(nc_list,fc_list,start,end)
+    
+    return flist
+
+def prune_files_to_daterange(nc_list,fc_list,start,end):
+
+    # keep nowcast/forecast files in time range
+    pruned_nc_list = []
+    pruned_fc_list = []
+    
+    for f in nc_list:
+        dt = file2dt(f)
         if (dt >= start and dt <= end):
-            nc_list.append(f)
+            pruned_nc_list.append(f)
 
-    nc_list.sort(key=lambda x: x.split('.')[4] + x.split('.')[5])
+    pruned_nc_list.sort(key=lambda x: x.split('.')[4] + x.split('.')[5] + x.split('.')[3])
 
     # if the start date is wholly in the forecast range this will tank here (empty list)
-    if utilities.file2dt(nc_list[-1]) < end:
-        fc_list = []
-        date_cycle = nc_list[-1].split('.')[4] + '.' + nc_list[-1].split(
+    if file2dt(pruned_nc_list[-1]) < end:
+        date_cycle = pruned_nc_list[-1].split('.')[4] + '.' + pruned_nc_list[-1].split(
             '.')[5]
-        for f in temp_fc_list:
+        for f in fc_list:
             try:
                 f.index(date_cycle)
-                fc_list.append(f)
+                pruned_fc_list.append(f)
             except ValueError:
-                pass
+                pass    
+        pruned_fc_list.sort(key=lambda x: x.split('.')[4] + x.split('.')[5] + x.split('.')[3])     
 
-    return nc_list + fc_list
+    return pruned_nc_list + pruned_fc_list
 
-
-def download_from_coops_ofs(fnames, out_dir='temp_files'):
+def download_from_aws(fnames, out_dir='temp_files'):
     """
     NOS OFS are available in an AWS S3 bucket at:
     https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
 
-    You can browse around and see what’s there in a big heap of files.
-    To generate a list of files to download (a time series) you can
-    leverage some of the code in model_catalogs to get the list of files.
-
+ 
     Parameters
     ----------
 
@@ -161,7 +254,7 @@ def download_from_coops_ofs(fnames, out_dir='temp_files'):
     aws_url = 'https://noaa-nos-ofs-pds.s3.amazonaws.com/'
     newfilenames = []
     for fname in fnames:
-
+        print(fname)
         out_file = os.path.join(out_dir, fname.split('/')[-1])
         if os.path.exists(out_file):
             print('Already downloaded', fname)
@@ -185,3 +278,4 @@ def download_from_coops_ofs(fnames, out_dir='temp_files'):
                     f.write(r.content)
         newfilenames.append(out_file)
     return newfilenames
+
