@@ -215,7 +215,7 @@ def prune_files_to_daterange(nc_list,fc_list,start,end):
     pruned_fc_list = []
     
     for f in nc_list:
-        dt = file2dt(f)
+        dt = file2dt(f.split('/')[-1])
         if (dt >= start and dt <= end):
             pruned_nc_list.append(f)
 

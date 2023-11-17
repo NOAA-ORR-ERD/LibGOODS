@@ -64,7 +64,12 @@ def get_model_info(model_id, model_source):
     meta = metadata.get_metadata_for_model(model_id, model_source)
     tvar_name = meta['sources'][0]['standard_names']['time']
     meta['urlpath'] = meta['sources'][0]['args']['urlpath']
-    stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
+    try:
+        stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
+    except:
+        stime = None
+        etime = None
+        
     meta['actual_start'] = stime
     meta['actual_end'] = etime
 
