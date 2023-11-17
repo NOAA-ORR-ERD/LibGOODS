@@ -62,7 +62,7 @@ def get_model_subset(
         drop_variables = ['Itime', 'Itime2']
         #preload_varmap = {'siglay': 'sigma_layers','siglev': 'sigma_levels'}
         preload_varmap = {'siglay': 'sigma_layers'} #NECOFS
-        bounds = rotate_bbox(bounds) #TODO: need to determine if necessary
+        #bounds = rotate_bbox(bounds) #TODO: need to determine if necessary
         
     if out_dir is None:
         out_dir = '.'
@@ -100,18 +100,21 @@ def get_model_subset(
             if start is not None and end is not None:
                 #TODO: make this smarter to use > start and/or < end etc
                 ds = ds.sel(time=slice(start,end))
-
+            
             if surface_only:
-                ds = select_surface(ds)
                 keep_vertical_coords = False
             else:
                 keep_vertical_coords = True
-
+                
             if snames_of_vars_to_include:
                 ds = ds.em.filter(snames_of_vars_to_include, model_type=model_type,keep_vertical_coords=keep_vertical_coords) 
-
+                
+            #do this before surface indexing or else it tanks
             if bounds is not None:
-                ds = ds.em.sub_grid(bbox=bounds, model_type=model_type)  
+                ds = ds.em.sub_grid(bbox=bounds, model_type=model_type) 
+                
+            if surface_only:
+                ds = select_surface(ds)
 
             if time_dim is None:
                 for td in ['time','ocean_time','MT','T']:

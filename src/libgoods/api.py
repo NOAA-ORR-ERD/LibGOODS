@@ -6,7 +6,7 @@ These are the functions that the WebGNOME client will call
 """
 
 from . import model_nc4 as model
-from . import utilities, NonIntersectingSubsetError
+from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeIntervalError
 from .standard_names import get_standard_names
 from . import metadata
 
@@ -64,7 +64,12 @@ def get_model_info(model_id, model_source):
     meta = metadata.get_metadata_for_model(model_id, model_source)
     tvar_name = meta['sources'][0]['standard_names']['time']
     meta['urlpath'] = meta['sources'][0]['args']['urlpath']
-    stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
+    try:
+        stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
+    except:
+        stime = None
+        etime = None
+        
     meta['actual_start'] = stime
     meta['actual_end'] = etime
 
@@ -73,7 +78,7 @@ def get_model_info(model_id, model_source):
 
 def validate_subset(model_id, model_source, start, end, bounds):
     """
-    Validate the desired subset (in space and time) by ensuring that there is
+    Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
@@ -83,7 +88,8 @@ def validate_subset(model_id, model_source, start, end, bounds):
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
     :param bounds: spatial bounds to subset -- (west, south, east, north)
-
+    
+    :returns: True if the subset is valid, otherwise False
     """
 
     polybounds = utilities.bbox2polygon(bounds)
@@ -92,7 +98,12 @@ def validate_subset(model_id, model_source, start, end, bounds):
     if not utilities.subset_intersects_model_boundary(meta['bounding_poly'],
                                                       polybounds):
         # no overlap in at least one dimension
-        return NonIntersectingSubsetError()
+        raise NonIntersectingSubsetError('Subset does not intersect model boundary')
+    
+    if not utilities.check_valid_time_intersection((start, end),
+                                                   (meta['actual_start'],
+                                                    meta['actual_end'])):
+        raise NonIntersectingTimeIntervalError('Subset does not intersect model time bounds')
 
     return True
 

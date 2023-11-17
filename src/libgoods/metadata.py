@@ -66,6 +66,17 @@ def get_metadata_for_model(model, source):
     # meta['urlpath'] = m.urlpath #needed by nc4 code
     return (meta)
 
+def get_url(model, source):
+    """
+    Return the url for a particular model/source
+
+    """
+    yaml_file = Path(yaml_file_directory, model.lower() + '.yaml')
+    meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
+    url = meta['sources'][0]['args']['urlpath']
+
+    return (url)
+
 
 @dataclasses.dataclass
 class Metadata:
