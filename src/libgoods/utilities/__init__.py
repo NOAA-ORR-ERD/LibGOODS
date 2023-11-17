@@ -335,7 +335,6 @@ def round_dt_to_seconds(dt):
 
 
 def round_dt_to_minutes(dt):
-def round_dt_to_seconds(dt):
     """
     Round a datetime object to the nearest minute
     (remove seconds)
