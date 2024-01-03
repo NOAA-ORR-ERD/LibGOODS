@@ -18,7 +18,7 @@ def select_surface(ds):
             # vertical_dims.add(vertical_dim)
         # sel_kwargs = {vdim: 0 for vdim in vertical_dims}
         # return ds.isel(**sel_kwargs)
-        return ds.isel(siglay=-1) #not sure if this is right
+        return ds.isel(siglay=0) #not sure if this is right
     elif all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
         return ds.cf.sel(Z=0, method="nearest")
     raise ValueError("Can't decode vertical coordinates.")

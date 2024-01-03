@@ -8,6 +8,7 @@ import s3fs
 from siphon.catalog import TDSCatalog
 import requests
 
+
 """
 Notes on COOPS naming and aggregations:
 
@@ -235,6 +236,24 @@ def prune_files_to_daterange(nc_list,fc_list,start,end):
 
     return pruned_nc_list + pruned_fc_list
 
+
+def get_local_flist(model_id, start, end, local_dir,glob_pattern):
+    '''COOPS TDS has files sorted by model then into year/month/day
+    '''    
+    nc_list = []
+    fc_list = []
+   
+    flist = local_dir.glob(glob_pattern) #pass in search string
+    flist = [str(f) for f in flist]    
+    for nc in coops_ofs[model_id.upper()]['nc']:
+        nc_list.extend(
+            [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
+    fc_list.extend([f for f in flist if 'fields.f' in f])
+        
+    flist = prune_files_to_daterange(nc_list,fc_list,start,end)
+    
+    return flist
+    
 def download_from_aws(fnames, out_dir='temp_files'):
     """
     NOS OFS are available in an AWS S3 bucket at:
