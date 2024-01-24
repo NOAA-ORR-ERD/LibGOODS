@@ -42,6 +42,9 @@ GOMOFS ROMS: nowcast 003 and 006 only - ouptut is 3 hourly, no overlap
 POM models: one nowcast file "nowcast" in file name, 6 hours, no overlap between nowcasts
 
 Then append the forecast that is the same update cycle as the most recent nowcast
+
+aws link: https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
+tds link: https://opendap.co-ops.nos.noaa.gov/thredds/catalog/catalog.html
 """
 
 coops_ofs = {
