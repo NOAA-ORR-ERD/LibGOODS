@@ -6,7 +6,7 @@ These are the functions that the WebGNOME client will call
 """
 
 from . import model_nc4 as model
-from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeIntervalError
+from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeIntervalError, ModelAvailabilityError
 from .standard_names import get_standard_names
 from . import metadata
 
@@ -67,9 +67,8 @@ def get_model_info(model_id, model_source):
     try:
         stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
     except:
-        stime = None
-        etime = None
-        
+        raise ModelAvailabilityError('Unable to retrieve data from server. Please check availability or try again later.')
+               
     meta['actual_start'] = stime
     meta['actual_end'] = etime
 
@@ -99,6 +98,7 @@ def validate_subset(model_id, model_source, start, end, bounds):
                                                       polybounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError('Subset does not intersect model boundary')
+    
     
     if not utilities.check_valid_time_intersection((start, end),
                                                    (meta['actual_start'],
