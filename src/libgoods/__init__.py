@@ -29,3 +29,8 @@ class NonIntersectingTimeIntervalError(ValueError):
     """
     provided time bounds do not overlap with model time availability
     """
+    
+class ModelAvailabilityError(ValueError):
+    """
+    provided time bounds do not overlap with model time availability
+    """
