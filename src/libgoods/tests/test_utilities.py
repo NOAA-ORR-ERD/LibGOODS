@@ -95,3 +95,24 @@ def test_bbox_in_model_bounds():
 
     assert utilities.subset_intersects_model_boundary(
         utilities.bbox2polygon(good_bbox), model_bdry) is True
+
+def test_weird_model_bounds():
+    bboxs = [(0, 0, 10, 10), #standard 4 quadrants
+             (-10, 0, 0, 10),
+             (-10, -10, 0, 0),
+             (0, -10, 10, 0),
+             (-190, 0, 170, 10), #crosses dateline
+             (170, 0, 190, 10),
+             (170, 0, -170, 10)
+    ]
+    
+    model_bdrys = [
+        [(0, -80), (0, 90), (360, 90), (360, -80), (0, -80)],
+        [(-180, -80), (-180, 90), (180, 90), (180, -80), (-180, -80)],
+        [(-360, -80), (-360, 90), (0, 90), (0, -80), (-360, -80)],
+    ]
+    
+    for bbox in bboxs:
+        for model_bdry in model_bdrys:
+            assert utilities.subset_intersects_model_boundary(
+                utilities.bbox2polygon(bbox), model_bdry) is True

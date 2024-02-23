@@ -207,7 +207,7 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds):
     poly_bounds = Polygon(poly_bounds)
     model_bounds = np.array(model_bounds)
     if np.any(model_bounds[:, 0] > 180):
-        model_bounds[:, 0] = model_bounds[:, 0] - 360
+        model_bounds[:, 0] = model_bounds[:, 0] - 180
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds)
 
