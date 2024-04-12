@@ -336,7 +336,7 @@ def file2dt(filename):
 
     return date.to_pydatetime()
 
-
+# note: Pandas has datetime rounding built in -- maybe we should be using that?
 def round_dt_to_seconds(dt):
     """
     Round a datetime object to the nearest seconds
@@ -371,7 +371,31 @@ def round_dt_to_minutes(dt):
 
     In [18]: round_dt_to_minutes(dt).isoformat()
     Out[18]: '2023-10-20T12:06:00'
+
+    NOTE: It would be good to have this be rounded to an arbitrary number of minutes
     """
 
     dt += datetime.timedelta(seconds=30)
     return dt.replace(microsecond=0).replace(second=0)
+
+def round_dt_to_hours(dt):
+    """
+    Round a datetime object to the nearest hour
+    (remove minutes and seconds)
+
+    example::
+
+    In [16]: dt = datetime.datetime(2023, 10, 20, 12, 5, 30, 6234)
+
+    In [17]: dt.isoformat()
+    Out[17]: '2023-10-20T12:05:30.006234'
+
+    In [18]: round_dt_to_minutes(dt).isoformat()
+    Out[18]: '2023-10-20T12:00:00'
+    """
+
+    dt += datetime.timedelta(minutes=30)
+    return dt.replace(microsecond=0).replace(second=0).replace(minute=0)
+
+
+
