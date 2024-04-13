@@ -13,9 +13,9 @@ from urllib.error import HTTPError
 try:
     from progressbar import (ProgressBar, Percentage, FileTransferSpeed,
                              ETA, Bar)
-    HAVE_PG = True
+    HAVE_PB = True
 except ImportError:
-    HAVE_PG = False
+    HAVE_PB = False
 
 
 DATA_SERVER = 'https://gnome.orr.noaa.gov/py_gnome_testdata/'
@@ -71,7 +71,7 @@ def get_datafile(filename, data_server=None):
                       .format(ex.msg, fname))
             raise ex
 
-        if HAVE_PG:
+        if HAVE_PB:
             # progress bar
             widgets = [fname + ':      ',
                        Percentage(),
@@ -103,8 +103,9 @@ def get_datafile(filename, data_server=None):
                     fh.write(data)
                     sz_read += len(data)
 
-                    if sz_read >= CHUNKSIZE:
+                    if HAVE_PB and sz_read >= CHUNKSIZE:
                         pbar.update(CHUNKSIZE)
 
-        pbar.finish()
+        if HAVE_PB:
+            pbar.finish()
         return filename
