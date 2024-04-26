@@ -2,6 +2,8 @@
 Tests  for the libgoods.utilities package
 """
 
+import datetime
+
 from libgoods import utilities
 import pytest
 
@@ -116,3 +118,14 @@ def test_weird_model_bounds():
         for model_bdry in model_bdrys:
             assert utilities.subset_intersects_model_boundary(
                 utilities.bbox2polygon(bbox), model_bdry) is True
+
+@pytest.mark.parametrize('dt', [datetime.datetime(2023, 10, 20, 12, 5, 30, 6234),
+                                datetime.datetime(2023, 10, 20, 11, 30),
+                                datetime.datetime(2023, 10, 20, 12, 29),
+                                ])
+def test_round_dt_to_hours(dt):
+    rounded = datetime.datetime(2023, 10, 20, 12)
+    dt2 = utilities.round_dt_to_hours(dt)
+    assert dt2 == rounded
+
+
