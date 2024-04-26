@@ -43,3 +43,4 @@ sources:
         time: time
         latitude: lat
         longitude: lon
+        z: depth

@@ -17,8 +17,11 @@ individual files. So each update generates some number of nowcast files and fore
 The update cycle time will be the last model output timestep in the nowcast
 files and the first timestep in the forecast files
 
-nos.OFS.fields.nHHH.YYYYMMDD.tCCz.nc or
-glos.OFS.fields.nHHH.YYYYMMDD.tCCz.nc (Great Lakes models)
+Format prior to Aug2024
+nos.{OFS}.fields.nHHH.YYYYMMDD.tCCz.nc or
+
+Post Aug2024
+nos.{OFS}.fields.tCCz.YYYYMMDD.nHHH.nc or
 
 OFS = model name, eg. "DBOFS"
 nHHH = nowcast number, eg. n001-n006 or "nowcast" for old POM models
@@ -52,6 +55,13 @@ coops_ofs = {
         'output_ts': 3,
         'fc': [0, 48],
         'nc': [0, 3],
+        'update_freq': 6,
+        'cycles': [3, 9, 15, 21]
+    },
+    'SSCOFS': {
+        'output_ts': 3,
+        'fc': [0, 72],
+        'nc': [0, 1, 2, 3, 4, 5],
         'update_freq': 6,
         'cycles': [3, 9, 15, 21]
     },
@@ -99,7 +109,7 @@ coops_ofs = {
     },
 }
 
-def file2dt(filename):
+def file2dt(filename,coops_format='new'):
     """
     Return Timestamp of NOAA OFS filename based on naming convention. 
     This is for OFS output with 1 timestep per file (everything but NYOFS)
@@ -120,8 +130,10 @@ def file2dt(filename):
     >>> file2dt(fname)
     Timestamp('2022-06-30 19:00:00')
     """
-    ofs = filename.split('.')[1].upper()
-    
+    if coops_format=='new':
+        ofs = filename.split('.')[0].upper()
+    else:
+        ofs = filename.split('.')[1].upper()
     # read in date from filename
     date = pd.to_datetime(filename, format="%Y%m%d",
                           exact=False)  # has time 00:00
@@ -149,40 +161,55 @@ def file2dt(filename):
 
     return date.to_pydatetime()
 
-def get_tds_flist(model_id, start, end):
+def get_tds_flist(model_id, start, end, tds='coops'):
     '''COOPS TDS has files sorted by model then into year/month/day
     '''
-    
     nc_list = []
     fc_list = []
     
     # add some buffer for the file search (6 hrs the typical update cycle)
-    start = (start - datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))  
-    end = (end + datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))
-    ts = pd.date_range(start, end).strftime('%Y/%m/%d')
-    dirs_to_search = np.unique(ts)
-    thredds_root = 'https://opendap.co-ops.nos.noaa.gov/thredds/'
+    buffer = datetime.timedelta(hours=coops_ofs[model_id]['update_freq']+1)
+    start_b = (start - buffer)  
+    end_b = (end + buffer)
+    if tds=='coops':
+        ts = pd.date_range(start_b, end_b).strftime('%Y/%m/%d') 
+        thredds_root = 'https://opendap.co-ops.nos.noaa.gov/thredds/'
+    elif tds=='ncei':
+        ts = pd.date_range(start_b, end_b).strftime('%Y/%m')
+        thredds_root = 'https://ncei.noaa.gov/thredds/'
     
+    dirs_to_search = np.unique(ts)
+   
     # select all nowcast files that don't overlap
     for d in dirs_to_search:
-        url = thredds_root + 'catalog/NOAA/' + model_id.upper() + '/MODELS/' + d + '/catalog.xml'
+        if tds=='coops':
+            url = thredds_root + 'catalog/NOAA/' + model_id.upper() + '/MODELS/' + d + '/catalog.xml'
+        else:
+            url = thredds_root + 'catalog/model-' + model_id.lower() + '-files/' + d + '/catalog.xml'
+        
         try:
             cat = TDSCatalog(url)
         except:
-            pass
-            
-        flist = cat.datasets
+            print('Could not open TDS catalog:', url)
         
+        dsc = list(cat.datasets.values())
+        flist = [ds.access_urls['OPENDAP'] for ds in dsc]        
+        
+        #this just gets all the nc/fc in those directories without checking dates
         for nc in coops_ofs[model_id.upper()]['nc']:
             nc_list.extend(
                 [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
         fc_list.extend([f for f in flist if 'fields.f' in f])
-        
-    flist = prune_files_to_daterange(nc_list,fc_list,start,end)
+    
+    #this directory crawling results in duplicates for some reason
+    nc_list = list(np.unique(nc_list))
+    fc_list = list(np.unique(fc_list))
+    
+    time_step = datetime.timedelta(hours=coops_ofs[model_id]['output_ts'])
+    flist = prune_files_to_daterange(nc_list,fc_list,start,end,time_step)
     
     return flist
-
-    
+   
 def get_aws_flist(model_id, start, end):
     '''AWS S3 bucket has files sorted by model then into year/month
     '''
@@ -192,9 +219,10 @@ def get_aws_flist(model_id, start, end):
     aws_root = 's3://noaa-nos-ofs-pds/'
 
     # add some buffer for the file search (6 hrs the typical update cycle)
-    start = (start - datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))  
-    end = (end + datetime.timedelta(hours=coops_ofs[model_id]['update_freq']))
-    ts = pd.date_range(start, end).strftime('%Y%m')
+    buffer = datetime.timedelta(hours=coops_ofs[model_id]['update_freq']+1)
+    start_b = (start - buffer)  
+    end_b = (end + buffer)
+    ts = pd.date_range(start_b, end_b).strftime('%Y%m')
     dirs_to_search = np.unique(ts)
 
     fs = s3fs.S3FileSystem(anon=True)
@@ -207,36 +235,66 @@ def get_aws_flist(model_id, start, end):
             nc_list.extend(
                 [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
         fc_list.extend([f for f in flist if 'fields.f' in f])
+    
 
-    flist = prune_files_to_daterange(nc_list,fc_list,start,end)
+    time_step = datetime.timedelta(hours=coops_ofs[model_id]['output_ts'])
+    flist = prune_files_to_daterange(nc_list,fc_list,start,end,time_step)
     
     return flist
 
-def prune_files_to_daterange(nc_list,fc_list,start,end):
+def prune_files_to_daterange(nc_list,fc_list,start,end,time_step):
 
+    if len(nc_list) > 1:
+        test_it = nc_list[0].split('.')[-2] #look at last part of fname to check old/newformat
+    elif len(fc_list) > 1:
+        test_it = fc_list[0].split('.')[-2]
+    else:
+        print('No files found')
+        raise IndexError
+    try:
+        test_it.index('t')
+        coops_format = 'old'
+    except ValueError:
+        coops_format = 'new'
+        
     # keep nowcast/forecast files in time range
     pruned_nc_list = []
     pruned_fc_list = []
+    pruned_dts = []
     
-    for f in nc_list:
-        dt = file2dt(f.split('/')[-1])
-        if (dt >= start and dt <= end):
+    dts = [file2dt(f.split('/')[-1],coops_format) for f in nc_list]
+    
+    
+    for f,dt in zip(nc_list,dts):
+        if (dt >= start-time_step and dt <= end+time_step):
             pruned_nc_list.append(f)
+            pruned_dts.append(dt)
 
-    pruned_nc_list.sort(key=lambda x: x.split('.')[4] + x.split('.')[5] + x.split('.')[3])
+    pruned_nc_list = [x for y, x in sorted(zip(pruned_dts, pruned_nc_list))]
 
     # if the start date is wholly in the forecast range this will tank here (empty list)
-    if file2dt(pruned_nc_list[-1]) < end:
-        date_cycle = pruned_nc_list[-1].split('.')[4] + '.' + pruned_nc_list[-1].split(
-            '.')[5]
-        for f in fc_list:
-            try:
-                f.index(date_cycle)
+    regex = re.compile(".t[0-9]{2}z.")
+    try:
+        last_nc_file = pruned_nc_list[-1].split('/')[-1]
+        if file2dt(last_nc_file, coops_format) < end:            
+            cycle = regex.findall(last_nc_file)[0][2:4]
+            date = pd.to_datetime(last_nc_file, format="%Y%m%d",exact=False).strftime("%Y%m%d")
+            for f in fc_list:
+                if f.find(date + '.t' + cycle + 'z') + f.find('t' + cycle + 'z.' + date) > -1: 
+                    pruned_fc_list.append(f)
+            dts = [file2dt(f.split('/')[-1],coops_format) for f in pruned_fc_list]
+            pruned_fc_list = [x for y, x in sorted(zip(dts, pruned_fc_list))]
+    except IndexError:    
+        print('No nowcast files available')
+        no_nowcasts = True
+        dts = [file2dt(f.split('/')[-1],coops_format) for f in fc_list]
+        sorted_fc_list = [x for y, x in sorted(zip(dts, fc_list))]
+        cycle = regex.findall(sorted_fc_list[-1])[0][2:4]
+        date = pd.to_datetime(sorted_fc_list[-1], format="%Y%m%d",exact=False).strftime("%Y%m%d")
+        for f in sorted_fc_list:
+            if f.find(date + '.t' + cycle + 'z') + f.find('t' + cycle + 'z.' + date) > -1: 
                 pruned_fc_list.append(f)
-            except ValueError:
-                pass    
-        pruned_fc_list.sort(key=lambda x: x.split('.')[4] + x.split('.')[5] + x.split('.')[3])     
-
+                           
     return pruned_nc_list + pruned_fc_list
 
 

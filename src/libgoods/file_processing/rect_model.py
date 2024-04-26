@@ -38,7 +38,8 @@ class rect(base.nc):
             # self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
 
         if get_z:
-            self.depth = self.Dataset.variables[var_map["z"]]
+            self.depth = ds.variables[var_map["z"]][:]
+            self.depth_dimension = ds.variables[var_map["z"]].dimensions
             self.z = [0, self.depth.shape[0]]
 
     def subset(self, bbox, stride=1, dl=0):
@@ -102,6 +103,8 @@ class rect(base.nc):
 
         nc_out.createDimension(self.lat_dimension[0], self.y[1] - self.y[0])
         nc_out.createDimension(self.lon_dimension[0], self.x[1] - self.x[0])
+        
+
 
         var_in = nc_grid.variables[var_map["longitude"]]
         var_out = nc_out.createVariable(var_map["longitude"], var_in.dtype, self.lon_dimension)
@@ -130,6 +133,17 @@ class rect(base.nc):
             # Copy NetCDF attributes:
             for attr in var_in.ncattrs():
                 var_out.setncattr(attr, var_in.getncattr(attr))
+                
+        if is3d: #this only works with level depths (all I have seen so far)
+            nc_out.createDimension(self.depth_dimension[0], self.z[1])
+            var_in = nc_in.variables[var_map["z"]]
+            dims = (var_in.dimensions[0])
+            var_out = nc_out.createVariable("depth", var_in.dtype, dims)
+            var_out[:] = var_in[:]
+            # Copy NetCDF attributes:
+            for attr in var_in.ncattrs():
+                var_out.setncattr(attr, var_in.getncattr(attr))
+            
 
         if not grid_only:
 
@@ -139,22 +153,37 @@ class rect(base.nc):
                 if var in var_map:
                     data_vars.append(var_map[var])
 
-            for var in data_vars:
-                # Create variable in new file
+            for var in data_vars:                
                 var_in = nc_in.variables[var]
-                dims = (
-                    self.time_dimension[0],
-                    var_in.dimensions[-2],
-                    var_in.dimensions[-1],
-                )
+                # Create variable in new file
+                if is3d: 
+                    dims = (
+                        self.time_dimension[0],
+                        self.depth_dimension[0],
+                        var_in.dimensions[-2],
+                        var_in.dimensions[-1],
+                    )
+                else:
+                    dims = (
+                        self.time_dimension[0],
+                        var_in.dimensions[-2],
+                        var_in.dimensions[-1],
+                    )
                 var_out = nc_out.createVariable(var, var_in.dtype, dims)
                 # Copy data:
                 if len(var_in.shape) == 4:
-                    var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
-                                        d_index,
-                                        self.y[0]:self.y[1],
-                                        self.x[0]:self.x[1],
-                                        ]
+                    if is3d:
+                        var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
+                                            :,
+                                            self.y[0]:self.y[1],
+                                            self.x[0]:self.x[1],
+                                            ]
+                    else:
+                        var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
+                                            d_index,
+                                            self.y[0]:self.y[1],
+                                            self.x[0]:self.x[1],
+                                            ]                    
                 elif len(var_in.shape) == 3:
                     var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
                                         self.y[0]:self.y[1],
@@ -171,5 +200,8 @@ class rect(base.nc):
                 if not hasattr(var_out, 'missing_value'):  # need to check for nans
                     if np.isnan(var_out).any():
                         var_out.setncattr('missing_value', np.nan)
+                        
+                # check for nans - replace with zero
+                var_out[:] = np.nan_to_num(var_out)
 
         nc_out.close()

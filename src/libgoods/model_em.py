@@ -1,27 +1,29 @@
 import xarray as xr
 import extract_model as em
 import os
+from pathlib import Path
 
-def select_surface(ds): 
-    #from Luke's code in "model_fetch" -- needs to be improved
-    """Return a dataset that is reduced to only the surface layer."""
-    model_guess = em.utils.guess_model_type(ds)
-    # SELFE uses a hybrid sigma coordinate system for the vertical coordinates,
-    # but cf_xarray misinterprets it as being the z variable. So, we check SELFE
-    # first, before trying to use cf_xarray
-    if model_guess == "SELFE":
-        return ds.isel(nv=-1)
-    elif model_guess == "FVCOM":
-        # vertical_dims = set()
-        # for varname in ds.cf.axes["Z"]:
-            # vertical_dim = ds[varname].dims[0]
-            # vertical_dims.add(vertical_dim)
-        # sel_kwargs = {vdim: 0 for vdim in vertical_dims}
-        # return ds.isel(**sel_kwargs)
-        return ds.isel(siglay=0) #not sure if this is right
-    elif all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
-        return ds.cf.sel(Z=0, method="nearest")
-    raise ValueError("Can't decode vertical coordinates.")
+# def select_surface(ds): 
+    # #from Luke's code in "model_fetch" -- needs to be improved
+    # """Return a dataset that is reduced to only the surface layer."""
+    # model_guess = em.utils.guess_model_type(ds)
+    # print(model_guess)
+    # # SELFE uses a hybrid sigma coordinate system for the vertical coordinates,
+    # # but cf_xarray misinterprets it as being the z variable. So, we check SELFE
+    # # first, before trying to use cf_xarray
+    # if model_guess == "SELFE":
+        # return ds.isel(nv=-1)
+    # elif model_guess == "FVCOM":
+        # # vertical_dims = set()
+        # # for varname in ds.cf.axes["Z"]:
+            # # vertical_dim = ds[varname].dims[0]
+            # # vertical_dims.add(vertical_dim)
+        # # sel_kwargs = {vdim: 0 for vdim in vertical_dims}
+        # # return ds.isel(**sel_kwargs)
+        # return ds.isel(siglay=0) #not sure if this is right
+    # elif all([ds[zaxis].ndim < 2 for zaxis in ds.cf.axes["Z"]]):
+        # return ds.cf.sel(Z=0, method="nearest")
+    # raise ValueError("Can't decode vertical coordinates.")
 
 def rotate_bbox(bbox):
     """
@@ -38,96 +40,88 @@ def rotate_bbox(bbox):
     
 def get_model_subset(    
     fpath,
+    new_fname=None, #this won't work with a list of files
     start=None, 
     end=None, 
     bounds=None,
     snames_of_vars_to_include=None,
-    var_list=None,
-    surface_only=True,
-    model_type=None,
+    tvar_name='time',
+    tcoord_name='time',
+    drop_variables=None,
+    chunks=None,
     out_dir=None,
+    fname=None,
+    check_exists=True,
+    surface_index=None,
     ):
     
     if not type(fpath) is list:
         fpath = [fpath,]
-        
-    if model_type in ['FVCOM','SELFE','ADCIRC']:
-        engine = 'triangularmesh_netcdf'
-    else:
-        engine = None
-    
-    preload_varmap = None
-    drop_variables = None
-    if model_type == 'FVCOM':
-        drop_variables = ['Itime', 'Itime2']
-        #preload_varmap = {'siglay': 'sigma_layers','siglev': 'sigma_levels'}
-        preload_varmap = {'siglay': 'sigma_layers'} #NECOFS
-        bounds = rotate_bbox(bounds) #TODO: need to determine if necessary
-        
+               
     if out_dir is None:
         out_dir = '.'
     
-    newfilelist = []
-    time_dim = None #not sure why I did this? should it be a passed in option?
-    get_time_units = True
+    newfilelist = []   
+    file0=1
     
     for f in fpath:
-        #this derives the saved file name from the input -- should probably have option to pass in desired name
+    
+        print(f)
+        
+        if new_fname is None: #make filename from url or local file
+            if Path(f).exists(): #local file
+                fname = '_ss.'.join(Path(f).name.split('.'))
+            elif f.find('http')==0: #url
+                fname = f.split('/')[-1]
+            ofname = Path(out_dir) / fname
+        else:        
+            ofname = Path(out_dir) / new_fname
 
-        if os.path.exists(f): #local file
-            fname=os.path.split(f)[-1].split('.nc')[0] + '_ss.nc' 
-        else: #url
-            fname=f.split('/')[-1]
-        ofname = os.path.join(out_dir, fname)
-
-        if os.path.exists(ofname):
+        if check_exists and Path(ofname).exists():
             print('Already subset ', fname)
         
         else:
-            print(f)
-            if preload_varmap is None: #this keyword only works with triangularmesh "engine". Ugh.
-                ds = xr.open_dataset(f, engine=engine, decode_times=True, drop_variables=drop_variables)
-            else:
-                ds = xr.open_dataset(f, engine=engine, decode_times=True, preload_varmap=preload_varmap, drop_variables=drop_variables)
-
-            #ds = em.preprocess(ds) #this can take a really long time
-
-            #get time units from first file then use this when writing subsequent files so they all have the same time base
-            if get_time_units:
-                t_units = ds.time.encoding['units']
-                get_time_units = False
+        
+            if drop_variables:
+                if all(x in drop_variables for x in ['Itime', 'Itime2']):
+                #TODO add some special FVCOM crap to deal with this
+                    pass
+        
+            ds = xr.open_dataset(f, decode_times=True, drop_variables=drop_variables,chunks=chunks)
+   
+            if file0:
+                t_units = ds.variables[tvar_name].encoding['units']
+                file0 = False
+                lon_snames = ds.cf.standard_names['grid_longitude_at_cell_center']
+                lon = ds[lon_snames[0]].values
+                if lon.max() >= 180:
+                    bounds = rotate_bbox(bounds)
+                #ADD check for lon bounds
 
             if start is not None and end is not None:
-                #TODO: make this smarter to use > start and/or < end etc
-                ds = ds.sel(time=slice(start,end))
-            
-            if surface_only:
-                keep_vertical_coords = False
-            else:
-                keep_vertical_coords = True
-                
-            if snames_of_vars_to_include:
-                ds = ds.em.filter(snames_of_vars_to_include, model_type=model_type,keep_vertical_coords=keep_vertical_coords) 
-                
+                #TODO: make this smarter to use > start and/or < end etc (one end is None)
+                ds = ds.sel({tcoord_name:slice(start,end)})
+                            
             #do this before surface indexing or else it tanks
             if bounds is not None:
-                ds = ds.em.sub_grid(bbox=bounds, model_type=model_type) 
+                ds = ds.em.sub_grid(bbox=bounds) 
+            
+            keep_vertical_coords = True            
+            if surface_index:
+                print('surface only')
+                #ds = select_surface(ds)
+                ds = ds.cf.sel(Z=0, method="nearest")
+                #ds = ds.sel(-1)
+                keep_vertical_coords = False
                 
-            if surface_only:
-                ds = select_surface(ds)
+            if snames_of_vars_to_include:
+                print('filtering')
+                ds = ds.em.filter(snames_of_vars_to_include,keep_vertical_coords=keep_vertical_coords) 
 
-            if time_dim is None:
-                for td in ['time','ocean_time','MT','T']:
-                    try:
-                        ds.dims[td]
-                        time_dim = td
-                        break
-                    except KeyError: #then what?
-                        pass
+            #keep original units and reference all to first file
+            #ds.time.encoding['units'] = t_units
 
-            ds.time.encoding['units'] = t_units
-
-            ds.to_netcdf(ofname,unlimited_dims=time_dim)
+            ds.to_netcdf(ofname,unlimited_dims=tcoord_name)
             ds.close()  
     
         newfilelist.append(ofname)

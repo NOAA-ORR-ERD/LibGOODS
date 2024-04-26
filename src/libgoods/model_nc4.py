@@ -3,6 +3,7 @@ This leverages Amy's old libGOODS code to determine subset size and write the ou
 """
 
 from . import file_processing
+import numpy as np
 
 
 def get_time_bounds(url, tvar):
@@ -56,11 +57,13 @@ def get_model_subset(
 
     model.open_nc(url)
     # get dimensions to determine subset
-
-    model.get_dimensions(var_map=var_dict)
+    if surface_only:
+        model.get_dimensions(var_map=var_dict)
+    else:
+        model.get_dimensions(var_map=var_dict,get_z=True)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
-        bounds[0] = bounds[0] + 360
-        bounds[2] = bounds[2] + 360
+        bounds[0] = np.mod(bounds[0] + 360, 360)
+        bounds[2] = np.mod(bounds[2] + 360, 360)
 
     t1, t2 = model.get_timeslice_indices(start, end)
     # grid subsetting

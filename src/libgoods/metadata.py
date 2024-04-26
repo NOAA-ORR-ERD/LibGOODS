@@ -63,19 +63,10 @@ def get_metadata_for_model(model, source):
 
     yaml_file = Path(yaml_file_directory, model.lower() + '.yaml')
     meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
-    # meta['urlpath'] = m.urlpath #needed by nc4 code
+
     return (meta)
 
-def get_url(model, source):
-    """
-    Return the url for a particular model/source
 
-    """
-    yaml_file = Path(yaml_file_directory, model.lower() + '.yaml')
-    meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
-    url = meta['sources'][0]['args']['urlpath']
-
-    return (url)
 
 
 @dataclasses.dataclass
@@ -108,8 +99,17 @@ class Metadata:
         with open(yaml_file, 'r') as file:
             model_info = yaml.full_load(file)
         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
-        with open(yaml_bdry_file, 'r') as file:
-            model_info.update(yaml.full_load(file))
+        try:
+            with open(yaml_bdry_file, 'r') as file:
+                model_info.update(yaml.full_load(file))
+            self.bounding_box = model_info["bbox"]
+            self.regional = Metadata.regional_test(self.bounding_box)
+            bounding_poly = wkt.loads(model_info["wkt"])
+            if isinstance(bounding_poly, MultiPolygon):
+                bounding_poly = bounding_poly.convex_hull
+            self.bounding_poly = list(bounding_poly.boundary.coords)
+        except FileNotFoundError:
+            print('No boundary information available for this model')
         self.identifier = model_info["name"]
         self.name = model_info["metadata"]["long_name"]
         self.description = model_info["description"]
@@ -117,13 +117,7 @@ class Metadata:
             self.html_desc = model_info["metadata"]["html_desc"]
         except KeyError:
             self.html_desc = self.description
-        self.bounding_box = model_info["bbox"]
-        self.regional = Metadata.regional_test(self.bounding_box)
-
-        bounding_poly = wkt.loads(model_info["wkt"])
-        if isinstance(bounding_poly, MultiPolygon):
-            bounding_poly = bounding_poly.convex_hull
-        self.bounding_poly = list(bounding_poly.boundary.coords)
+        
         self.grid_type = model_info["metadata"]["grid_type"]
         grid_dim_keyname = [
             n for n in model_info["metadata"].keys() if "grid_dim_" in n

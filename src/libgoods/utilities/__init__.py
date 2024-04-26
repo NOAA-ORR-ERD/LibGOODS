@@ -15,37 +15,40 @@ def get_example_bbox(model_id):
 
     bboxes = {
         "CBOFS": (-76.5, 36.75, -75.25, 37.75),
-        "CBOFS-REGULARGRID": (-76.5, 36.75, -75.25, 37.75),
+        "CBOFS_RGRID": (-76.5, 36.75, -75.25, 37.75),
         "CIOFS": (-154.5, 58.0, -151.0, 60.0),
-        "CIOFS-REGULARGRID": (-154.5, 58.0, -151.0, 60.0),
+        "CIOFS_RGRID": (-154.5, 58.0, -151.0, 60.0),
         "CREOFS": (-123.9, 46.1, -123.6, 46.3),
-        "CREOFS-REGULARGRID": (-123.9, 46.1, -123.6, 46.3),
+        "CREOFS_RGRID": (-123.9, 46.1, -123.6, 46.3),
         "DBOFS": (-75.5, 38.5, -74.5, 39.25),
-        "DBOFS-REGULARGRID": (-75.5, 38.5, -74.5, 39.25),
-        "GFS-1-2DEG": (-85.0, 25.0, -60.0, 48.0),
+        "DBOFS_RGRID": (-75.5, 38.5, -74.5, 39.25),
+        "GFS_1_2DEG": (-85.0, 25.0, -60.0, 48.0),
         "GFS-1-4DEG": (-85.0, 25.0, -60.0, 48.0),
-        "GFS-1DEG": (-85.0, 25.0, -60.0, 48.0),
+        "GFS_1DEG": (-85.0, 25.0, -60.0, 48.0),
         "GOMOFS": (-70, 41, -66, 44),
-        "GOMOFS-2DS": (-70, 41, -66, 44),
-        "GOMOFS-REGULARGRID": (-70, 41, -66, 44),
+        "GOMOFS_2DS": (-70, 41, -66, 44),
+        "GOMOFS_RGRID": (-70, 41, -66, 44),
         "HYCOM": (-79.10, 31.84, -68.159, 42.29),
         "LEOFS": (-83.6, 41.5, -82.6, 42.1),
-        "LEOFS-REGULARGRID": (-83.6, 41.5, -82.6, 42.1),
+        "LEOFS_RGRID": (-83.6, 41.5, -82.6, 42.1),
         "LMHOFS": (-88, 41.57, -86, 44),
-        "LMHOFS-REGULARGRID": (-88, 41.57, -86, 44),
+        "LMHOFS_RGRID": (-88, 41.57, -86, 44),
         "LOOFS": (-78.6, 43.4, -77.1, 43.7),
+        "LOOFS_RGRID": (-78.6, 43.4, -77.1, 43.7),
         "LSOFS": (-89.4, 47.0, -86.4, 47.75),
+        "LSOFS_RGRID": (-89.4, 47.0, -86.4, 47.75),
         "NGOFS2": (-91.5, 29.25, -91, 29.75),
-        "NGOFS2-2DS": (-91.5, 29.25, -91, 29.75),
-        "NGOFS2-REGULARGRID": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2_2DS": (-91.5, 29.25, -91, 29.75),
+        "NGOFS2_RGRID": (-91.5, 29.25, -91, 29.75),
         "NYOFS": (-74.1, 40.49, -73.95, 40.61),
         "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
-        "SFBOFS-REGULARGRID": (-122.55, 37.75, -122.4, 37.9),
+        "SFBOFS_RGRID": (-122.55, 37.75, -122.4, 37.9),
+        "SSCOFS": (-125.70,47.71,-123.56,48.77),
         "TBOFS": (-82.9, 27.3, -82.6, 27.7),
-        "TBOFS-REGULARGRID": (-82.9, 27.3, -82.6, 27.7),
+        "TBOFS_RGRID": (-82.9, 27.3, -82.6, 27.7),
         "WCOFS": (-122.0, 25.0, -115.0, 35.0),
-        "WCOFS-2DS": (-122.0, 25.0, -115.0, 35.0),
-        "WCOFS-REGULARGRID": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS_2DS": (-122.0, 25.0, -115.0, 35.0),
+        "WCOFS_RGRID": (-122.0, 25.0, -115.0, 35.0),
     }
 
     return bboxes[model_id]
@@ -107,16 +110,18 @@ def check_valid_time_intersection(interval_1, interval_2):
     :param interval_2: tuple of 2 datetimes
     :returns: bool
     """
-    interval_1 = [datetime.datetime.fromisoformat(x) for x in interval_1]
-    interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
+    if isinstance(interval_1[0],str):
+        interval_1 = [datetime.datetime.fromisoformat(x) for x in interval_1]
+        
+    if isinstance(interval_2[0],str):
+        interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
+      
     if not check_valid_interval(interval_1):
         raise ValueError("Start is not before or equal to end for interval 1")
     if not check_valid_interval(interval_2):
         raise ValueError("Start is not before or equal to end for interval 2")
     return (interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0])
     
-
-
 def polygon2bbox(bounds):
     """
     converts four points to a four value tuple defining a bounding box.
@@ -209,7 +214,7 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds):
     poly_bounds = Polygon(poly_bounds)
     model_bounds = np.array(model_bounds)
     if np.any(model_bounds[:, 0] > 180):
-        model_bounds[:, 0] = model_bounds[:, 0] - 180
+        model_bounds[:, 0] = model_bounds[:, 0] - 360
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds)
 
@@ -259,7 +264,7 @@ def filter_models(models_metadatas,
 
 
 def file2dt(filename):
-    """!!!!Copied from model_catalogs for convenience
+    """!!!!Copied from model_catalogs for convenience - but I think this is now in coops_utils -- CHECK and DELETE.
     Return Timestamp of NOAA OFS filename
     ...without reading in the filename to xarray. See `docs <https://model-catalogs.readthedocs.io/en/latest/aggregations.html>`_ for details on the formula. Most NOAA OFS models have 1 timestep per file, but NYOFS has 6.
 

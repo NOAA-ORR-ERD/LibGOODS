@@ -41,7 +41,7 @@ EP_map = {
         "upward_sea_water_velocity",
     ],
     "surface temperature": ["sea_surface_temperature"],
-    "3D temperature": ["sea_water_temperature"],
+    "water properties": ["sea_water_temperature", "sea_water_practical_salinity"],
     "ice": [
         "eastward_sea_ice_velocity",
         "northward_sea_ice_velocity",
@@ -68,7 +68,7 @@ def get_standard_names(env_params):
             "upward_sea_water_velocity",
         ],
         "surface temperature": ["sea_surface_temperature"],
-        "3D temperature": ["sea_water_temperature"],
+        "water properties": ["sea_water_temperature", "sea_water_practical_salinity"],
         "ice": [
             "eastward_sea_ice_velocity",
             "northward_sea_ice_velocity",
@@ -85,7 +85,7 @@ def get_standard_names(env_params):
     #       These should be included somewhere using the "axis" info
     #       in the yaml files
     var_list.extend([
-        'time', 'longitude', 'latitude'
+        'time', 'longitude', 'latitude', 'z',
     ])  # these *may* be needed if not included in standard names list
 
     return var_list

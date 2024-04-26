@@ -206,5 +206,10 @@ class curv(base.nc):
                         else:
                             if attr != "_FillValue":
                                 var_out.setncattr(attr, var_in.getncattr(attr))
+                                
+                    # check for nans - replace with zero
+                    var_out[:] = np.nan_to_num(var_out)
+
+
 
         nc_out.close()

@@ -13,7 +13,7 @@ class roms(curv_model.curv):
     needed for GNOME
     """
 
-    def get_dimensions(self, var_map=None, get_time=True, get_xy=True):
+    def get_dimensions(self, var_map=None, get_time=True, get_xy=True, get_z=False):
         """get dimensions for roms models"""
 
         if var_map is None:
@@ -284,7 +284,7 @@ class roms(curv_model.curv):
                         continue
 
                 # check for nans - replace with zero
-                data[np.where(np.isnan(data))] = 0
+                data = np.nan_to_num(data)
                 var_out[:] = data
 
                 # Copy NetCDF attributes:

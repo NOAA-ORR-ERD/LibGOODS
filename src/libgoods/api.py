@@ -62,6 +62,7 @@ def get_model_info(model_id, model_source):
     :returns: libgoods.metadata.Metadata object with metadata of the model and source.
     """
     meta = metadata.get_metadata_for_model(model_id, model_source)
+
     tvar_name = meta['sources'][0]['standard_names']['time']
     meta['urlpath'] = meta['sources'][0]['args']['urlpath']
     try:
@@ -115,7 +116,7 @@ def get_model_subset(model_id,
                      bounds,
                      surface_only=True,
                      cross_dateline=False,
-                     environmental_parameters="surface currents"):
+                     environmental_parameters=["surface currents"]):
     """
     Determine the indices for the desired subset (in space and time)
 
@@ -132,13 +133,17 @@ def get_model_subset(model_id,
                                      "surface currents" - see standard_names for mapping
     """
     # polybounds = utilities.bbox2polygon(bounds)
-
+    if '3D currents' in environmental_parameters:
+        surface_only = False    
+    else:
+        surface_only = True
+        
     meta = get_model_info(model_id, model_source)
 
     # build url list if unaggregated
     if 'noagg' in model_source:
         pass
-        # urlpath = model_catalogs.get_urllist_unagg(model_id,model_source,start,end)
+
     else:
         urlpath = meta['urlpath']
 
@@ -160,7 +165,7 @@ def get_model_subset(model_id,
 
 def get_model_output(xds, output_pth):
     """
-    Fixme: What does this do??
+    Get the model output based on the subset information
     """
     output_path = model.get_model_output(xds, output_pth)
 
