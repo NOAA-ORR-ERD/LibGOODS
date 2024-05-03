@@ -89,11 +89,11 @@ def get_model_subset(
         
             ds = xr.open_dataset(f, decode_times=True, drop_variables=drop_variables,chunks=chunks)
    
-            if file0:
+            if file0: ###this only works with specific var names
                 t_units = ds.variables[tvar_name].encoding['units']
                 file0 = False
-                lon_snames = ds.cf.standard_names['grid_longitude_at_cell_center']
-                lon = ds[lon_snames[0]].values
+                #lon_snames = ds.cf.standard_names['grid_longitude_at_cell_center']
+                lon = ds['lon'].values #AARgH
                 if lon.max() >= 180:
                     bounds = rotate_bbox(bounds)
                 #ADD check for lon bounds
@@ -110,8 +110,9 @@ def get_model_subset(
             if surface_index:
                 print('surface only')
                 #ds = select_surface(ds)
-                ds = ds.cf.sel(Z=0, method="nearest")
-                #ds = ds.sel(-1)
+                #ds = ds.cf.sel(Z=0, method="nearest")
+                
+                ds.isel(siglay=0)
                 keep_vertical_coords = False
                 
             if snames_of_vars_to_include:

@@ -86,6 +86,13 @@ coops_ofs = {
         'update_freq': 6,
         'cycles': [0, 6, 12, 18]
     },
+    'LEOFS': {
+        'output_ts': 1,
+        'fc': [1, 120],
+        'nc': [0, 1, 2, 3, 4, 5],
+        'update_freq': 6,
+        'cycles': [0, 6, 12, 18]
+    },
     'LMHOFS': {
         'output_ts': 1,
         'fc': [1, 120],

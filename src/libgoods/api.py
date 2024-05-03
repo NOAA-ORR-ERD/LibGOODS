@@ -167,6 +167,6 @@ def get_model_output(xds, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = model.get_model_output(xds, output_pth)
+    output_path = model.write_model_output(xds, output_pth)
 
     return output_path

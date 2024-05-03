@@ -11,11 +11,11 @@ model_type = 'FVCOM'
 #snames_of_vars_to_include = ['sea_water_x_velocity','sea_water_y_velocity','upward_sea_water_velocity'] #ROMS
 #snames_of_vars_to_include = None #don't filter vars
 
-start = datetime.datetime(2024,3,15,0,0)
-end = datetime.datetime(2024,3,31,0,0)
+start = datetime.datetime(2024,4,19,0,0)
+end = datetime.datetime(2024,4,21,0,0)
 
-#bbox = utilities.get_example_bbox(model_id)
-bbox = (-77.02,37.85,-75.5,39.617)
+bbox = utilities.get_example_bbox(model_id)
+#bbox = (-77.02,37.85,-75.5,39.617)
 
 fnames = coops_ofs_utils.get_aws_flist(model_id,start,end)
     

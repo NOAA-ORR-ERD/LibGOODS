@@ -82,7 +82,7 @@ def get_model_subset(
     return model
 
 
-def get_model_output(model, output_pth):
+def write_model_output(model, output_pth):
 
     model.update(model.urlpath
                  )  # this was removed for api (nc4 Dataset can't be pickled)
