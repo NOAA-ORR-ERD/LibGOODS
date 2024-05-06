@@ -59,7 +59,7 @@ coops_ofs = {
         'cycles': [3, 9, 15, 21]
     },
     'SSCOFS': {
-        'output_ts': 3,
+        'output_ts': 1,
         'fc': [0, 72],
         'nc': [0, 1, 2, 3, 4, 5],
         'update_freq': 6,

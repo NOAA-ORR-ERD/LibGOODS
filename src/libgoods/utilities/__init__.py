@@ -199,8 +199,8 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     """
     bb = np.array(mdl_meta.bounding_box)
     if np.any(bb > 180):
-        bb[0] -= 360
-        bb[2] -= 360
+        bb[0] -= 180
+        bb[2] -= 180
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
@@ -214,7 +214,7 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds):
     poly_bounds = Polygon(poly_bounds)
     model_bounds = np.array(model_bounds)
     if np.any(model_bounds[:, 0] > 180):
-        model_bounds[:, 0] = model_bounds[:, 0] - 360
+        model_bounds[:, 0] = model_bounds[:, 0] - 180
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds)
 
@@ -262,84 +262,6 @@ def filter_models(models_metadatas,
 
     return retlist
 
-
-def file2dt(filename):
-    """!!!!Copied from model_catalogs for convenience - but I think this is now in coops_utils -- CHECK and DELETE.
-    Return Timestamp of NOAA OFS filename
-    ...without reading in the filename to xarray. See `docs <https://model-catalogs.readthedocs.io/en/latest/aggregations.html>`_ for details on the formula. Most NOAA OFS models have 1 timestep per file, but NYOFS has 6.
-
-    Parameters
-    ----------
-    filename : str
-        Filename for which to decipher datetime. Can be full path or just file name.
-
-    Returns
-    -------
-    Timestamp
-        datetime of the time(s) in the file.
-
-    Examples
-    --------
-    >>> url = 'https://www.ncei.noaa.gov/thredds/dodsC/model-cbofs-files/2022/07/nos.cbofs.fields.n001.20220701.t00z.nc'
-    >>> mc.filename2datetime(url)
-    Timestamp('2022-06-30 19:00:00')
-    """
-
-    # strip off path if present since can mess up the matching
-    filename = filename.split("/")[-1]
-
-    # read in date from filename
-    date = pd.to_datetime(filename, format="%Y%m%d",
-                          exact=False)  # has time 00:00
-
-    # pull timing cycle from filename
-    regex = re.compile(".t[0-9]{2}z.")
-    cycle = int(regex.findall(filename)[0][2:4])
-
-    # NYOFS: multiple times per file
-    if fnmatch.fnmatch(filename, "*.nowcast.*"):
-
-        date = [
-            date + pd.Timedelta(f"{cycle - dt} hours") for dt in range(6)[::-1]
-        ]
-
-    # NYOFS: multiple times per file
-    elif fnmatch.fnmatch(filename, "*.forecast.*"):
-
-        # models all have different forecast lengths! Though only nyofs is left in this category
-        if "nyofs" in filename:
-            nfiles = 54
-
-        date = [
-            date + pd.Timedelta(f"{cycle + 1 + dt} hours")
-            for dt in range(nfiles)
-        ]
-
-    # Main style of NOAA OFS files, 1 file per time step
-    elif fnmatch.fnmatch(filename, "*.n???.*") or fnmatch.fnmatch(
-            filename, "*.f???.*"):
-
-        # number of hours in repeat cycle for forecast
-        if "wcofs" in filename:
-            tshift = 24
-        else:
-            tshift = 6
-
-        # pull hours from filename
-        regex = re.compile(".[n,f][0-9]{3}.")
-        hour = int(regex.findall(filename)[0][2:-1])
-
-        # calculate hours
-        dt = cycle + hour
-
-        # if nowcast file, subtract dt hours
-        if fnmatch.fnmatch(filename, "*.n???.*"):
-            dt -= tshift
-
-        # construct datetime. dt might be negative.
-        date += pd.Timedelta(f"{dt} hours")
-
-    return date.to_pydatetime()
 
 # note: Pandas has datetime rounding built in -- maybe we should be using that?
 def round_dt_to_seconds(dt):
