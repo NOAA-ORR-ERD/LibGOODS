@@ -99,8 +99,8 @@ def test_bbox_in_model_bounds():
         utilities.bbox2polygon(good_bbox), model_bdry) is True
 
 def test_weird_model_bounds():
-    bboxs = [(0, 0, 10, 10), #standard 4 quadrants
-             (-10, 0, 0, 10),
+    bboxs = [(0, 0, 10, 10), #North/East
+             (-10, 0, 0, 10), #North/West
              (-10, -10, 0, 0),
              (0, -10, 10, 0),
              (-190, 0, 170, 10), #crosses dateline
@@ -112,12 +112,14 @@ def test_weird_model_bounds():
         [(0, -80), (0, 90), (360, 90), (360, -80), (0, -80)],
         [(-180, -80), (-180, 90), (180, 90), (180, -80), (-180, -80)],
         [(-360, -80), (-360, 90), (0, 90), (0, -80), (-360, -80)],
+        [(0.0, -80.0),(0.0, 90.0),(359.92, 90.0),(359.92, -80.0),(0.0, -80.0)]
     ]
     
     for bbox in bboxs:
         for model_bdry in model_bdrys:
-            assert utilities.subset_intersects_model_boundary(
-                utilities.bbox2polygon(bbox), model_bdry) is True
+            assert utilities.subset_intersects_model_boundary(model_bdry,
+                utilities.bbox2polygon(bbox)) is True
+
 
 @pytest.mark.parametrize('dt', [datetime.datetime(2023, 10, 20, 12, 5, 30, 6234),
                                 datetime.datetime(2023, 10, 20, 11, 30),

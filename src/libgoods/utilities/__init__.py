@@ -128,12 +128,11 @@ def polygon2bbox(bounds):
 
     In the form: (min_lat, min_lon, max_lat, max_lon)
     """
-
-    if len(bounds) < 2:
-        raise ValueError("Bounding box requires at least 2 points")
-
     try:
-        bounds = np.asarray(bounds, dtype=np.float64).reshape(-1, 2)
+        bounds = np.asarray(bounds, dtype=np.float64).squeeze()
+        if len(bounds) < 2:
+            raise ValueError("Bounding box requires at least 2 points")
+        bounds = bounds.reshape(-1, 2)
     except ValueError as err:
         raise ValueError("bounds must be pairs of (lon, lat) points") from err
     min_lon, min_lat = bounds.min(axis=0)
