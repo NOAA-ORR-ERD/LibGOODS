@@ -53,8 +53,6 @@ def test_get_map_dateline():
 204.000000, 58.000000
 204.000000, 42.000000
 """
-
-    breakpoint()
     print(contents[:len(header)])
     assert contents[:len(header)] == header
 
