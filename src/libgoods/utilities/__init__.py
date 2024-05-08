@@ -98,6 +98,7 @@ def convert_longitude(lon, coord_system='-180--180', normalize=True):
             lon[lon < -180] += 360
         return lon
 
+
 def check_valid_latitude(lat):
     """make sure lat is valid"""
 
@@ -151,17 +152,17 @@ def check_valid_time_intersection(interval_1, interval_2):
     Checks a time interval against another time interval
     Currently, returns True if both intervals are valid, and
     there is any overlap at all.
-    
+
     :param interval_1: tuple of 2 datetimes
     :param interval_2: tuple of 2 datetimes
     :returns: bool
     """
     if isinstance(interval_1[0], str):
         interval_1 = [datetime.datetime.fromisoformat(x) for x in interval_1]
-        
+
     if isinstance(interval_2[0], str):
         interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
-      
+
     if not check_valid_interval(interval_1):
         raise ValueError("Start is not before or equal to end for interval 1")
     if not check_valid_interval(interval_2):
@@ -185,6 +186,13 @@ def polygon2bbox(bounds):
 
     ((min_lon, min_lat), (max_lon, max_lat))
     """
+    # FIXME: maybe bounding boxes should be defined in terms of:
+    #        ((west, south), (north, east)) rather than min,max
+    #        it's kinda the same, except near the dateline
+    #        (and maybe the prime meridian)
+    #
+    #        There is a hacky function: correct_bbox_for_dateline
+    #        that maybe should be rolled into this function.
     try:
         bounds = np.asarray(bounds, dtype=np.float64).squeeze()
         bounds = bounds.reshape(-1, 2)
@@ -285,6 +293,33 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     return bb_poly.intersects(poly_bounds)
 
 
+def make_polygon_finer(poly, threshold=30.0):
+    """
+    Adds vertices to polygon segments to make sure none are longer than
+    threshold (in whatever units the vertices are in -- usually degrees)
+
+    This uses the shapely segmentize function.
+
+    NOTE: This is useful (critical) for large bounding boxes that span the earth
+          e.g. from point one to point two -- which way around the earth?
+          if the points are close together, it's easier for that to be clear.
+
+    :param poly: vertices of polygon
+    :type poly: numpy Nx2 array or compatible nested sequence
+
+    :param threshold=30.0: length of longest segment
+
+    :returns poly2: Nx2 numpy array of vertices of "thickened" polygon.
+    """
+    # make a shapely polygon
+    shpoly = Polygon(poly)
+    # segmentize it
+    shpoly = shpoly.segmentize(max_segment_length=threshold)
+    poly2 = np.array(shpoly.boundary.coords)
+
+    return poly2
+
+
 def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     """
     :param model_bounds: model boundary from metadata - can be in any (allowed)
@@ -298,7 +333,13 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     """
     ## Fixme: it would probably be better to special-case the global models
     poly_bounds = np.array(poly_bounds)
+    # "thicken" the model  boundary to help with world wrapping issues
+    # this *might* help, but does not solve the problem.
+    # model_bounds = make_polygon_finer(model_bounds, threshold=30.0)  # np.array(model_bounds)
     model_bounds = np.array(model_bounds)
+
+    print(poly_bounds)
+    print(model_bounds)
 
     if np.any(poly_bounds[:,0] > 180) or np.any(poly_bounds[:,0] < -180):
         warnings.warn("In subset_intersects_model_boundary: poly_bounds should be in -180--180 coordinates")
@@ -327,6 +368,9 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
         # poly should already be in -180 == 180, but won't hurt
         poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "-180--180", normalize=False)
     # else:  # no need to convert.
+    print(poly_bounds)
+    print(model_bounds)
+
     poly_bounds_poly = Polygon(poly_bounds)
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(poly_bounds_poly)
