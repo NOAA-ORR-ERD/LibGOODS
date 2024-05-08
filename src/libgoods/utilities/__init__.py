@@ -3,6 +3,8 @@ assorted utilities useful for libgoods
 """
 import datetime
 import re
+import warnings
+
 import numpy as np
 
 from shapely.geometry import Polygon, MultiPoint
@@ -54,6 +56,48 @@ def get_example_bbox(model_id):
     return bboxes[model_id]
 
 
+def convert_longitude(lon, coord_system='-180--180', normalize=True):
+    """
+    Convert longitude values to a given coordinate system.
+
+    Options are:
+
+    "-180--180": Negative 180 degrees to 180 degrees
+
+    "0--360": Zero to 360 degrees
+
+    :param lon: numpy array-like of longitude values of float type
+    :param  coord_system='-180--180': options are: {"-180--180", "0--360"}
+
+    :param normalize=True: If True:
+                           360 converts to 0
+                           -180 converts to 180
+                           If False, 360 and -180 are preserved.
+
+    It should be safe to call this on any coords -- if they are already
+    in the expected format, they will not be changed, except for the
+    normalization above.
+    """
+
+    if coord_system not in {"-180--180", "0--360"}:
+        raise TypeError('coord_system must be one of {"-180--180", "0--360"}')
+    lon = np.array(lon)
+
+    if coord_system == "0--360":
+        shifted = (lon + 360) % 360
+        if not normalize:
+            shifted[lon == 360] = 360
+        return shifted
+
+    elif coord_system == "-180--180":
+        lon = np.array(lon)
+        lon[lon > 180] -= 360
+        if normalize:
+            lon[lon <= -180] += 360
+        else:
+            lon[lon < -180] += 360
+        return lon
+
 def check_valid_latitude(lat):
     """make sure lat is valid"""
 
@@ -97,8 +141,10 @@ def check_valid_box(bbox, system="all"):
     check_valid_longitude(bbox[1][0], system)
     return True
 
+
 def check_valid_interval(interval):
     return (interval[0] <= interval[1]) and len(interval) == 2
+
 
 def check_valid_time_intersection(interval_1, interval_2):
     """
@@ -110,10 +156,10 @@ def check_valid_time_intersection(interval_1, interval_2):
     :param interval_2: tuple of 2 datetimes
     :returns: bool
     """
-    if isinstance(interval_1[0],str):
+    if isinstance(interval_1[0], str):
         interval_1 = [datetime.datetime.fromisoformat(x) for x in interval_1]
         
-    if isinstance(interval_2[0],str):
+    if isinstance(interval_2[0], str):
         interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
       
     if not check_valid_interval(interval_1):
@@ -121,23 +167,58 @@ def check_valid_time_intersection(interval_1, interval_2):
     if not check_valid_interval(interval_2):
         raise ValueError("Start is not before or equal to end for interval 2")
     return (interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0])
-    
+
+
 def polygon2bbox(bounds):
     """
-    converts four points to a four value tuple defining a bounding box.
+    converts two or more points to a two pair tuple defining a bounding box:
 
-    In the form: (min_lat, min_lon, max_lat, max_lon)
+    In::
+
+        [(lon, lat1),
+         (lon2, lat2),
+         (lon3, lat3),
+         (lon4, lat3),
+         ...
+         ]
+    Out::
+
+    ((min_lon, min_lat), (max_lon, max_lat))
     """
     try:
         bounds = np.asarray(bounds, dtype=np.float64).squeeze()
+        bounds = bounds.reshape(-1, 2)
         if len(bounds) < 2:
             raise ValueError("Bounding box requires at least 2 points")
-        bounds = bounds.reshape(-1, 2)
     except ValueError as err:
         raise ValueError("bounds must be pairs of (lon, lat) points") from err
     min_lon, min_lat = bounds.min(axis=0)
     max_lon, max_lat = bounds.max(axis=0)
     return ((min_lon, min_lat), (max_lon, max_lat))
+
+
+def correct_bbox_for_dateline(bbox, xDateline=None):
+    """
+    A bounding box should be southwest_corner, northeast_corner
+
+    But if you are using -180 -- 180, then minimum longitude is not west if you cross the dateline
+
+    -- this is what the old GOODs API requires -- for others ???
+
+    If xDateline is None, it will assume you want your bounding box to be
+    less than 180 degrees (half the earth)
+
+    bbox in form: In the form: (min_lon, min_lat, max_lon, max_lat)
+
+    """
+    if xDateline is None:
+        total_lon = bbox[1][0] - bbox[0][0]
+        xDateline = total_lon > 180
+
+    if xDateline:
+        bbox = ((bbox[1][0], bbox[0][1]), (bbox[0][0], bbox[1][1]))
+
+    return bbox
 
 
 def bbox2polygon(bbox):
@@ -204,18 +285,51 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     return bb_poly.intersects(poly_bounds)
 
 
-def subset_intersects_model_boundary(model_bounds, poly_bounds):
+def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     """
-    :param model_bounds: model boundary from metadata
+    :param model_bounds: model boundary from metadata - can be in any (allowed)
+                         longitude coords.
     :param poly_bounds: shapely Polygon (map) boundary.
-           Coords must be in (-180, -90), (180, 90) range
+           Coords must be in (-180 -- 180) longitude form
+
+    :param xDateline=None: Whether the poly bounds cross the dateline.
+                           If None, it is assumed that the bounds are less than 180 degrees.
+                           e.g. wrap less than halfway around the earth.
     """
-    poly_bounds = Polygon(poly_bounds)
+    ## Fixme: it would probably be better to special-case the global models
+    poly_bounds = np.array(poly_bounds)
     model_bounds = np.array(model_bounds)
-    if np.any(model_bounds[:, 0] > 180):
-        model_bounds[:, 0] = model_bounds[:, 0] - 180
+
+    if np.any(poly_bounds[:,0] > 180) or np.any(poly_bounds[:,0] < -180):
+        warnings.warn("In subset_intersects_model_boundary: poly_bounds should be in -180--180 coordinates")
+
+    if np.any(model_bounds[:,0] > 360) or np.any(poly_bounds[:,0] < -180):
+        warnings.warn("In subset_intersects_model_boundary: model_bounds should be in -180--180 or 0--360 coordinates")
+
+    if xDateline is None:
+        # see if it's bigger than 180 degrees in -180 -- 180 space.
+        if (poly_bounds[:,0].max() - poly_bounds[:,0].min()) >= 180:
+            xDateline = True
+        else:
+            xDateline = False
+
+    if xDateline:  # use 0--360 coords
+        model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "0--360", normalize=False)
+        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "0--360", normalize=False)
+    elif poly_bounds[:, 0].min() < 0:  # in western hemisphere: use -180 -- 180 coords
+        if (model_bounds[:, 0].min() >= 0
+            and (model_bounds[:, 0].max() - model_bounds[:, 0].min()) > 300
+            ):  # model bounds in 0-360
+            # only really works for 0-360 and wrapped around the earth.
+            model_bounds[:, 0] -= 180
+        else:
+            model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "-180--180", normalize=False)
+        # poly should already be in -180 == 180, but won't hurt
+        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "-180--180", normalize=False)
+    # else:  # no need to convert.
+    poly_bounds_poly = Polygon(poly_bounds)
     model_bounds_poly = Polygon(model_bounds)
-    return model_bounds_poly.intersects(poly_bounds)
+    return model_bounds_poly.intersects(poly_bounds_poly)
 
 
 def filter_models(models_metadatas,

@@ -32,12 +32,12 @@ def get_map(
     max_filesize=None,
 ):
     """get map"""
+
     bbox = utilities.polygon2bbox(bounds)
+    bbox = utilities.correct_bbox_for_dateline(bbox, cross_dateline)
 
     # south_lat, west_lon, north_lat, east_lon = bbox
     (west_lon, south_lat), (east_lon, north_lat) = bbox
-
-    print(west_lon, south_lat, east_lon, north_lat)
 
     utilities.check_valid_box(bbox)
 

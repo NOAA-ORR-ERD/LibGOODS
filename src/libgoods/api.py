@@ -88,19 +88,20 @@ def validate_subset(model_id, model_source, start, end, bounds):
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
     :param bounds: spatial bounds to subset -- (west, south, east, north)
-    
+
     :returns: True if the subset is valid, otherwise False
     """
 
     polybounds = utilities.bbox2polygon(bounds)
 
     meta = get_model_info(model_id, model_source)
+    # FIXME: we should probably special-case the global models:
+    #        the round earth is a pain!
     if not utilities.subset_intersects_model_boundary(meta['bounding_poly'],
                                                       polybounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError('Subset does not intersect model boundary')
-    
-    
+
     if not utilities.check_valid_time_intersection((start, end),
                                                    (meta['actual_start'],
                                                     meta['actual_end'])):
