@@ -35,14 +35,14 @@ class rect(base.nc):
             self.x = [0, len(self.lon), 1]
             self.y = [0, len(self.lat), 1]
 
-            # self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
+            #self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
 
         if get_z:
             self.depth = ds.variables[var_map["z"]][:]
             self.depth_dimension = ds.variables[var_map["z"]].dimensions
             self.z = [0, self.depth.shape[0]]
 
-    def subset(self, bbox, stride=1, dl=0):
+    def subset(self, bbox, stride=1, dl=False):
         """
         bbox = [wlon,slat,elon,nlat]
 
@@ -51,13 +51,13 @@ class rect(base.nc):
             np.logical_and(self.lat >= bbox[1], self.lat <= bbox[3])
         )[0]
 
-        if dl == 0:
+        if not dl:
             subset_lon = np.nonzero(
                 np.logical_and(self.lon >= bbox[0], self.lon <= bbox[2])
             )[0]
         else:
             subset_lon = np.nonzero(
-                np.logical_or(self.lon >= bbox[0], self.lon <= bbox[2])
+                np.logical_and(self.lon >= bbox[0], self.lon <= bbox[2]+360)
             )[0]
 
         if stride >= len(subset_lat):
@@ -74,8 +74,9 @@ class rect(base.nc):
         d_index=0,
         is3d=False,
         grid_only=False,
-        dl=0,
+        dl=False,
     ):
+        
         """
         Write a rectangular grid model file
         Note: some of these input params aren't used at present; trying to have same params as other grid types
@@ -109,10 +110,10 @@ class rect(base.nc):
         var_in = nc_grid.variables[var_map["longitude"]]
         var_out = nc_out.createVariable(var_map["longitude"], var_in.dtype, self.lon_dimension)
         lon = var_in[self.x[0]:self.x[1]:self.x[2]]
-        if dl == 0:
-            var_out[:] = (lon > 180).choose(lon, lon - 360)
+        if dl is False:
+            var_out[:] = (lon > 180).choose(lon, lon - 360) #-180-->180
         else:
-            var_out[:] = (lon < 0).choose(lon, lon + 360)
+            var_out[:] = (lon < 0).choose(lon, lon + 360) #0-->360
         # Copy NetCDF attributes:
         for attr in var_in.ncattrs():
             var_out.setncattr(attr, var_in.getncattr(attr))

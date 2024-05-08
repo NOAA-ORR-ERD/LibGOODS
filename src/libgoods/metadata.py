@@ -109,7 +109,7 @@ class Metadata:
                 bounding_poly = bounding_poly.convex_hull
             self.bounding_poly = list(bounding_poly.boundary.coords)
         except FileNotFoundError:
-            print('No boundary information available for this model')
+            print('No boundary information available for ', yaml_file)
         self.identifier = model_info["name"]
         self.name = model_info["metadata"]["long_name"]
         self.description = model_info["description"]
