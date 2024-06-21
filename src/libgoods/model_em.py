@@ -54,7 +54,10 @@ def get_model_subset(
     check_exists=True,
     surface_index=None,
     ):
-    
+    """
+    WARNING: This is in progress and many parts are hard coded in for special cases and may not be what you want. Needs attention once I figure out how to do things generically in xarray
+    """
+        
     if not type(fpath) is list:
         fpath = [fpath,]
                
@@ -70,7 +73,7 @@ def get_model_subset(
         
         if new_fname is None: #make filename from url or local file
             if Path(f).exists(): #local file
-                fname = '_ss.'.join(Path(f).name.split('.'))
+                fname = '_ss.'.join(Path(f).name.split('.')) #this is ugly if there is more than one "." in the filename
             elif f.find('http')==0: #url
                 fname = f.split('/')[-1]
             ofname = Path(out_dir) / fname
@@ -107,12 +110,13 @@ def get_model_subset(
                 ds = ds.em.sub_grid(bbox=bounds) 
             
             keep_vertical_coords = True            
-            if surface_index:
+            if surface_index is not None:
                 print('surface only')
                 #ds = select_surface(ds)
                 #ds = ds.cf.sel(Z=0, method="nearest")
                 
-                ds.isel(siglay=0)
+                ds = ds.isel(siglay=0)
+                ds = ds.isel(siglev=0)
                 keep_vertical_coords = False
                 
             if snames_of_vars_to_include:
@@ -121,7 +125,10 @@ def get_model_subset(
 
             #keep original units and reference all to first file
             #ds.time.encoding['units'] = t_units
-
+            
+            ds.variables['lonc'].data = ds.variables['lonc'].data - 360
+            ds.variables['lon'].data = ds.variables['lon'].data - 360
+            
             ds.to_netcdf(ofname,unlimited_dims=tcoord_name)
             ds.close()  
     
