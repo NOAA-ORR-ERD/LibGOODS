@@ -332,14 +332,18 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
                            e.g. wrap less than halfway around the earth.
     """
     ## Fixme: it would probably be better to special-case the global models
+    # Idea: if the difference between the max and min longitude of the model_bounds is greater than 180 (or 350? or?)
+    # then assume it's a global model, and don't check the longitude at all.
+    # maybe just check max and min lat of the subset poly.
+    # OR -- replace longitude of model bounds with -360 and 360
     poly_bounds = np.array(poly_bounds)
     # "thicken" the model  boundary to help with world wrapping issues
     # this *might* help, but does not solve the problem.
     # model_bounds = make_polygon_finer(model_bounds, threshold=30.0)  # np.array(model_bounds)
     model_bounds = np.array(model_bounds)
 
-    print(poly_bounds)
-    print(model_bounds)
+    # print(poly_bounds)
+    # print(model_bounds)
 
     if np.any(poly_bounds[:,0] > 180) or np.any(poly_bounds[:,0] < -180):
         warnings.warn("In subset_intersects_model_boundary: poly_bounds should be in -180--180 coordinates")
