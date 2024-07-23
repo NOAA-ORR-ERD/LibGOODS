@@ -161,6 +161,8 @@ def get_model_subset(model_id,
                                 var_dict=var_dict,
                                 grid=meta['grid_type'])
 
+    ds.cross_dateline = cross_dateline
+    
     return ds
 
 
@@ -168,6 +170,6 @@ def get_model_output(xds, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = model.write_model_output(xds, output_pth)
+    output_path = model.write_model_output(xds, output_pth, dl = xds.cross_dateline )
 
     return output_path

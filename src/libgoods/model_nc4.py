@@ -82,11 +82,12 @@ def get_model_subset(
     return model
 
 
-def write_model_output(model, output_pth):
+def write_model_output(model, output_pth, dl=False):
 
     model.update(model.urlpath
                  )  # this was removed for api (nc4 Dataset can't be pickled)
     model.write_nc(var_map=model.var_map,
                    ofn=output_pth,
                    t_index=model.tindex,
-                   is3d=model.is3d)
+                   is3d=model.is3d,
+                   dl=dl)
