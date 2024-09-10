@@ -148,6 +148,22 @@ def test_round_dt_to_hours(dt):
     dt2 = utilities.round_dt_to_hours(dt)
     assert dt2 == rounded
 
+def test_make_polygon_finer():
+    """
+    Assume shapely method works, but this will make sure we're getting the right type, etc.
+    """
+    # use a global bounding box and an example
+    poly = ((-180, -90), (-180, 90), (180, 90), (180, -90), (-180, -90))
+    poly2 = utilities.make_polygon_finer(poly, threshold=30.0)
+    print(poly2)
+    print(len(poly2))
+    assert len(poly2) == 37
+    assert np.array_equal(poly2[0], poly[0])
+    assert np.array_equal(poly2[-1], poly[-1])
+    assert np.array_equal(poly2[1], [-180., -60.])
+    assert np.array_equal(poly2[-2], [-150., -90.])
+
+
 # #########
 # tests for convert_longitude
 # #########
