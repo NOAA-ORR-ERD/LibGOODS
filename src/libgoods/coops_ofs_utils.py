@@ -198,6 +198,7 @@ def get_tds_flist(model_id, start, end, tds='coops'):
             cat = TDSCatalog(url)
         except:
             print('Could not open TDS catalog:', url)
+            continue
         
         dsc = list(cat.datasets.values())
         flist = [ds.access_urls['OPENDAP'] for ds in dsc]        
@@ -217,7 +218,7 @@ def get_tds_flist(model_id, start, end, tds='coops'):
     
     return flist
    
-def get_aws_flist(model_id, start, end):
+def get_aws_flist(model_id, start, end, old_name_format=True):
     '''AWS S3 bucket has files sorted by model then into year/month
     '''
     nc_list = []
@@ -243,8 +244,13 @@ def get_aws_flist(model_id, start, end):
                 [f for f in flist if 'fields.n' + str(nc).zfill(3) in f])
         fc_list.extend([f for f in flist if 'fields.f' in f])
     
-
+    if old_name_format:
+        nc_list = [n for n in nc_list if n.split('/')[-1].startswith('nos.')]
+        fc_list = [f for f in fc_list if f.split('/')[-1].startswith('nos.')]
+        
     time_step = datetime.timedelta(hours=coops_ofs[model_id]['output_ts'])
+    
+
     flist = prune_files_to_daterange(nc_list,fc_list,start,end,time_step)
     
     return flist
@@ -263,7 +269,7 @@ def prune_files_to_daterange(nc_list,fc_list,start,end,time_step):
         coops_format = 'old'
     except ValueError:
         coops_format = 'new'
-        
+    
     # keep nowcast/forecast files in time range
     pruned_nc_list = []
     pruned_fc_list = []

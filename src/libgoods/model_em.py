@@ -68,8 +68,6 @@ def get_model_subset(
     file0=1
     
     for f in fpath:
-    
-        print(f)
         
         if new_fname is None: #make filename from url or local file
             if Path(f).exists(): #local file
@@ -81,7 +79,7 @@ def get_model_subset(
             ofname = Path(out_dir) / new_fname
 
         if check_exists and Path(ofname).exists():
-            print('Already subset ', fname)
+            print('Already subset ', f)
         
         else:
         
@@ -95,10 +93,11 @@ def get_model_subset(
             if file0: ###this only works with specific var names
                 t_units = ds.variables[tvar_name].encoding['units']
                 file0 = False
+                #need generic lon check
                 #lon_snames = ds.cf.standard_names['grid_longitude_at_cell_center']
-                lon = ds['lon'].values #AARgH
-                if lon.max() >= 180:
-                    bounds = rotate_bbox(bounds)
+                # lon = ds['lon'].values #AARgH
+                # if lon.max() >= 180:
+                    # bounds = rotate_bbox(bounds)
                 #ADD check for lon bounds
 
             if start is not None and end is not None:
@@ -111,23 +110,21 @@ def get_model_subset(
             
             keep_vertical_coords = True            
             if surface_index is not None:
-                print('surface only')
                 #ds = select_surface(ds)
-                #ds = ds.cf.sel(Z=0, method="nearest")
+                ds = ds.cf.sel(Z=0, method="nearest")
                 
-                ds = ds.isel(siglay=0)
-                ds = ds.isel(siglev=0)
+                # ds = ds.isel(siglay=0)
+                # ds = ds.isel(siglev=0)
                 keep_vertical_coords = False
                 
             if snames_of_vars_to_include:
-                print('filtering')
                 ds = ds.em.filter(snames_of_vars_to_include,keep_vertical_coords=keep_vertical_coords) 
 
             #keep original units and reference all to first file
             #ds.time.encoding['units'] = t_units
             
-            ds.variables['lonc'].data = ds.variables['lonc'].data - 360
-            ds.variables['lon'].data = ds.variables['lon'].data - 360
+            # ds.variables['lonc'].data = ds.variables['lonc'].data - 360
+            # ds.variables['lon'].data = ds.variables['lon'].data - 360
             
             ds.to_netcdf(ofname,unlimited_dims=tcoord_name)
             ds.close()  
