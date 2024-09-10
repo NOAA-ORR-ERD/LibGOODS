@@ -2,7 +2,7 @@ python>=3.9
 extract_model
 #netCDF4=1.6.0  # multithreading not supported in newer versions
 netCDF4  # hopefully we aren't using multithreading
-numpy >=1.24,<2
+numpy >=1.24,<3
 requests
 shapely
 s3fs
