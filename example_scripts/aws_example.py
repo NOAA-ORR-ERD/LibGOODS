@@ -1,6 +1,6 @@
 import datetime
 import os
-from libgoods import coops_ofs_utils, model_em, utilities
+from libgoods import coops_ofs, model_em, utilities
 
 model_id = 'WCOFS'
 out_dir = 'wcofs'
@@ -18,12 +18,13 @@ end = datetime.datetime(2024,7,30,0,0)
 bbox = (-123,44.3008,-122.93,47.3835) #mystery
 #bbox = (-123.035,47.256,-121.755,48.411) #sos
 
-fnames = coops_ofs_utils.get_aws_flist(model_id,start,end)
+m = coops_ofs.coops(model_id)
+fnames = m.get_aws_flist(start,end)
 print(fnames)
     
 #Download files from AWS
 print('Downloading files from AWS')
-filepaths = coops_ofs_utils.download_from_aws(fnames,out_dir=out_dir)
+filepaths = m.download_from_aws(fnames,out_dir=out_dir)
 
 #Subset and write new smaller files 
 

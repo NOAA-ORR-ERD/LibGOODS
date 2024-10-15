@@ -111,10 +111,10 @@ def get_model_subset(
             keep_vertical_coords = True            
             if surface_index is not None:
                 #ds = select_surface(ds)
-                ds = ds.cf.sel(Z=0, method="nearest")
+                #ds = ds.cf.sel(Z=0, method="nearest")
                 
-                # ds = ds.isel(siglay=0)
-                # ds = ds.isel(siglev=0)
+                ds = ds.isel(siglay=0)
+                ds = ds.isel(siglev=0)
                 keep_vertical_coords = False
                 
             if snames_of_vars_to_include:

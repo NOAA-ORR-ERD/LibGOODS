@@ -8,5 +8,6 @@ shapely
 s3fs
 pandas
 yaml
+siphon
 
 
