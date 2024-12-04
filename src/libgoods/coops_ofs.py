@@ -181,9 +181,11 @@ class coops():
     def get_zarr_url(self):
         """
         Gives the url for the "best timeseries" kerchunked zarr file at:
-        https://nextgen-dmac-cloud-ingest.s3.amazonaws.com/
+        https://noaa-nodd-kerchunk-pds.s3.amazonaws.com/
+        Exameple URL for WCOFs:
+        s3://noaa-nodd-kerchunk-pds/nos/wcofs/wcofs.fields.best.nc.zarr
         """
-        root_url = 's3://nextgen-dmac-cloud-ingest/nos/'
+        root_url = 's3://noaa-nodd-kerchunk-pds/nos/'
         model_url = root_url + self.model_id.lower() + '/' + self.model_id.lower() + '.fields.best.nc.zarr'
         fs = s3fs.S3FileSystem(anon=True)
         try:

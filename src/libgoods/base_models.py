@@ -77,10 +77,7 @@ class base():
 
 class fvcom(base):
 
-    def __init__(self,   
-                 chunks = {'time':1},
-                 drop_variables = ["Itime2"],
-                 standard_names = {
+    standard_names = {
                     'eastward_sea_water_velocity': 'u',
                     'eastward_wind': 'uwind_speed',
                     'northward_sea_water_velocity': 'v',
@@ -90,14 +87,17 @@ class fvcom(base):
                     'sea_surface_elevation': 'zeta',
                     'sea_water_temperature': 'temp',
                     'sea_water_practical_salinity': 'salinity',
-                    },
-                tvar = 'time',
-                zcoord = ['sigma_layers','sigma_levels']):
+                    }
+                    
+    def __init__(self,   
+                 chunks = {'time':1},
+                 drop_variables = ["Itime2"],
+                 tvar = 'time',
+                 zcoord = ['sigma_layers','sigma_levels']):
                 
          self.grid_type = 'unstructured'
          self.chunks = chunks
          self.drop_variables = drop_variables
-         self.standard_names = standard_names
          self.tvar = tvar
          self.zcoord = zcoord
         

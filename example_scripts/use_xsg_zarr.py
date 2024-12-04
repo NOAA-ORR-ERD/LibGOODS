@@ -4,9 +4,10 @@
 from libgoods import models, utilities, coops_ofs
 from pathlib import Path
 import datetime
+model_dict  = {'SSCOFS':models.fvcom()}
 
 model_id = 'SSCOFS'
-model_type = 'FVCOM'  
+
 fpath = coops_ofs.coops(model_id).get_zarr_url()
 driver = 'zarr'
 
@@ -15,13 +16,8 @@ end = start + datetime.timedelta(days=4)
 
 #bounds = (-76.762,38.899,-75.997,39.352)
 bounds = utilities.get_example_bbox(model_id)
-   
-if model_type == 'FVCOM': 
-    m = models.fvcom()    
-elif model_type == 'ROMS': 
-    m = models.roms()    
-else:
-    raise NotImplementedError
+
+m = model_dict[model_id]  
     
 m.open_ds(fpath,driver=driver)
 m.subset_time(start,end)
