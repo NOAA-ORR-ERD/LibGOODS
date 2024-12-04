@@ -1,14 +1,19 @@
 import numpy as np
 import shapely.geometry as sgeo
 import fiona
-import pathlib
+from pathlib import Path
 import zipfile
+from libgoods import utilities
 
+shoreline_dir = Path(__file__).parents[2] / 'shoreline_data'
 
+#this dict maps shoreline dataset options to subdirectories where shapefiles can be found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
+shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221'],
+                      'nos':['nos_shoreline','nosshore.shp'],
+                      'OSM':['OpenStreetMap','land-polygons-complete-4326','land_polygons.shp'],
+                      'gshhs':['gshhg','GSHHS_shp'],
+                     }
 
-# bna_polys,levs = load_polys_and_clip(shpfile,bbox)
-               
-# data = coast.format_for_bna(bna_polys,levs)
 
 def format_for_bna(ofn,polys,levs,dl=0):
     data = []
@@ -30,7 +35,7 @@ def format_for_bna(ofn,polys,levs,dl=0):
     f.write(data)
     f.close()
 
-def load_polys_and_clip(shpfile,bound_box,dl=0,lev=1):
+def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
     
     '''
     Loop through polygons in shapefile, if they overlap with user
@@ -42,7 +47,7 @@ def load_polys_and_clip(shpfile,bound_box,dl=0,lev=1):
     These *may not* be able to be used to clip trajectories from GAn in Arc?
     '''
     
-    #bound_box=(wl,sl,el,nl) 
+   
     clip_box = sgeo.box(*bound_box)
     
     if dl:
@@ -54,7 +59,7 @@ def load_polys_and_clip(shpfile,bound_box,dl=0,lev=1):
         for s in source.filter(bbox=bound_box):
             geo = s['geometry']['coordinates']
             for c in geo:
-                poly = sgeo.Polygon(c[0])
+                poly = sgeo.Polygon(c)
                 if dl:
                     poly_bnds = poly.bounds
                     if poly_bnds[0] > -10 and poly_bnds[2] <= 180:
@@ -89,3 +94,28 @@ def load_polys_and_clip(shpfile,bound_box,dl=0,lev=1):
         # levels.insert(0,0)
         
     return bna_polys, levels
+
+def get_map(bounds,
+            shoreline='gshhs',
+            ofn='coast.bna',
+            resolution='h',
+            cross_dateline=False,
+            max_filesize=1e6):
+          
+    shpfile = shoreline_dir.joinpath(*shoreline_datasets[shoreline])
+    if shoreline=='gshhs':
+        fname = 'GSHHS_' + resolution + '_L1.shp'
+        shpfile = shpfile.joinpath(resolution,fname)
+        #GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
+       
+    bbox = utilities.flatten_bbox(bounds)
+    
+    bna_polys,levs = load_polys_and_clip(shpfile,bbox,dl=cross_dateline)
+    format_for_bna(ofn,bna_polys,levs)
+    
+    #This is for compatibility with current implementation in API which was expecting a file delivered from a URL
+    #Also need to think about how to test for max filesize differently since now its being written directly to server
+    filename = ofn
+    contents = open(filename).read()
+    
+    return filename, contents
