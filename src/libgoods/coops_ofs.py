@@ -256,8 +256,7 @@ class coops():
                         # resp = http.request("GET", url, preload_content=False)
 
                         if r.headers['Content-Type'] == 'application/xml':
-                            print(r.content)
-                            print('huh')
+                            print(r.content)   
                         else:
                             with open(fpath, 'wb') as f:
                                 f.write(r.content)

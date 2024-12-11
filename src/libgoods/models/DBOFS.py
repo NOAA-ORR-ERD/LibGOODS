@@ -1,10 +1,12 @@
 import libgoods.base_models as bm
 from libgoods import coops_ofs
 
-class DBOFS(bm.roms):
+class DBOFS(bm.roms,coops_ofs.coops):
 
     def __init__(self,source='zarr'):
-        super().__init__() 
+        coops_ofs.coops.__init__(self,model_id='DBOFS')
+        bm.roms.__init__(self) 
+        
         
         self.metadata = ''
         self.tvar = 'ocean_time'
