@@ -1,6 +1,5 @@
 python>=3.9
 extract_model
-xarray-subset-grid
 netCDF4  # hopefully we aren't using multithreading
 numpy
 requests
