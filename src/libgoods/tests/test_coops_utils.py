@@ -25,6 +25,17 @@ def test_tds_past_filelist():
     flist = m.get_tds_flist(start,end,file_type='fields')
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
     assert contains_fcs is False, f"File list contains forecasts"
+    
+def test_aws_future_filelist():
+    dt = datetime.timedelta(days=1)
+    start = datetime.datetime.today() + dt
+    end = start + datetime.timedelta(days=2)
+    m = coops_ofs.coops(model_id)
+    flist = m.get_aws_flist(start,end,file_type='fields')
+    contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
+    contains_ncs = any([fnmatch.fnmatch(f, "*.n???.*") for f in flist])
+    assert contains_fcs, f"File list has no forecast files"
+    assert contains_ncs is False, f"File list contains nowcasts"
 
 def test_tds_nc_fc_filelist():
     dt = datetime.timedelta(days=1)
