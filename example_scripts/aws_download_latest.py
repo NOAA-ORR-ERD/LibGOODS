@@ -3,13 +3,21 @@ from libgoods import coops_ofs
 import os
 import re
 
-model_ids = ['SSCOFS','WCOFS','NGOFS2','CBOFS','TBOFS','DBOFS','GOMOFS','CIOFS','SFBOFS','LEOFS','LMHOFS','LOOFS','LSOFS']
+model_ids = ['WCOFS','SSCOFS','NGOFS2','CBOFS','TBOFS','DBOFS','GOMOFS','CIOFS','SFBOFS','LEOFS','LMHOFS','LOOFS','LSOFS']
+
 
 for model_id in model_ids:
+    
     print(model_id)
+    if model_id == 'WCOFS':
+        update_cycle=24
+    else:
+        update_cycle=6
+        
     out_dir = os.path.join('output',model_id)
     temp_dir = os.path.join(out_dir,'tmp')
 
+    #get a list of the existing forecast files so they can be deleted later
     regex = re.compile(".[f][0-9]{3}.")
     if os.path.exists(out_dir):
         old_fc_list = [f for f in os.listdir(out_dir) if re.search(regex, f)]
