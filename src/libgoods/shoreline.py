@@ -8,10 +8,11 @@ from libgoods import utilities
 shoreline_dir = Path(__file__).parents[2] / 'shoreline_data'
 
 #this dict maps shoreline dataset options to subdirectories where shapefiles can be found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
-shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221'],
+shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221.shp'],
+                      'NE_CUSP':['ME_to_DE_CUSP','ME_NH_MA_CT_RI_VT_NY_NJ_DE_20241009.shp'],
                       'nos':['nos_shoreline','nosshore.shp'],
                       'OSM':['OpenStreetMap','land-polygons-complete-4326','land_polygons.shp'],
-                      'gshhs':['gshhg','GSHHS_shp'],
+                      'gshhs':['gshhg','GSHHS_shp.shp'],
                      }
 
 
@@ -40,7 +41,7 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
     '''
     Loop through polygons in shapefile, if they overlap with user
     specified rectangle, load the polygon and clip 
-    Note that GSHHS polygons are -180-->180, shorelines that cross the 180 line are
+    Note that GSHHS polygons are -180-->180,i shorelines that cross the 180 line are
     clipped into west and east polygons, so there is some special casing to handle
     clip rectangles that cross the dateline
     Change lev to 2 if loading lakes
@@ -108,8 +109,8 @@ def get_map(bounds,
         shpfile = shpfile.joinpath(resolution,fname)
         #GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
        
-    bbox = utilities.flatten_bbox(bounds)
-    
+    #bbox = utilities.flatten_bbox(bounds)
+    bbox = bounds
     bna_polys,levs = load_polys_and_clip(shpfile,bbox,dl=cross_dateline)
     format_for_bna(ofn,bna_polys,levs)
     
