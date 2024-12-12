@@ -2,15 +2,10 @@
 test functions in remote_data module
 '''
 
-import os
-import shutil
 from pathlib import Path
-
 from urllib.error import HTTPError, URLError
 
 from libgoods.utilities.remote_data import get_datafile
-
-import pytest
 
 TEMP_DIR = Path(__file__).parents[1] / "temp_test_files"
 
@@ -53,12 +48,11 @@ def test_get_datafile():
     # delete it if it's there already
     data_file.unlink(missing_ok=True)
 
-    num_calls = 0
     for attempt in (1, 2):
         # do this twice to make sure it still works as expected after file has
         # been downloaded in 1st call
         # try:
-        r_file = get_datafile(data_file)
+        r_file = get_datafile(data_file)  # noqa: F841
         assert data_file.is_file()
         # except:
         #     if renamed is not None:

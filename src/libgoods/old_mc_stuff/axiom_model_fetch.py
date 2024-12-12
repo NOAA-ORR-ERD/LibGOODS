@@ -1,19 +1,18 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 A module containing code for fetching content from models.
 """
 
 import warnings
-from typing import List, Tuple, Mapping, Optional
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
-from dataclasses import field, dataclass
 
+import model_catalogs as mc
 import numpy as np
 import pandas as pd
-import xarray as xr
 import requests
-import model_catalogs as mc
+import xarray as xr
 from extract_model import utils as em_utils
 
 from libgoods.performance import Timer
@@ -37,9 +36,9 @@ class FetchConfig:
     output_pth: Path
     start: pd.Timestamp
     end: pd.Timestamp
-    bbox: Optional[Tuple[float, float, float, float]]
+    bbox: tuple[float, float, float, float] | None
     model_source: str
-    standard_names: List[str] = field(default_factory=lambda: DEFAULT_STANDARD_NAMES)
+    standard_names: list[str] = field(default_factory=lambda: DEFAULT_STANDARD_NAMES)
     surface_only: bool = False
 
 
@@ -94,7 +93,7 @@ def get_source_online_status(model_name: str) -> Mapping[str, bool]:
     return statuses
 
 
-def get_bounds(model_name: str) -> Tuple[float, float, float, float]:
+def get_bounds(model_name: str) -> tuple[float, float, float, float]:
     """Returns the geospatial extents for the model."""
     main_cat = mc.setup()
     return main_cat[model_name].metadata["bounding_box"]

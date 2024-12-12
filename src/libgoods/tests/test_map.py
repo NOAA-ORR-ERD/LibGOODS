@@ -1,5 +1,4 @@
-from libgoods import maps, utilities
-import pytest
+from libgoods import maps
 
 
 def test_get_map():

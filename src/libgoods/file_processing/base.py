@@ -2,8 +2,9 @@
 Base model class
 """
 
-from netCDF4 import Dataset, MFDataset, num2date
 import datetime
+
+from netCDF4 import Dataset, MFDataset, num2date
 
 
 class nc:

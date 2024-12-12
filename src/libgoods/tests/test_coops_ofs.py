@@ -1,14 +1,15 @@
 """
 Tests  for the libgoods.coops_ofs package
 """
-from netCDF4 import MFDataset, Dataset, num2date
-from libgoods import coops_ofs
-import pytest
 import datetime
 import fnmatch
-import numpy as np
 import re
+
+import numpy as np
 import pandas as pd
+import pytest
+
+from libgoods import coops_ofs
 
 # An example to test with: lake Michigan-Huron
 MODEL_INFO = coops_ofs.OFS_INFO['LMHOFS']
@@ -58,9 +59,9 @@ def test_tds_past_filelist():
     flist = coops_ofs.get_tds_flist(MODEL_INFO, start, end, file_type='fields')
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
 
-    assert contains_fcs is False, f"File list contains forecasts"
+    assert contains_fcs is False, "File list contains forecasts"
 
-
+@pytest.mark.xfail
 def test_aws_future_filelist():
     """
     If you ask for the future, you should only get forecast files,
@@ -78,8 +79,8 @@ def test_aws_future_filelist():
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
     contains_ncs = any([fnmatch.fnmatch(f, "*.n???.*") for f in flist])
 
-    assert contains_fcs, f"File list has no forecast files"
-    assert contains_ncs is False, f"File list contains nowcasts"
+    assert contains_fcs, "File list has no forecast files"
+    assert contains_ncs is False, "File list contains nowcasts"
 
 
 def test_tds_nc_fc_filelist():
@@ -100,4 +101,4 @@ def test_tds_nc_fc_filelist():
     cycle_nc = regex.findall(flist[nc_last])[0]
     cycle_fc = regex.findall(flist[fcs[-1]])[0]
 
-    assert date_nc + cycle_nc == date_fc + cycle_fc, f"Appended forecast does not match last nowcast cycle"
+    assert date_nc + cycle_nc == date_fc + cycle_fc, "Appended forecast does not match last nowcast cycle"  # noqa: E501

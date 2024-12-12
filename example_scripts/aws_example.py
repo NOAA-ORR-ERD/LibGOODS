@@ -1,6 +1,5 @@
 import datetime
-import os
-from libgoods import coops_ofs, model_em, utilities
+from libgoods import coops_ofs, model_em
 
 model_id = 'WCOFS'
 out_dir = 'wcofs'

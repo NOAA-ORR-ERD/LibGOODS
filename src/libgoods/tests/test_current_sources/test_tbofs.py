@@ -11,7 +11,6 @@ pytest.skip("Skipping -- obsolete", allow_module_level=True)
 from pathlib import Path
 
 from libgoods.api import get_model_data
-
 from libgoods.current_sources.tbofs import TBOFS
 
 

@@ -2,7 +2,6 @@
 tests of the metadata classes - these test construction but nothing else at present
 """
 
-import pytest
 from libgoods import metadata
 
 model = 'CBOFS'

@@ -6,7 +6,6 @@ Once the xarray dataset is in memory, we call to_netcdf
 import model_catalogs as mc
 import datetime
 from libgoods import model_fetch
-from dask.diagnostics import ProgressBar
 import xarray as xr
 import time
 

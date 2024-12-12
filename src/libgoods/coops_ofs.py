@@ -1,23 +1,23 @@
 import datetime
-from dataclasses import dataclass
-import os
-import pandas as pd
-import numpy as np
 import fnmatch
+import os
 import re
-import s3fs
-from siphon.catalog import TDSCatalog
-import requests
-from netCDF4 import Dataset
+from dataclasses import dataclass
 
-import dataclasses
+import numpy as np
+import pandas as pd
+import requests
+import s3fs
+from netCDF4 import Dataset
+from siphon.catalog import TDSCatalog
+
 
 # NOTE: maybe this can be merged with the model Metadata class -- or not
 #       This is really about what we need to know to download the files, etc
 #       Not what we want to present to users -- but id the a reason to keep them separate?
 #       Maybe not
 @dataclass()
-class ModelInfo():
+class ModelInfo:
     identifier: str = ""
     name: str = ""
     update_cycle: int = 6

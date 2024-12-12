@@ -3,12 +3,12 @@ Tests  for the libgoods.utilities package
 """
 
 import datetime
+
 import numpy as np
+import pytest
 
 from libgoods import utilities
 from libgoods.utilities import convert_longitude
-
-import pytest
 
 
 @pytest.mark.parametrize("lat", [45, -45, 0])
@@ -225,7 +225,7 @@ def test_round_trip360():
 
     assert np.all(lon == norm)
 
-def test_round_trip360():
+def test_round_trip180_180():
     """
     round tripping should result in the same normalized form
     """

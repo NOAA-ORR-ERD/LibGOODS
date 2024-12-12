@@ -1,9 +1,8 @@
+from pathlib import Path
+
+import fiona
 import numpy as np
 import shapely.geometry as sgeo
-import fiona
-from pathlib import Path
-import zipfile
-from libgoods import utilities
 
 shoreline_dir = Path(__file__).parents[2] / 'shoreline_data'
 
@@ -29,7 +28,7 @@ def format_for_bna(ofn,polys,levs,dl=0):
         else:
             data.append('"' + str(ii) + '","' + str(int(lev)) + '",' + str(len(x)))
         for lon,lat in zip(x,y):
-            data.append("{0:.6f}".format(lon) + ', ' + "{0:.6f}".format(lat))
+            data.append(f"{lon:.6f}" + ', ' + f"{lat:.6f}")
         ii = ii+1
     data = '\n'.join(data)
     f = open(ofn,'w')
@@ -37,7 +36,7 @@ def format_for_bna(ofn,polys,levs,dl=0):
     f.close()
 
 def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
-    
+
     '''
     Loop through polygons in shapefile, if they overlap with user
     specified rectangle, load the polygon and clip 
@@ -47,15 +46,15 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
     Change lev to 2 if loading lakes
     These *may not* be able to be used to clip trajectories from GAn in Arc?
     '''
-    
-   
+
+
     clip_box = sgeo.box(*bound_box)
-    
+
     if dl:
-        bound_box=(-180,sl,180,nl) 
+        bound_box=(-180,sl,180,nl)
 
     bna_polys = []
-    
+
     with fiona.open(shpfile) as source:
         for s in source.filter(bbox=bound_box):
             geo = s['geometry']['coordinates']
@@ -79,21 +78,21 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
                         try:
                             bna_polys.append(clipped_polys.exterior.xy)
                         except AttributeError:
-                            pass   
+                            pass
                 else:
                     continue
-                    
-    
+
+
     if len(bna_polys) < 1 and lev == 1: #all water
         bna_polys.append(clip_box.exterior.xy)
         levels = [2,]
     else: #define levels and add lakes if specified
         levels = [lev for x in range(len(bna_polys))]
 
-    # if lev == 1:   
+    # if lev == 1:
         # bna_polys.insert(0,([wl,wl,el,el],[sl,nl,nl,sl]))
         # levels.insert(0,0)
-        
+
     return bna_polys, levels
 
 def get_map(bounds,
@@ -102,21 +101,21 @@ def get_map(bounds,
             resolution='h',
             cross_dateline=False,
             max_filesize=1e6):
-          
+
     shpfile = shoreline_dir.joinpath(*shoreline_datasets[shoreline])
     if shoreline=='gshhs':
         fname = 'GSHHS_' + resolution + '_L1.shp'
         shpfile = shpfile.joinpath(resolution,fname)
         #GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
-       
+
     #bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
     bna_polys,levs = load_polys_and_clip(shpfile,bbox,dl=cross_dateline)
     format_for_bna(ofn,bna_polys,levs)
-    
+
     #This is for compatibility with current implementation in API which was expecting a file delivered from a URL
     #Also need to think about how to test for max filesize differently since now its being written directly to server
     filename = ofn
     contents = open(filename).read()
-    
+
     return filename, contents

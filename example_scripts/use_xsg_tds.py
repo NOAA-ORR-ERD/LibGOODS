@@ -1,7 +1,6 @@
 #script demonstrating use of xaray-subset-grid with TDS aggregations
 
 from libgoods import models, utilities, coops_ofs
-from pathlib import Path
 import datetime
 
 model_id = 'WCOFS'

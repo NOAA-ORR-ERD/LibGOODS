@@ -1,23 +1,20 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Module for fetching model data from the CLI."""
 import sys
 import warnings
-from typing import List, Tuple, Optional
-from pathlib import Path
 from argparse import ArgumentParser
+from pathlib import Path
 
-import pandas as pd
-import xarray as xr
-import requests
 import model_catalogs as mc
+import pandas as pd
+import requests
+import xarray as xr
 
 from libgoods.axiom_model_fetch import (
+    DEFAULT_STANDARD_NAMES,
+    FetchConfig,
     fetch,
     get_times,
-    FetchConfig,
-    DEFAULT_STANDARD_NAMES,
-    get_bounds,
     rotate_bbox,
 )
 
@@ -60,8 +57,8 @@ EXAMPLE_BBOXES = {
 
 
 def parse_bbox(
-    model_name: str, val: Optional[str]
-) -> Tuple[float, float, float, float]:
+    model_name: str, val: str | None
+) -> tuple[float, float, float, float]:
     """Return the bounding box parsed from the comma-delimited string.
 
     Parameters
@@ -86,7 +83,7 @@ def parse_bbox(
     return tuple(float(i) for i in values)
 
 
-def parse_standard_names(value: str) -> List[str]:
+def parse_standard_names(value: str) -> list[str]:
     """Return a list of standard names."""
     return value.split(",")
 

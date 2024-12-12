@@ -2,15 +2,10 @@
 assorted utilities useful for libgoods
 """
 import datetime
-import re
 import warnings
 
 import numpy as np
-
-from shapely.geometry import Polygon, MultiPoint
-import pandas as pd
-import fnmatch
-import datetime
+from shapely.geometry import MultiPoint, Polygon
 
 
 def get_example_bbox(model_id):
@@ -273,7 +268,7 @@ def _filter_by_env_params(mdl_meta, ev_p):
         # Huh? where is ENVIRONMENTAL_PARAMETERS supposed to be from?
         if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
             raise KeyError(
-                "{} is not a valid environmental parameter".format(ev_p))
+                f"{ev_p} is not a valid environmental parameter")
         return ev_p in mdl_meta.env_params
     else:
         # assume multiple filter parameters eg ['surface currents', 'surface winds']
@@ -333,8 +328,9 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
                            e.g. wrap less than halfway around the earth.
     """
     ## Fixme: it would probably be better to special-case the global models
-    # Idea: if the difference between the max and min longitude of the model_bounds is greater than 180 (or 350? or?)
-    # then assume it's a global model, and don't check the longitude at all.
+    # Idea: if the difference between the max and min longitude of the model_bounds
+    #       is greater than 180 (or 350? or?) then assume it's a global model,
+    #       and don't check the longitude at all.
     # maybe just check max and min lat of the subset poly.
     # OR -- replace longitude of model bounds with -360 and 360
     poly_bounds = np.array(poly_bounds)
@@ -347,10 +343,12 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     # print(model_bounds)
 
     if np.any(poly_bounds[:,0] > 180) or np.any(poly_bounds[:,0] < -180):
-        warnings.warn("In subset_intersects_model_boundary: poly_bounds should be in -180--180 coordinates")
+        warnings.warn("In subset_intersects_model_boundary: "
+                      "poly_bounds should be in -180--180 coordinates")
 
     if np.any(model_bounds[:,0] > 360) or np.any(poly_bounds[:,0] < -180):
-        warnings.warn("In subset_intersects_model_boundary: model_bounds should be in -180--180 or 0--360 coordinates")
+        warnings.warn("In subset_intersects_model_boundary: "
+                      "model_bounds should be in -180--180 or 0--360 coordinates")
 
     if xDateline is None:
         # see if it's bigger than 180 degrees in -180 -- 180 space.
@@ -394,8 +392,9 @@ def filter_models(models_metadatas,
     :param models_metadatas: list of model Metadata objects
     :param map_bounds: list of tuples (coordinates), or shapely Polygon, or None
     :param model_ids_sources: dict with keys as names of models and lists of sources
-    :param env_params: string eg 'surface_currents' or list of string eg ['surface_currents', '3D_temperature']
-        see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
+    :param env_params: string e.g. 'surface_currents' or list of strings
+                       e.g. ['surface_currents', '3D_temperature']
+                       see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
     retlist = models_metadatas
     if model_ids_sources is not None:
