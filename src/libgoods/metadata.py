@@ -67,8 +67,6 @@ def get_metadata_for_model(model, source):
     return (meta)
 
 
-
-
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""

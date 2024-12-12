@@ -49,5 +49,4 @@ test_libgoods:
 
     - pip install ./
 
-    - cd ../  # make sure that it won't find the source package.
     - pytest --pyargs libgoods
