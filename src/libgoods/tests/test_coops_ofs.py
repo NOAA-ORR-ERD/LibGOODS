@@ -67,7 +67,7 @@ def test_aws_future_filelist():
     If you ask for the future, you should only get forecast files,
     and no nowcast files
 
-    NOTE: this is now broken -- need to be implimented
+    NOTE: this is now broken -- need to be implemented
     """
     dt = datetime.timedelta(days=1)
     start = utc_now() + dt

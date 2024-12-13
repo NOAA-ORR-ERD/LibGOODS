@@ -1,11 +1,7 @@
 import tempfile
-
 import fsspec
 import xarray as xr
 import xarray_subset_grid
-
-#wcofs_zarr_url = 's3://nextgen-dmac-cloud-ingest/nos/wcofs/wcofs.fields.best.nc.zarr'
-#ngofs_zarr_url = "s3://nextgen-dmac-cloud-ingest/nos/ngofs2/ngofs2.fields.best.nc.zarr"
 
 class base:
 
@@ -59,7 +55,7 @@ class base:
 
     def subset_grid(self,bbox):
 
-        if self.grid_type == 'unstructured' and self.driver == 'opendap':
+        if self.grid_type == 'unstructured' and self.access == 'opendap':
             #download first
             tf = tempfile.NamedTemporaryFile(delete=False) #not sure how to clean this up
             self.ds.to_netcdf(tf.name)
@@ -71,7 +67,7 @@ class base:
 
     def write_nc(self,ofn='test.nc',close_ds=True):
 
-        self.ds.to_netcdf(ofn)
+        self.ds.to_netcdf(ofn,unlimited_dims=self.tvar)
         if close_ds:
             self.ds.close()
 
@@ -92,7 +88,9 @@ class fvcom(base):
                     'sea_water_practical_salinity': 'salinity',
                     },
                  tvar = 'time',
-                 zcoord = ['sigma_layers','sigma_levels']):
+                 zcoord = ['sigma_layers','sigma_levels'],       access = None,
+                 location = None                 
+                 ):
 
          self.grid_type = 'unstructured'
          self.chunks = chunks
@@ -100,17 +98,18 @@ class fvcom(base):
          self.standard_names = standard_names
          self.tvar = tvar
          self.zcoord = zcoord
+         self.access = access
+         self.location = location
 
-    def open_ds(self,location,driver='opendap'):
-        self.driver = driver
-        if driver == 'opendap':
-            ds = self.open_ds_tds(location)
-        elif driver == 'zarr':
-            ds = self.open_ds_zarr(location)
-        elif driver == 'local':
-            ds = self.open_ds_local(location)
+    def open_ds(self):
+        if self.access == 'opendap':
+            ds = self.open_ds_tds(self.location)
+        elif self.access == 'zarr':
+            ds = self.open_ds_zarr(self.location)
+        elif self.access == 'local':
+            ds = self.open_ds_local(self.location)
         else:
-            print('Driver not supported')
+            print('Access method unkwown')
             raise NotImplementedError
 
         self.ds = xarray_subset_grid.grids.ugrid.assign_ugrid_topology(ds,face_node_connectivity="nv")
@@ -154,7 +153,10 @@ class roms(base):
                     'sea_water_practical_salinity': 'salinity',
                     },
                  tvar = 'ocean_time',
-                 zcoord = 'sigma_layers'):
+                 zcoord = 'sigma_layers',
+                 access = None,
+                 location = None                    
+                 ):
 
          self.grid_type = 'curvilinear',
          self.chunks = chunks
@@ -162,17 +164,19 @@ class roms(base):
          self.standard_names = standard_names
          self.tvar = tvar
          self.zcoord = zcoord
+         self.access = access
+         self.location = None
 
-    def open_ds(self,location,driver='opendap'):
+    def open_ds(self):
 
-        if driver == 'opendap':
-            ds = self.open_ds_tds(location)
-        elif driver == 'zarr':
-            ds = self.open_ds_zarr(location)
-        elif driver == 'local':
-            ds = self.open_ds_local(location)
+        if self.access == 'opendap':
+            ds = self.open_ds_tds(self.location)
+        elif self.access == 'zarr':
+            ds = self.open_ds_zarr(self.location)
+        elif access == 'local':
+            self.ds = self.open_ds_local(self.location)
         else:
-            print('Driver not supported')
+            print('Access method unknown')
             raise NotImplementedError
 
         self.ds = ds
