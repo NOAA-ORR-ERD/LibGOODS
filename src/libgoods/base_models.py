@@ -3,7 +3,7 @@ import fsspec
 import xarray as xr
 import xarray_subset_grid
 
-class base:
+class Base:
 
     def open_ds_tds(self,url):
         ds = xr.open_dataset(url,
@@ -71,35 +71,25 @@ class base:
         if close_ds:
             self.ds.close()
 
-class fvcom(base):
-
-    def __init__(self,
-                 chunks = {'time':1},
-                 drop_variables = ["Itime2"],
-                 standard_names = {
-                    'eastward_sea_water_velocity': 'u',
-                    'eastward_wind': 'uwind_speed',
-                    'northward_sea_water_velocity': 'v',
-                    'northward_wind': 'vwind_speed',
-                    'upward_sea_water_velocity': 'ww',
-                    'sea_floor_depth': 'h',
-                    'sea_surface_elevation': 'zeta',
-                    'sea_water_temperature': 'temp',
-                    'sea_water_practical_salinity': 'salinity',
-                    },
-                 tvar = 'time',
-                 zcoord = ['sigma_layers','sigma_levels'],       access = None,
-                 location = None                 
-                 ):
-
-         self.grid_type = 'unstructured'
-         self.chunks = chunks
-         self.drop_variables = drop_variables
-         self.standard_names = standard_names
-         self.tvar = tvar
-         self.zcoord = zcoord
-         self.access = access
-         self.location = location
+class FVCOM(Base):
+    
+    chunks = {'time':1}
+    drop_variables = ["Itime2"]
+    standard_names = {
+    'eastward_sea_water_velocity': 'u',
+    'eastward_wind': 'uwind_speed',
+    'northward_sea_water_velocity': 'v',
+    'northward_wind': 'vwind_speed',
+    'upward_sea_water_velocity': 'ww',
+    'sea_floor_depth': 'h',
+    'sea_surface_elevation': 'zeta',
+    'sea_water_temperature': 'temp',
+    'sea_water_practical_salinity': 'salinity',
+    }
+    tvar = 'time'
+    zcoord = ['sigma_layers','sigma_levels']
+    access = None
+    location = None   
 
     def open_ds(self):
         if self.access == 'opendap':
@@ -133,40 +123,29 @@ class fvcom(base):
         self.ds = self.ds.isel(siglay=0)
 
 
-class roms(base):
-
-    def __init__(self,
-                 chunks = None,
-                 drop_variables = None,
-                 standard_names = {
-                    'eastward_sea_water_velocity': 'u',
-                    'surface_eastward_sea_water_velocity': 'u_sur',
-                    'eastward_wind': 'uwind_speed',
-                    'northward_sea_water_velocity': 'v',
-                    'surface_northward_sea_water_velocity': 'v_sur',
-                    'northward_wind': 'vwind_speed',
-                    'upward_sea_water_velocity': 'w',
-                    'angle': 'angle',
-                    'sea_floor_depth': 'h',
-                    'sea_surface_elevation': 'zeta',
-                    'sea_water_temperature': 'temp',
-                    'sea_water_practical_salinity': 'salinity',
-                    },
-                 tvar = 'ocean_time',
-                 zcoord = 'sigma_layers',
-                 access = None,
-                 location = None                    
-                 ):
-
-         self.grid_type = 'curvilinear',
-         self.chunks = chunks
-         self.drop_variables = drop_variables
-         self.standard_names = standard_names
-         self.tvar = tvar
-         self.zcoord = zcoord
-         self.access = access
-         self.location = None
-
+class ROMS(Base):
+    
+    chunks = None
+    drop_variables = None
+    standard_names = {
+    'eastward_sea_water_velocity': 'u',
+    'surface_eastward_sea_water_velocity': 'u_sur',
+    'eastward_wind': 'uwind_speed',
+    'northward_sea_water_velocity': 'v',
+    'surface_northward_sea_water_velocity': 'v_sur',
+    'northward_wind': 'vwind_speed',
+    'upward_sea_water_velocity': 'w',
+    'angle': 'angle',
+    'sea_floor_depth': 'h',
+    'sea_surface_elevation': 'zeta',
+    'sea_water_temperature': 'temp',
+    'sea_water_practical_salinity': 'salinity',
+    }
+    tvar = 'ocean_time'
+    zcoord = 'sigma_layers'
+    access = None
+    location = None    
+                 
     def open_ds(self):
 
         if self.access == 'opendap':

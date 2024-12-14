@@ -20,17 +20,18 @@ urls = {'hiig': '/dodsC/hioos/roms_native/hiig/ROMS_Hawaii_Regional_Ocean_Model_
         'marig': '/dodsC/pacioos/roms_native/marig/ROMS_Guam_Regional_Ocean_Model_Native_Grid_best.ncd',
         'samoa': '/dodsC/pacioos/roms_native/samoa/ROMS_Samoa_Regional_Ocean_Model_Native_Grid_best.ncd'}
                    
-class base(bm.roms):
-                 
+class PacIOOS(bm.ROMS):
+    tvar = 'time'   
+    drop_variables = 'ocean_time'    
+    access = 'opendap'
+    standard_names['surface_eastward_sea_water_velocity'] = 'u'
+    standard_names['surface_northward_sea_water_velocity'] = 'v'
+    
     def __init__(self,grid):
-        super().__init__() 
-        self.tvar = 'time'
-        self.drop_variables = 'ocean_time'
+
         self.name = grids[grid]
         self.location = tds_url + urls[grid]
-        self.access = 'opendap'
-        self.standard_names['surface_eastward_sea_water_velocity'] = 'u'
-        self.standard_names['surface_northward_sea_water_velocity'] = 'v'
+
 
 
    
