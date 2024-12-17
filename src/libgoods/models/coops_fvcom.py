@@ -47,10 +47,36 @@ class NGOFS2(COOPS_FVCOM):
     has_depth=True,
     )
     identifier = metadata.identifier   # should this be in both places?
+    name = "Northern Gulf of Mexico"
     example_bbox = (-91.5, 29.25, -91, 29.75)
     
+class SSCOFS(COOPS_FVCOM):
+    
+    identifier = 'SSCOFS'
+    name = 'Salish Sea and Columbia River'
+    example_bbox = ()
+
+
 class LMHOFS(COOPS_FVCOM):
     
     identifier = 'LMHOFS'
     name = 'Lakes Michigan and Huron'
     example_bbox = (-88, 41.57, -86, 44)
+
+class LOOFS(COOPS_FVCOM):
+    
+    identifier = 'LOOFS'
+    name = 'Lake Ontario'
+    example_bbox = ()
+    
+class LSOFS(COOPS_FVCOM):
+    
+    identifier = 'LSOFS'
+    name = 'Lake Superior'
+    example_bbox = ()
+    
+class LEOFS(COOPS_FVCOM):
+    
+    identifier = 'LEOFS'
+    name = 'Lake Erie'
+    example_bbox = ()

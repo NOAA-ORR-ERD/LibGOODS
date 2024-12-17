@@ -5,6 +5,7 @@ Not much here, but at least they can be instantiated.
 """
 
 from libgoods.models import base_models
+import libgoods.models as models
 
 
 def test_BaseModel_init():
@@ -23,3 +24,11 @@ def test_ROMS_init():
     m = base_models.ROMS()
 
     assert m.model == "roms"
+
+def test_models_init():
+    for key in models.ALL_MODELS:
+        m = models.ALL_MODELS[key]()
+        assert hasattr(m,'location')
+
+            
+        
