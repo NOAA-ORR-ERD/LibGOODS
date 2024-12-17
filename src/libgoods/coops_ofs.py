@@ -236,7 +236,7 @@ def get_local_flist(model_info, start, end, local_dir, file_type='2ds'):
     return flist
 
 
-def get_zarr_url(model_info):
+def get_zarr_url(model_info,check_exists=False):
     """
     Gives the url for the "best timeseries" kerchunked zarr file at:
     https://noaa-nodd-kerchunk-pds.s3.amazonaws.com/
@@ -247,15 +247,18 @@ def get_zarr_url(model_info):
     model_url = root_url + model_info.identifier.lower() + '/' + model_info.identifier.lower(
     ) + '.fields.best.nc.zarr'
     fs = s3fs.S3FileSystem(anon=True)
-    try:
-        fmatch = fs.ls(model_url)
-        if len(fmatch) == 1:
-            flist = model_url
-        else:
-            raise FileNotFoundError
-    except FileNotFoundError:
-        print('zarr file not found on server')
-        fmatch = None
+    if check_exists:
+        try:
+            fmatch = fs.ls(model_url)
+            if len(fmatch) == 1:
+                flist = model_url
+            else:
+                raise FileNotFoundError
+        except FileNotFoundError:
+            print('zarr file not found on server')
+            flist = None
+    else:
+        flist = model_url
 
     return flist
 

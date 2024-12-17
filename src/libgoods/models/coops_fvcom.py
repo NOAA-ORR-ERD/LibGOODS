@@ -1,7 +1,6 @@
 import libgoods.base_models as bm
 from libgoods import coops_ofs
 
-
 class COOPS_FVCOM(bm.FVCOM):
 
     def __init__(self,access='zarr'):
@@ -18,9 +17,14 @@ class COOPS_FVCOM(bm.FVCOM):
             raise NotImplementedError('fixme')
             #this would need start/end time to generate file list
 
-
 class NGOFS2(COOPS_FVCOM):
     
     identifier = 'NGOFS2'
     name = 'NOAA/NOS Northern Gulf of Mexico Operational Forecast System'
     example_bbox = (-91.5, 29.25, -91, 29.75)
+    
+class LMHOFS(COOPS_FVCOM):
+    
+    identifier = 'LMHOFS'
+    name = 'Lakes Michigan and Huron'
+    example_bbox = (-88, 41.57, -86, 44)

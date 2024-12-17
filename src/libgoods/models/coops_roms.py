@@ -33,5 +33,14 @@ class DBOFS(COOPS_ROMS):
 class WCOFS(COOPS_ROMS):
     
     identifier = 'WCOFS'   
-    example_bbox = ()
+    example_bbox = (-122.0, 25.0, -115.0, 35.0)
     update_cycle = 24
+    
+class CBOFS(COOPS_ROMS):
+    
+    identifier='CBOFS'
+    example_bbox = (-76.5, 36.75, -75.25, 37.75)
+    grid_dims = [332,291,20]
+    long_name = 'Chesapeake Bay'
+    html_desc = r'The <a href="http://tidesandcurrents.noaa.gov/ofs/cbofs/cbofs.html" target="_blank"> Chesapeake Bay Operational Forecast System (CBOFS)</a> was developed by the <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">NOAA/National Ocean Service/Office of Coast Survey</a> in a joint project with the <a href="http://tidesandcurrents.noaa.gov/" target="_blank"> NOAA/NOS/Center for Operational Oceanographic Products and Services(CO-OPS)</a> and the <a href="http://mag.ncep.noaa.gov" target="_blank">NOAA/National Weather Service/National Centers for Environmental Prediction (NCEP) Central Operations (NCO)</a> using the Regional Ocean Modeling System (ROMS)</a>. For detailed model information, visit the NOAA CO-OPS <a href="http://tidesandcurrents.noaa.gov/ofs/cbofs/cbofs_info.html" target="_blank">model information page.</a>'
+    

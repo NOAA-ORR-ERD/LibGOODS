@@ -55,7 +55,7 @@ class Base:
 
     def subset_grid(self,bbox):
 
-        if self.grid_type == 'unstructured' and self.access == 'opendap':
+        if self.model == 'fvcom' and self.access == 'opendap':
             #download first
             tf = tempfile.NamedTemporaryFile(delete=False) #not sure how to clean this up
             self.ds.to_netcdf(tf.name)
@@ -72,7 +72,7 @@ class Base:
             self.ds.close()
 
 class FVCOM(Base):
-    
+    model='fvcom'
     chunks = {'time':1}
     drop_variables = ["Itime2"]
     standard_names = {
@@ -124,7 +124,7 @@ class FVCOM(Base):
 
 
 class ROMS(Base):
-    
+    model='roms'
     chunks = None
     drop_variables = None
     standard_names = {
