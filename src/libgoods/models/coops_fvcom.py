@@ -1,9 +1,11 @@
-import libgoods.base_models as bm
+from .base_models import FVCOM
 from libgoods import coops_ofs
+from .metadata import Metadata
 
-class COOPS_FVCOM(bm.FVCOM):
 
-    def __init__(self,access='zarr'):
+class COOPS_FVCOM(FVCOM):
+
+    def __init__(self, access='zarr'):
 
         if access == 'zarr':
             self.access = 'zarr'
@@ -18,9 +20,33 @@ class COOPS_FVCOM(bm.FVCOM):
             #this would need start/end time to generate file list
 
 class NGOFS2(COOPS_FVCOM):
-    
-    identifier = 'NGOFS2'
-    name = 'NOAA/NOS Northern Gulf of Mexico Operational Forecast System'
+    # NOTE: this could all be loaded from a config file (yaml or otherwise, or ...)
+    metadata=Metadata(
+    identifier="NGOFS2",
+    name="NOAA/NOS Northern Gulf of Mexico Operational Forecast System",
+    description= "",
+    html_desc="""A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
+            Northern Gulf of Mexico Operational Forecast System (NGOFS)</a>
+            was developed in a joint project of the
+            <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
+            NOAA/National Ocean Service's (NOS) Office of Coast Survey </a>,
+            the <a href="http://tidesandcurrents.noaa.gov/" target="_blank">
+            NOAA/NOS Center for Operational Oceanographic Products and Services (CO-OPS)</a>,
+            the <a href="http://mag.ncep.noaa.gov" target="_blank">
+            NOAA/National Weather Service's (NWS) National Centers
+            for Environmental Prediction (NCEP) Central Operations (NCO)</a>, and the
+            <a href="http://fvcom.smast.umassd.edu/" target="_blank">
+            University of Massachusetts, Dartmouth </a> using the Finite Volume Coastal Ocean
+            Model (FVCOM).
+            For detailed model information, visit the NOAA CO-OPS
+            <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs_info.html" target="_blank">
+            model information page.</a>""",
+    regional=True,
+    bounding_box=(),
+    bounding_poly=(),
+    has_depth=True,
+    )
+    identifier = metadata.identifier   # should this be in both places?
     example_bbox = (-91.5, 29.25, -91, 29.75)
     
 class LMHOFS(COOPS_FVCOM):

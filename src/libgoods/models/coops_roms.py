@@ -1,10 +1,10 @@
-import libgoods.base_models as bm
+from .base_models import ROMS
 from libgoods import coops_ofs
 
 
-class COOPS_ROMS(bm.ROMS):
+class COOPS_ROMS(ROMS):
     
-    standard_names = bm.ROMS.standard_names.copy()
+    standard_names = ROMS.standard_names.copy()
     standard_names['surface_eastward_sea_water_velocity'] = 'u'
     standard_names['surface_northward_sea_water_velocity'] = 'v'
     
