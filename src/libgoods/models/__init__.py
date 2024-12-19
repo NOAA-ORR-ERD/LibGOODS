@@ -4,6 +4,7 @@ from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 from .doppio import DOPPIO
 from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, SAMOA
 from .tamu import TAMU
+from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay 
 
 ALL_MODELS = {"NGOFS2": NGOFS2,
               "LMHOFS": LMHOFS,
