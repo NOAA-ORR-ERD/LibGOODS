@@ -54,7 +54,7 @@ class SSCOFS(COOPS_FVCOM):
     
     identifier = 'SSCOFS'
     name = 'Salish Sea and Columbia River'
-    example_bbox = ()
+    example_bbox = (-126.2,47.59,-124.1,49.02)
 
 
 class LMHOFS(COOPS_FVCOM):

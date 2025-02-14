@@ -1,6 +1,6 @@
 python>=3.9
 extract_model
-netCDF4  # hopefully we aren't using multithreading
+netCDF4  
 numpy
 requests
 shapely

@@ -185,7 +185,7 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     buffer = datetime.timedelta(hours=6)
     start_b = (start - buffer)
     end_b = (end + buffer)
-    ts = pd.date_range(start_b, end_b).strftime('%Y%m')
+    ts = pd.date_range(start_b, end_b).strftime('%Y/%m/%d')
     dirs_to_search = np.unique(ts)
 
     fs = s3fs.S3FileSystem(anon=True)
@@ -203,13 +203,16 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
                 f for f in fs.ls(url)
                 if not f.split('/')[-1].startswith('nos.') and file_type in f.split('/')[-1]
             ]
-        if len(flist) == 0:
-            print('No files of type', file_type, 'found')
-            raise KeyError
-
-        #separate into nowcast/forecast lists and exclude 0th files (overlap)
-        nc_list.extend([f for f in flist if re.search(".n[0-9]{3}.", f) and ".n000" not in f])
-        fc_list.extend([f for f in flist if re.search(".f[0-9]{3}.", f) and ".f000" not in f])
+            
+        if len(flist) != 0:
+            #separate into nowcast/forecast lists and exclude 0th files (overlap)
+            nc_list.extend([f for f in flist if re.search(".n[0-9]{3}.", f) and ".n000" not in f])
+            fc_list.extend([f for f in flist if re.search(".f[0-9]{3}.", f) and ".f000" not in f])
+            
+            
+    if len(nc_list) + len(fc_list) == 0:        
+        print('No files of type', file_type, 'found')
+        raise KeyError
 
     flist = prune_files_to_daterange(nc_list, fc_list, start, end, model_info.update_cycle)
 

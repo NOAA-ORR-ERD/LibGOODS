@@ -5,6 +5,7 @@ from .doppio import DOPPIO
 from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, SAMOA
 from .tamu import TAMU
 from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay 
+from .ncom_regional import AmSeas, Alaska, USEast
 
 ALL_MODELS = {"NGOFS2": NGOFS2,
               "LMHOFS": LMHOFS,
@@ -27,8 +28,15 @@ ALL_MODELS = {"NGOFS2": NGOFS2,
               "MARI": MARI,
               "MARIG": MARIG,
               "SAMOA": SAMOA,
-              "TAMU": TAMU
-              }
+              "TAMU": TAMU,
+              "SabineLake": SabineLake,
+              "MatagordaBay": MatagordaBay,
+              "SanAntonioBay": SanAntonioBay,
+              "CorpusChristiBay": CorpusChristiBay,
+              "GalvestonBay": GalvestonBay,
+              'NCOM US East Coast': USEast,
+              'NCOM Alaska': Alaska,
+              'NCOM American Seas': AmSeas}
 
 
 def get_models():
