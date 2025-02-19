@@ -1,10 +1,16 @@
 #!/usr/bin env python
 
 import datetime
-from libgoods import coops_ofs
+import logging
 import os
 from pathlib import Path
 import re
+
+from libgoods import coops_ofs, scripting
+
+# Set up the logger:
+scripting.initialize_console_log('info')  # debug gets a LOT from the AWS stuff
+
 
 models_to_download = [#'WCOFS',
              # 'SSCOFS',
