@@ -1,5 +1,6 @@
 import datetime
 import fnmatch
+import logging
 import os
 import re
 from dataclasses import dataclass
@@ -104,7 +105,6 @@ def get_tds_flist(model_info, start, end, file_type='2ds', old_name_format=False
     list of filenames on the TDS server.
 
     """
-
     nc_list = []
     fc_list = []
 
@@ -132,8 +132,13 @@ def get_tds_flist(model_info, start, end, file_type='2ds', old_name_format=False
 
         try:
             cat = TDSCatalog(url)
-        except:
-            print('Could not open TDS catalog:', url)
+        # what exception would we get here??
+        except Exception as err:
+            msg = (f'Could not open TDS catalog:'
+                   f'{url}\n'
+                   f'{err}')
+            logging.warning(msg)
+            print(msg)
             continue
 
         dsc = list(cat.datasets.values())
@@ -182,6 +187,11 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     aws_root = 's3://noaa-nos-ofs-pds/'
 
     # add some buffer for the file search (6 hrs the typical update cycle)
+    # NOTE: this is going out too far in some (many?) cases
+    #        -- to the next day, which then crashes...
+    #       that's getting caught later by a try: except, but
+    #       maybe we should be smarter.
+    # This could, instead, get a listing, to see what's actually available
     buffer = datetime.timedelta(hours=6)
     start_b = (start - buffer)
     end_b = (end + buffer)
@@ -193,23 +203,29 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     # select all nowcast files that don't overlap
     for d in dirs_to_search:
         url = aws_root + model_info.identifier.lower() + '/netcdf/' + d + '/'
+        try:
+            listing = fs.ls(url)
+        except FileNotFoundError:
+            logging.debug(f"url not found: {url}")
+            # could probably break out, but maybe not in order?
+            continue
         if old_name_format:
+            raise Exception("using the old name format -- why??")
             flist = [
-                f for f in fs.ls(url)
+                f for f in listing
+                # put this logic somewhere else??
                 if f.split('/')[-1].startswith('nos.') and file_type in f.split('/')[-1]
             ]
         else:
             flist = [
-                f for f in fs.ls(url)
+                f for f in listing
                 if not f.split('/')[-1].startswith('nos.') and file_type in f.split('/')[-1]
             ]
-            
         if len(flist) != 0:
             #separate into nowcast/forecast lists and exclude 0th files (overlap)
             nc_list.extend([f for f in flist if re.search(".n[0-9]{3}.", f) and ".n000" not in f])
             fc_list.extend([f for f in flist if re.search(".f[0-9]{3}.", f) and ".f000" not in f])
-            
-            
+
     if len(nc_list) + len(fc_list) == 0:        
         print('No files of type', file_type, 'found')
         raise KeyError
@@ -290,7 +306,7 @@ def download_from_aws(model_info, fnames, out_dir='files', temp_dir=None):
     """
     NOS OFS are available in an AWS S3 bucket at:
     https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
-
+    https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
     Parameters
     ----------
 
@@ -309,7 +325,8 @@ def download_from_aws(model_info, fnames, out_dir='files', temp_dir=None):
     for fname in fnames:
         fpath = os.path.join(out_dir, fname.split('/')[-1])
         if os.path.exists(fpath):
-            print('Already downloaded', fname)
+            logging.info(f"Already downloaded, {fname}")
+            # print('Already downloaded', fname)
         else:
             if temp_dir is not None:
                 fpath = os.path.join(temp_dir, fname.split('/')[-1])

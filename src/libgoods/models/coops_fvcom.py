@@ -23,10 +23,10 @@ class NGOFS2(COOPS_FVCOM):
     # NOTE: this could all be loaded from a config file (yaml or otherwise, or ...)
     metadata=Metadata(
     identifier="NGOFS2",
-    name="NOAA/NOS Northern Gulf of Mexico Operational Forecast System",
+    name="NOAA/NOS Northern Gulf of America Operational Forecast System",
     description= "",
     html_desc="""A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
-            Northern Gulf of Mexico Operational Forecast System (NGOFS)</a>
+            Northern Gulf of America Operational Forecast System (NGOFS)</a>
             was developed in a joint project of the
             <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
             NOAA/National Ocean Service's (NOS) Office of Coast Survey </a>,
@@ -47,7 +47,7 @@ class NGOFS2(COOPS_FVCOM):
     has_depth=True,
     )
     identifier = metadata.identifier   # should this be in both places?
-    name = "Northern Gulf of Mexico"
+    name = "Northern Gulf of America"
     example_bbox = (-91.5, 29.25, -91, 29.75)
     
 class SSCOFS(COOPS_FVCOM):

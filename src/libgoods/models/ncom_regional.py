@@ -23,6 +23,7 @@ class AmSeas(NCOM):
             Gulf of Mexico and Caribbean is a ~3km resolution model based on the 
             Navy Coastal Ocean Model. 
             """
+    example_bbox = (-91.5+360, 29.25, -91+360, 29.75)
 
 class USEast(NCOM):
 
