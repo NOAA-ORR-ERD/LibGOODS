@@ -5,8 +5,6 @@ from xml.etree import ElementTree
 import dateutil.parser
 import numpy as np
 
-#TODO -- could make use of some of the Weathertools module
-
 def get_data(lon,lat):
 
     nws_data = {}
@@ -104,13 +102,15 @@ def format_JSON(data):
     webgnome['longitude'] = data['ll'][1]
     webgnome['name'] = data['location']
     webgnome['units'] = data['units']
+    webgnome['tz'] = data['tz']
 
     ts = []
     for i,t in enumerate(data['times']):
         ts.append((t.isoformat(),(data['speeds'][i],data['dirs'][i])))
     webgnome['timeseries'] = ts
 
-    return json.dumps(webgnome)
+    #return json.dumps(webgnome)
+    return webgnome
 
 
 def format_OSSM(data):
@@ -146,3 +146,5 @@ def error_JSON():
         "reason": "invalid coordinates|coordinates out of bounds"
         }
     return json.dumps(error)
+
+

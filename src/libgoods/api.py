@@ -13,6 +13,7 @@ from . import (
     utilities,
 )
 from . import model_nc4 as model
+from . import NWS_point
 from .standard_names import get_standard_names
 
 
@@ -178,3 +179,11 @@ def get_model_output(xds, output_pth):
     output_path = model.write_model_output(xds, output_pth, dl = xds.cross_dateline )
 
     return output_path
+
+def NWS_point_wind(lon,lat):
+    data = NWS_point.get_data(lon,lat)
+    if 'err' in data.keys():
+        json_data = data
+    else:
+        json_data = NWS_point.format_JSON(data)
+    return json_data
