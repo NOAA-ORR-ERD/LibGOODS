@@ -1,9 +1,9 @@
 name: NGOFS2_RGRID
-description: NOAA/NOS Northern Gulf of Mexico Operational Forecast System,  interpolated to regular grid.
+description: NOAA/NOS Northern Gulf of America Operational Forecast System,  interpolated to regular grid.
 metadata:
-  long_name: Northern Gulf of Mexico
+  long_name: Northern Gulf of America
   html_desc: A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
-    Northern Gulf of Mexico Operational Forecast System (NGOFS)</a>
+    Northern Gulf of America Operational Forecast System (NGOFS)</a>
     was developed in a joint project of the
     <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
     NOAA/National Ocean Service's (NOS) Office of Coast Survey </a>,
@@ -29,7 +29,7 @@ metadata:
 sources:
   ioos-forecast-agg:
     driver: opendap
-    description: 3D Northern Gulf of Mexico model in FVCOM, interpolated to regular grid, from 1 day ago with 54 hour forecast.
+    description: 3D Northern Gulf of America model in FVCOM, interpolated to regular grid, from 1 day ago with 54 hour forecast.
     args:    
       drop_variables: ['ocean_time']
       engine: netcdf4
@@ -55,7 +55,7 @@ sources:
         latitude: Latitude
         
   coops-forecast-noagg:
-    description: Unaggregated 3D Northern Gulf of Mexico model in FVCOM, interpolated to regular grid, from 1 day ago with 54 hour forecast.
+    description: Unaggregated 3D Northern Gulf of America model in FVCOM, interpolated to regular grid, from 1 day ago with 54 hour forecast.
     args:
       chunks:
         ocean_time: 1
