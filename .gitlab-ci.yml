@@ -50,3 +50,16 @@ test_libgoods:
     - pip install ./
 
     - pytest --pyargs libgoods
+    
+ 
+populate data on mac pro:
+  stage: data
+  script:
+    -  ./example_scripts/aws-cli.sh
+  when: manual
+  timeout: 5hrs
+  rules:
+    - if: $SCHEDULED==true
+      when: always
+  tags:
+    - macOS 
