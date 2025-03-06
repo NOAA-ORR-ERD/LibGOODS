@@ -69,6 +69,7 @@ test_libgoods:
 populate data on mac pro:
   stage: data
   needs: []
+  before_script: []
   script:
     - ./example_scripts/aws-cli.sh
   timeout: 5hrs
