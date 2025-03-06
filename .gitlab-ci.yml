@@ -6,6 +6,7 @@ variables:
 stages:
   - lint
   - test
+  - data
 
 cache:
   paths:
@@ -54,6 +55,7 @@ test_libgoods:
  
 populate data on mac pro:
   stage: data
+  needs: []
   script:
     -  ./example_scripts/aws-cli.sh
   when: manual
