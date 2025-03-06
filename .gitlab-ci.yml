@@ -59,7 +59,7 @@ populate data on mac pro:
   when: manual
   timeout: 5hrs
   rules:
-    - if: $SCHEDULED==true
+    - if: $SCHEDULED == "true"
       when: always
   tags:
     - macOS 
