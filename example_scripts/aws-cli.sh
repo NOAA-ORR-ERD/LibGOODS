@@ -19,7 +19,7 @@ TWODPATTERN="*2ds$NOWCAST*"      # nowcast
 THREEDPATTERN="*fields$NOWCAST*" # nowcast
 
 # get now cast data
-AWS_CONFIG_FILE="./aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
+AWS_CONFIG_FILE="./example_scripts/aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
 	--no-sign-request \
 	--exclude "*" \
 	--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
