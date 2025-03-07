@@ -72,7 +72,6 @@ populate data on mac pro:
   before_script: []
   script:
     - ./example_scripts/aws-cli.sh
-  timeout: 5hrs
   rules:
     - if: $SCHEDULED == "true"
       when: always
