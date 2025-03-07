@@ -7,49 +7,52 @@ set -e
 set -x
 
 # YYYY/MM/DD
-DATEPATTERN="2025/03/??/"
+if [ -z "${DATEPATTERN+x}" ]; then
+	DATEPATTERN="$(date +%Y/%m/%d)/"
+else
+	DATEPATTERN="$DATEPATTERN/"
+fi
+
 NOWCAST=".n"
 FORECAST=".f"
-TWODPATTERN="*2ds$NOWCAST*" # nowcast
+TWODPATTERN="*2ds$NOWCAST*"      # nowcast
 THREEDPATTERN="*fields$NOWCAST*" # nowcast
-FORECASTDATE="2025/03/05/" # 
 
 # get now cast data
 AWS_CONFIG_FILE="./aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
-		--no-sign-request \
-		--exclude "*" \
-		--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*ngofs2/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*cbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*tbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*dbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*gomofs/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*ciofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*sfbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*leofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*lmhofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*loofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*lsofs/netcdf/$DATEPATTERN$THREEDPATTERN"
+	--no-sign-request \
+	--exclude "*" \
+	--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*ngofs2/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*cbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*tbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*dbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*gomofs/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*ciofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*sfbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*leofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*lmhofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*loofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*lsofs/netcdf/$DATEPATTERN$THREEDPATTERN"
 
-TWODPATTERN="*2ds$FORECAST*" # forecast
+TWODPATTERN="*2ds$FORECAST*"      # forecast
 THREEDPATTERN="*fields$FORECAST*" # forecast
-DATEPATTERN="$FORECASTDATE"
 
 # get forecast data for the specific day we care about
 AWS_CONFIG_FILE="./aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
-		--no-sign-request \
-		--exclude "*" \
-		--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*ngofs2/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*cbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*tbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*dbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*gomofs/netcdf/$DATEPATTERN$TWODPATTERN" \
-		--include "*ciofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*sfbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*leofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*lmhofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*loofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
-		--include "*lsofs/netcdf/$DATEPATTERN$THREEDPATTERN"
+	--no-sign-request \
+	--exclude "*" \
+	--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*ngofs2/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*cbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*tbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*dbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*gomofs/netcdf/$DATEPATTERN$TWODPATTERN" \
+	--include "*ciofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*sfbofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*leofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*lmhofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*loofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
+	--include "*lsofs/netcdf/$DATEPATTERN$THREEDPATTERN"
