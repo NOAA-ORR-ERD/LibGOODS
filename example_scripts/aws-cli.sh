@@ -21,6 +21,7 @@ THREEDPATTERN="*fields$NOWCAST*" # nowcast
 # get now cast data
 AWS_CONFIG_FILE="./example_scripts/aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
 	--no-sign-request \
+	--size-only \
 	--exclude "*" \
 	--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
 	--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
@@ -43,6 +44,7 @@ THREEDPATTERN="*fields$FORECAST*" # forecast
 AWS_CONFIG_FILE="./aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
 	--no-sign-request \
 	--exclude "*" \
+	--size-only \
 	--include "*wcofs/netcdf/$DATEPATTERN$TWODPATTERN" \
 	--include "*sscofs/netcdf/$DATEPATTERN$THREEDPATTERN" \
 	--include "*ngofs2/netcdf/$DATEPATTERN$TWODPATTERN" \
