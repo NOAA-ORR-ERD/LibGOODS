@@ -71,7 +71,7 @@ populate data on mac pro:
   needs: []
   before_script: []
   script:
-    - ./example_scripts/aws-cli.sh
+    - ./example_scripts/aws-mirror-s3.sh
   rules:
     - if: $SCHEDULED == "true"
       when: always
