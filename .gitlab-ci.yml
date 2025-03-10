@@ -71,12 +71,59 @@ populate data on mac pro:
   needs: []
   before_script: []
   script:
-    - ./example_scripts/aws-mirror-s3.sh
+    - ./example_scripts/aws-mirror-matrix.sh
   rules:
     - if: $SCHEDULED == "true"
       when: always
   tags:
     - macOS
+  parallel:
+    matrix:
+      - MODEL: 'wcofs'
+        PATTERN: '2ds'
+      - MODEL: 'sscofs'
+      - MODEL: 'ngofs2'
+        PATTERN: '2ds'
+      - MODEL: 'cbofs'
+      - MODEL: 'tbofs'
+      - MODEL: 'dbofs'
+      - MODEL: 'gomofs'
+        PATTERN: '2ds'
+      - MODEL: 'ciofs'
+      - MODEL: 'sfbofs'
+      - MODEL: 'leofs'
+      - MODEL: 'lmhofs'
+      - MODEL: 'loofs'
+      - MODEL: 'lsofs'
+      - MODEL: 'wcofs'
+        PATTERN: '2ds'
+        CAST: '.f'
+      - MODEL: 'sscofs'
+        CAST: '.f'
+      - MODEL: 'ngofs2'
+        CAST: '.f'
+        PATTERN: '2ds'
+      - MODEL: 'cbofs'
+        CAST: '.f'
+      - MODEL: 'tbofs'
+        CAST: '.f'
+      - MODEL: 'dbofs'
+        CAST: '.f'
+      - MODEL: 'gomofs'
+        PATTERN: '2ds'
+        CAST: '.f'
+      - MODEL: 'ciofs'
+        CAST: '.f'
+      - MODEL: 'sfbofs'
+        CAST: '.f'
+      - MODEL: 'leofs'
+        CAST: '.f'
+      - MODEL: 'lmhofs'
+        CAST: '.f'
+      - MODEL: 'loofs'
+        CAST: '.f'
+      - MODEL: 'lsofs'
+        CAST: '.f'
 
 tidy forcast data:
   stage: data

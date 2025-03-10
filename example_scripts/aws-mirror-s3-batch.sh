@@ -6,6 +6,8 @@
 set -e
 set -x
 
+CONFIG="/Volumes/Fury 2/libgoods/example_scripts/aws-cli-config"
+
 # YYYY/MM/DD
 if [ -z "${DATEPATTERN+x}" ]; then
 	DATEPATTERN="$(date +%Y/%m/%d)/"
@@ -19,7 +21,7 @@ TWODPATTERN="*2ds$NOWCAST*"      # nowcast
 THREEDPATTERN="*fields$NOWCAST*" # nowcast
 
 # get now cast data
-AWS_CONFIG_FILE="./example_scripts/aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
+AWS_CONFIG_FILE="$CONFIG" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
 	--no-sign-request \
 	--size-only \
 	--exclude "*" \
@@ -41,7 +43,7 @@ TWODPATTERN="*2ds$FORECAST*"      # forecast
 THREEDPATTERN="*fields$FORECAST*" # forecast
 
 # get forecast data for the specific day we care about
-AWS_CONFIG_FILE="./aws-cli-config" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
+AWS_CONFIG_FILE="$CONFIG" aws s3 sync s3://noaa-nos-ofs-pds/ /Volumes/Fury\ 2/s3 \
 	--no-sign-request \
 	--exclude "*" \
 	--size-only \
