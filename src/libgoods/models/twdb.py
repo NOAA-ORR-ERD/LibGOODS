@@ -11,7 +11,8 @@ U/V are depth averaged.
 '''
 
 models = ['Sabine', 'Galv', 'Matag' , 'CCBay', 'CopSA']
-base_url = 'http://midgewater.twdb.texas.gov/bays_estuaries/GNOME/MostRecent/'    
+base_url = 'http://midgewater.twdb.texas.gov/bays_estuaries/GNOME/MostRecent/'   
+
 class BaseTWDB:
         
     html_info = r'The <a href="http://www.twdb.texas.gov/index.asp" target="_blank"> Texas Water Development Board (TWDB)</a>, in partnership with the <a href="http://www.glo.texas.gov/" target="_blank"> Texas General Land Office (TGLO) </a> Oil Spill Prevention and Response effort, maintains <a href="http://www.twdb.texas.gov/surfacewater/bays/oil_spill/index.asp" target="_blank"> near real-time and forecast simulations of water circulation in the major bays </a> for use in the event that an oil spill occurs within Texas bays.'

@@ -11,6 +11,7 @@ class TAMU(ROMS):
     location = 'https://gcoos5.geos.tamu.edu/thredds/dodsC/ROFS_latest/txla2_his_f_latest.nc'
     access = 'opendap'
     name = 'Texas/Louisiana Shelf'
+    example_bbox = (-91.5, 29.25, -91, 29.75)
     
 
 

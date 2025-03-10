@@ -183,7 +183,7 @@ def get_model_output(xds, output_pth):
 def NWS_point_wind(lon,lat):
     data = NWS_point.get_data(lon,lat)
     if 'err' in data.keys():
-        json_data = data
+        raise ValueError(data['err'])
     else:
         json_data = NWS_point.format_JSON(data)
     return json_data
