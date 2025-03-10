@@ -33,4 +33,4 @@ AWS_CONFIG_FILE="$CONFIG" aws s3 sync s3://noaa-nos-ofs-pds/$MODEL /Volumes/Fury
 	--no-sign-request \
 	--size-only \
 	--exclude "*" \
-	--include "*/netcdf/$FILE_PATH"
+	--include "*netcdf/$FILE_PATH"
