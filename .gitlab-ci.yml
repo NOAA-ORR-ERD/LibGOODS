@@ -77,3 +77,16 @@ populate data on mac pro:
       when: always
   tags:
     - macOS
+
+tidy forcast data:
+  stage: data
+  needs: []
+  before_script: []
+  script:
+    - ./example_scripts/aws-purge-old-forcasts.sh
+  rules:
+    - if: $SCHEDULED == "true"
+    - if: $TIDY == "true"
+      when: always
+  tags:
+    - macOS

@@ -1,22 +1,13 @@
 #!/bin/bash
 
-# !!!! Requires aws cli to be installed and available in $PATH
-# !!!! https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+NOWCAST_SIZE=`find -E /Volumes/Fury\ 2/s3 -regex '.*.n[0-9]{3}.*' -exec stat -q -f "%z" %s {} + | awk '{s+=$1} END {print s}'`
+FORECAST_SIZE=`find -E /Volumes/Fury\ 2/s3 -regex '.*.f[0-9]{3}.*' -exec stat -q -f "%z" %s {} + | awk '{s+=$1} END {print s}'`
 
-set -e
-set -x
+echo 'NOWCAST TOTAL SIZE:' $(($NOWCAST_SIZE / 1024 / 1024 / 1024))'gb'
+echo 'FORECAST TOTAL SIZE:' $(($FORECAST_SIZE / 1024 / 1024 / 1024))'gb'
 
-# YYYY/MM/DD
-if [ -z "${DATEPATTERN+x}" ]; then
-	DATEPATTERN="$(date +%Y/%m/%d)/"
-else
-	DATEPATTERN="$DATEPATTERN/"
-fi
+# remove forecast files older than a day
+find -E /Volumes/Fury\ 2/s3 -regex '.*.f[0-9]{3}.*' -mtime +1d -exec rm {} \;
 
-NOWCAST=".n"
-FORECAST=".f"
-TWODPATTERN="*2ds$NOWCAST*"      # nowcast
-THREEDPATTERN="*fields$NOWCAST*" # nowcast
-
-find /Volumes/Fury\ 2/s3 -type f -name '*$NOWCAST*' -print0 |
-	du --human-readable --total --files0-from=-
+FORECAST_SIZE=`find -E /Volumes/Fury\ 2/s3 -regex '.*.f[0-9]{3}.*' -exec stat -q -f "%z" %s {} + | awk '{s+=$1} END {print s}'`
+echo 'FORECAST TOTAL SIZE AFTER CLEANUP:' $(($FORECAST_SIZE / 1024 / 1024 / 1024))'gb'
