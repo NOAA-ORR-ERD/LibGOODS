@@ -1,11 +1,15 @@
 from .base_models import FVCOM
 from libgoods import coops_ofs
 from .metadata import Metadata
+import datetime
 
 
 class COOPS_FVCOM(FVCOM):
 
-    def __init__(self, access='zarr'):
+    update_cycle = 6
+    file_type = 'fields'
+
+    def __init__(self, access='local', start=None, end=None):
 
         if access == 'zarr':
             self.access = 'zarr'
@@ -16,11 +20,16 @@ class COOPS_FVCOM(FVCOM):
             self.location = coops_ofs.get_ioos_tds_agg_url(self)
             
         elif access == 'local':
-            raise NotImplementedError('fixme')
-            #this would need start/end time to generate file list
+            self.access = 'local'
+            local_dir = '/Volumes/Fury 2/s3'
+            self.location = coops_ofs.get_local_flist(self, local_dir, file_type=self.file_type, 
+                                                      start=start, end=end)
+
 
 class NGOFS2(COOPS_FVCOM):
     # NOTE: this could all be loaded from a config file (yaml or otherwise, or ...)
+
+
     metadata=Metadata(
     identifier="NGOFS2",
     name="NOAA/NOS Northern Gulf of America Operational Forecast System",
@@ -44,11 +53,13 @@ class NGOFS2(COOPS_FVCOM):
     regional=True,
     bounding_box=(),
     bounding_poly=(),
-    has_depth=True,
+    has_depth=True,    
     )
     identifier = metadata.identifier   # should this be in both places?
     name = "Northern Gulf of America"
     example_bbox = (-91.5, 29.25, -91, 29.75)
+    file_type = '2ds'
+
     
 class SSCOFS(COOPS_FVCOM):
     
@@ -63,17 +74,20 @@ class LMHOFS(COOPS_FVCOM):
     name = 'Lakes Michigan and Huron'
     example_bbox = (-88, 41.57, -86, 44)
 
+
 class LOOFS(COOPS_FVCOM):
     
     identifier = 'LOOFS'
     name = 'Lake Ontario'
     example_bbox = ()
+
     
 class LSOFS(COOPS_FVCOM):
     
     identifier = 'LSOFS'
     name = 'Lake Superior'
     example_bbox = ()
+
     
 class LEOFS(COOPS_FVCOM):
     

@@ -4,7 +4,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import requests
@@ -235,7 +235,7 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     return flist
 
 
-def get_local_flist(model_info, start, end, local_dir, file_type='2ds'):
+def get_local_flist(model_info, local_dir, start=None, end=None, file_type='2ds'):
     '''
     Assumes all files are in one directory for one OFS
     '''
@@ -243,16 +243,20 @@ def get_local_flist(model_info, start, end, local_dir, file_type='2ds'):
     nc_list = []
     fc_list = []
 
-    flist = os.listdir(local_dir)  #pass in search string
-    flist = [f for f in flist if file_type in f]
+    model_dir = Path(local_dir, model_info.identifier.lower(), 'netcdf')
 
+    flist = []
+    for f in model_dir.rglob('*.nc'):
+        if file_type in str(f):
+            flist.append(str(f))    
+    
     #separate into nowcast/forecast lists and exclude 0th files (overlap)
     nc_list.extend([f for f in flist if re.search(".n[0-9]{3}.", f) and ".n000" not in f])
     fc_list.extend([f for f in flist if re.search(".f[0-9]{3}.", f) and ".f000" not in f])
 
-    flist = prune_files_to_daterange(nc_list, fc_list, start, end, model_info.update_cycle)
+    flist_out = prune_files_to_daterange(nc_list, fc_list, start, end, model_info.update_cycle)
 
-    return flist
+    return flist_out
 
 
 def get_zarr_url(model_info,check_exists=False):
@@ -425,6 +429,11 @@ def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
     buffer = datetime.timedelta(
         hours=3
     )  #ideally this buffer should be based on output timestep -- but 3 hours is the least resolution offered so this works
+
+    if start is None:
+        start = min(dts)
+    if end is None:
+        end = max(dts) + datetime.timedelta(days=10) #longest model forecast is 5 days
 
     for f, dt in zip(nc_list, dts):
         if (dt >= start - buffer and dt <= end + buffer):
