@@ -9,7 +9,7 @@ class COOPS_FVCOM(FVCOM):
     update_cycle = 6
     file_type = 'fields'
 
-    def __init__(self, access='local', start=None, end=None):
+    def __init__(self, access='zarr', start=None, end=None):
 
         if access == 'zarr':
             self.access = 'zarr'
