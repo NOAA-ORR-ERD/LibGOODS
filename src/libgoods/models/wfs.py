@@ -1,6 +1,6 @@
-import libgoods.base_models as bm
+from .base_models import FVCOM
 
-class BaseWFS(bm.FVCOM):
+class BaseWFS(FVCOM):
     
     #might not need this base class -- we'll see
 
@@ -14,5 +14,5 @@ class WFCOM(BaseWFS):
 
 
 class TBCOM(BaseWFS):
-    long_name = 'West Florida Coastal Ocean Circulation Model (WFCOM)'
+    long_name = 'Tampa Bay Coastal Ocean Model (TBCOM)'
     location = 'http://ocgtds.marine.usf.edu:8080/thredds/dodsC/TBCOM2_NF_model/TBCOM2_NF_20250211.nc'

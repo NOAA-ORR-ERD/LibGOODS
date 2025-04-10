@@ -6,6 +6,7 @@ from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, S
 from .tamu import TAMU
 from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay 
 from .ncom_regional import AmSeas, Alaska, USEast
+from .wfs import WFCOM, TBCOM
 
 ALL_MODELS = {"NGOFS2": NGOFS2,
               "LMHOFS": LMHOFS,
@@ -36,7 +37,10 @@ ALL_MODELS = {"NGOFS2": NGOFS2,
               "GalvestonBay": GalvestonBay,
               'NCOM US East Coast': USEast,
               'NCOM Alaska': Alaska,
-              'NCOM American Seas': AmSeas}
+              'NCOM American Seas': AmSeas,
+              'WFCOM': WFCOM,
+              'TBCOM': TBCOM,
+            }
 
 
 def get_models():
