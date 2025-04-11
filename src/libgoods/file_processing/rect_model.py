@@ -4,8 +4,9 @@ By passing in a var_map dict the
 variable names can be customized for different models or datasets
 """
 import numpy as np
-from . import base
 from netCDF4 import Dataset, MFDataset
+
+from . import base
 
 
 class rect(base.nc):
@@ -76,7 +77,7 @@ class rect(base.nc):
         grid_only=False,
         dl=False,
     ):
-        
+
         """
         Write a rectangular grid model file
         Note: some of these input params aren't used at present; trying to have same params as other grid types
@@ -104,7 +105,7 @@ class rect(base.nc):
 
         nc_out.createDimension(self.lat_dimension[0], self.y[1] - self.y[0])
         nc_out.createDimension(self.lon_dimension[0], self.x[1] - self.x[0])
-        
+
 
 
         var_in = nc_grid.variables[var_map["longitude"]]
@@ -134,7 +135,7 @@ class rect(base.nc):
             # Copy NetCDF attributes:
             for attr in var_in.ncattrs():
                 var_out.setncattr(attr, var_in.getncattr(attr))
-                
+
         if is3d: #this only works with level depths (all I have seen so far)
             nc_out.createDimension(self.depth_dimension[0], self.z[1])
             var_in = nc_in.variables[var_map["z"]]
@@ -144,7 +145,7 @@ class rect(base.nc):
             # Copy NetCDF attributes:
             for attr in var_in.ncattrs():
                 var_out.setncattr(attr, var_in.getncattr(attr))
-            
+
 
         if not grid_only:
 
@@ -154,10 +155,10 @@ class rect(base.nc):
                 if var in var_map:
                     data_vars.append(var_map[var])
 
-            for var in data_vars:                
+            for var in data_vars:
                 var_in = nc_in.variables[var]
                 # Create variable in new file
-                if is3d: 
+                if is3d:
                     dims = (
                         self.time_dimension[0],
                         self.depth_dimension[0],
@@ -184,7 +185,7 @@ class rect(base.nc):
                                             d_index,
                                             self.y[0]:self.y[1],
                                             self.x[0]:self.x[1],
-                                            ]                    
+                                            ]
                 elif len(var_in.shape) == 3:
                     var_out[:] = var_in[t_index[0]:t_index[1]:t_index[2],
                                         self.y[0]:self.y[1],
@@ -201,7 +202,7 @@ class rect(base.nc):
                 if not hasattr(var_out, 'missing_value'):  # need to check for nans
                     if np.isnan(var_out).any():
                         var_out.setncattr('missing_value', np.nan)
-                        
+
                 # check for nans - replace with zero
                 var_out[:] = np.nan_to_num(var_out)
 

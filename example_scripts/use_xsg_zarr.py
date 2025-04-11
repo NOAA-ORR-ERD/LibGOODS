@@ -2,7 +2,6 @@
 
 
 from libgoods import models, utilities, coops_ofs
-from pathlib import Path
 import datetime
 model_dict  = {'SSCOFS':models.fvcom()}
 

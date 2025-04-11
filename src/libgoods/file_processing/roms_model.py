@@ -4,6 +4,7 @@ needed for GNOME
 """
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401
+
 from . import curv_model
 
 

@@ -3,16 +3,13 @@ Download data file from remote server for use in testing, etc.
 """
 
 import os
-
 from pathlib import Path
-
+from urllib.error import HTTPError
 from urllib.parse import urljoin
 from urllib.request import urlopen
-from urllib.error import HTTPError
 
 try:
-    from progressbar import (ProgressBar, Percentage, FileTransferSpeed,
-                             ETA, Bar)
+    from progressbar import (ProgressBar, Percentage, FileTransferSpeed, ETA, Bar)  # noqa: I001
     HAVE_PB = True
 except ImportError:
     HAVE_PB = False
@@ -67,8 +64,7 @@ def get_datafile(filename, data_server=None):
         try:
             resp = urlopen(urljoin(data_server, fname))
         except HTTPError as ex:
-            ex.msg = ("{0}. '{1}' not found on server or server is down"
-                      .format(ex.msg, fname))
+            ex.msg = (f"{ex.msg}. '{fname}' not found on server or server is down")
             raise ex
 
         if HAVE_PB:

@@ -5,10 +5,16 @@ These are the functions that the WebGNOME client will call
 
 """
 
+from . import (
+    ModelAvailabilityError,
+    NonIntersectingSubsetError,
+    NonIntersectingTimeIntervalError,
+    metadata,
+    utilities,
+)
 from . import model_nc4 as model
-from . import utilities, NonIntersectingSubsetError, NonIntersectingTimeIntervalError, ModelAvailabilityError
+from . import NWS_point
 from .standard_names import get_standard_names
-from . import metadata
 
 
 def list_models(model_ids_sources=None,
@@ -69,7 +75,7 @@ def get_model_info(model_id, model_source):
         stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
     except:
         raise ModelAvailabilityError('Unable to retrieve data from server. Please check availability or try again later.')
-               
+
     meta['actual_start'] = stime
     meta['actual_end'] = etime
 
@@ -135,10 +141,10 @@ def get_model_subset(model_id,
     """
     # polybounds = utilities.bbox2polygon(bounds)
     if '3D currents' in environmental_parameters:
-        surface_only = False    
+        surface_only = False
     else:
         surface_only = True
-        
+
     meta = get_model_info(model_id, model_source)
 
     # build url list if unaggregated
@@ -162,7 +168,7 @@ def get_model_subset(model_id,
                                 grid=meta['grid_type'])
 
     ds.cross_dateline = cross_dateline
-    
+
     return ds
 
 
@@ -173,3 +179,11 @@ def get_model_output(xds, output_pth):
     output_path = model.write_model_output(xds, output_pth, dl = xds.cross_dateline )
 
     return output_path
+
+def NWS_point_wind(lon,lat):
+    data = NWS_point.get_data(lon,lat)
+    if 'err' in data.keys():
+        raise ValueError(data['err'])
+    else:
+        json_data = NWS_point.format_JSON(data)
+    return json_data

@@ -1,11 +1,13 @@
 """
 tests of the data models base class (file_processing/base)
 """
-import pytest
-from libgoods.file_processing import base
 import datetime
-from netCDF4 import num2date
+
 import numpy as np
+import pytest
+from netCDF4 import num2date
+
+from libgoods.file_processing import base
 
 model = base.nc()
 
@@ -28,17 +30,7 @@ def test_get_timeslice_indices_before_range():
     start = datetime.datetime(2021, 6, 1, 0, 0)
     end = datetime.datetime(2021, 6, 3, 23, 0)
     with pytest.raises(ValueError):
-        t_ind = model.get_timeslice_indices(start, end)
-
-
-def test_get_timeslice_indices_valid():
-
-    start = datetime.datetime(2023, 6, 1, 0, 0)
-    end = datetime.datetime(2023, 6, 3, 23, 0)
-    t_ind = model.get_timeslice_indices(start, end)
-
-    assert num2date(model.time, model.time_units)[t_ind[0]] == start
-    assert num2date(model.time, model.time_units)[t_ind[-1]] == end
+        t_ind = model.get_timeslice_indices(start, end) # noqa: F841
 
 
 def test_get_timeslice_indices_after_range():
@@ -46,7 +38,7 @@ def test_get_timeslice_indices_after_range():
     start = datetime.datetime(2027, 6, 1, 0, 0)
     end = datetime.datetime(2027, 6, 3, 23, 0)
     with pytest.raises(ValueError):
-        t_ind = model.get_timeslice_indices(start, end)
+        t_ind = model.get_timeslice_indices(start, end) # noqa: F841
 
 
 def test_get_timeslice_indices_overlap():

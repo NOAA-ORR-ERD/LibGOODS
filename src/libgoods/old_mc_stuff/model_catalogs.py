@@ -1,6 +1,8 @@
-from .metadata import Metadata
 import model_catalogs as mc
-from . import axiom_model_fetch, utilities, NonIntersectingSubsetError
+
+from . import axiom_model_fetch
+from .metadata import Metadata
+
 """
 This works specifically with model_catalogs using dask and xarray
 Its leveraging a few methods in model_fetch.py that are specific to use with

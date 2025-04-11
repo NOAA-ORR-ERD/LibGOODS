@@ -31,11 +31,13 @@ Model.subset_info(query_params) => info about subset
   - Estimated File Size
 """
 
-import yaml
 import dataclasses
 from pathlib import Path
+
 import shapely.wkt as wkt
+import yaml
 from shapely.geometry.multipolygon import MultiPolygon
+
 from .standard_names import get_env_params
 
 yaml_file_directory = Path(__file__).parent / 'yaml_files'
@@ -67,8 +69,6 @@ def get_metadata_for_model(model, source):
     return (meta)
 
 
-
-
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
@@ -96,11 +96,11 @@ class Metadata:
         # given a model, extract the data and set on self. If source is None,
         # get metadata for all sources
 
-        with open(yaml_file, 'r') as file:
+        with open(yaml_file) as file:
             model_info = yaml.full_load(file)
         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
         try:
-            with open(yaml_bdry_file, 'r') as file:
+            with open(yaml_bdry_file) as file:
                 model_info.update(yaml.full_load(file))
             self.bounding_box = model_info["bbox"]
             self.regional = Metadata.regional_test(self.bounding_box)
@@ -117,7 +117,7 @@ class Metadata:
             self.html_desc = model_info["metadata"]["html_desc"]
         except KeyError:
             self.html_desc = self.description
-        
+
         self.grid_type = model_info["metadata"]["grid_type"]
         grid_dim_keyname = [
             n for n in model_info["metadata"].keys() if "grid_dim_" in n

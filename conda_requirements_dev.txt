@@ -1,6 +1,5 @@
-black
-check-manifest
-doctr
+# check-manifest
+# doctr
 extract_model
 flake8
 flake8-builtins
@@ -13,16 +12,17 @@ isort
 mypy
 nbsphinx
 numpydoc
+pip
 pre-commit
 pylint
 pytest
 pytest-cov
 pytest-xdist
 recommonmark
+setuptools
 setuptools_scm
 shapely
 sphinx
 sphinxcontrib-srclinks
-twine
-wheel
 zarr
+

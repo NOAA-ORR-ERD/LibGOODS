@@ -5,12 +5,12 @@ What the Heck? no tests at all???
 """
 
 import pytest
-
-from libgoods import api
 from shapely.geometry import Polygon
 
+from libgoods import api
+
 try:
-    import model_catalogs
+    import model_catalogs  # noqa: F401
 
     HAVE_MODEL_CATALOGS = True
 except ImportError:

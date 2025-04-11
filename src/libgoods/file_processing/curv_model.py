@@ -6,6 +6,7 @@ variable names can be customized for different models or datasets
 
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401
+
 from . import base
 
 
@@ -206,7 +207,7 @@ class curv(base.nc):
                         else:
                             if attr != "_FillValue":
                                 var_out.setncattr(attr, var_in.getncattr(attr))
-                                
+
                     # check for nans - replace with zero
                     var_out[:] = np.nan_to_num(var_out)
 

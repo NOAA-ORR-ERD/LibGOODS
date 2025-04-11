@@ -2,8 +2,9 @@
 This leverages Amy's old libGOODS code to determine subset size and write the output
 """
 
-from . import file_processing
 import numpy as np
+
+from . import file_processing
 
 
 def get_time_bounds(url, tvar):

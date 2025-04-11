@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
 """Utilities for gauging performance."""
-from ast import Call
-from typing import Callable, Optional
-import time
 import platform
-
+import time
+from collections.abc import Callable
 
 # Monotonic clocks are unaffected by system time changes and won't go backwards.
 # If the system supports it, we want to use it.
@@ -18,7 +15,7 @@ else:
 class Timer:
     """A class to aid with measuring timing."""
 
-    def __init__(self, msg=None, clock: Optional[Callable[[], float]] = None, output: Optional[Callable] = None):
+    def __init__(self, msg=None, clock: Callable[[], float] | None = None, output: Callable | None = None):
         """Initializes the current time."""
         self.output = output or print
         self.clock = clock or timing_func

@@ -1,6 +1,6 @@
-python>=3.9
+python>=3.9,<3.13
 extract_model
-netCDF4  # hopefully we aren't using multithreading
+netCDF4  
 numpy
 requests
 shapely
@@ -8,6 +8,7 @@ s3fs
 pandas
 yaml
 siphon
+
 
 
 

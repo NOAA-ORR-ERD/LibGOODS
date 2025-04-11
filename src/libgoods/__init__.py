@@ -4,7 +4,7 @@ __init__.py for libgoods package
 
 from pathlib import Path
 
-__version__ = "2.0.2"
+__version__ = "2.0.3dev"
 
 
 class FileTooBigError(ValueError):
@@ -29,7 +29,7 @@ class NonIntersectingTimeIntervalError(ValueError):
     """
     provided time bounds do not overlap with model time availability
     """
-    
+
 class ModelAvailabilityError(ValueError):
     """
     provided time bounds do not overlap with model time availability

@@ -1,11 +1,12 @@
 variables:
-  PYTHON_VER: "3.10"
-  IMAGE_NAME: "miniforge-python"
+  PYTHON_VER: '3.10'
+  IMAGE_NAME: 'miniforge-python'
   GIT_DEPTH: 2
 
 stages:
   - lint
   - test
+  - data
 
 cache:
   paths:
@@ -29,6 +30,11 @@ configure_env:
     expire_in: 5 days
     paths:
       - ./$CI_PIPELINE_ID
+  rules:
+    - if: $SCHEDULED == "true"
+      when: never
+    - if: $CI_COMMIT_REF_NAME
+      when: always
 
 lint_libgoods:
   stage: lint
@@ -37,7 +43,11 @@ lint_libgoods:
   script:
     - conda install -y flake8
     - python -m flake8 --statistics src/libgoods
-
+  rules:
+    - if: $SCHEDULED == "true"
+      when: never
+    - if: $CI_COMMIT_REF_NAME
+      when: always
 
 test_libgoods:
   stage: test
@@ -45,9 +55,85 @@ test_libgoods:
   image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
   script:
     - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
-                                          --file conda_requirements.txt
+      --file conda_requirements.txt
 
     - pip install ./
 
-    - cd ../  # make sure that it won't find the source package.
     - pytest --pyargs libgoods
+  rules:
+    - if: $SCHEDULED == "true"
+      when: never
+    - if: $CI_COMMIT_REF_NAME
+      when: always
+
+populate data on mac pro:
+  stage: data
+  needs: []
+  before_script: []
+  script:
+    - ./example_scripts/aws-mirror-matrix.sh
+  rules:
+    - if: $SCHEDULED == "true"
+      when: always
+  tags:
+    - macOS
+  parallel:
+    matrix:
+      - MODEL: 'wcofs'
+        PATTERN: '2ds'
+      - MODEL: 'sscofs'
+      - MODEL: 'ngofs2'
+        PATTERN: '2ds'
+      - MODEL: 'cbofs'
+      - MODEL: 'tbofs'
+      - MODEL: 'dbofs'
+      - MODEL: 'gomofs'
+        PATTERN: '2ds'
+      - MODEL: 'ciofs'
+      - MODEL: 'sfbofs'
+      - MODEL: 'leofs'
+      - MODEL: 'lmhofs'
+      - MODEL: 'loofs'
+      - MODEL: 'lsofs'
+      - MODEL: 'wcofs'
+        PATTERN: '2ds'
+        CAST: '.f'
+      - MODEL: 'sscofs'
+        CAST: '.f'
+      - MODEL: 'ngofs2'
+        CAST: '.f'
+        PATTERN: '2ds'
+      - MODEL: 'cbofs'
+        CAST: '.f'
+      - MODEL: 'tbofs'
+        CAST: '.f'
+      - MODEL: 'dbofs'
+        CAST: '.f'
+      - MODEL: 'gomofs'
+        PATTERN: '2ds'
+        CAST: '.f'
+      - MODEL: 'ciofs'
+        CAST: '.f'
+      - MODEL: 'sfbofs'
+        CAST: '.f'
+      - MODEL: 'leofs'
+        CAST: '.f'
+      - MODEL: 'lmhofs'
+        CAST: '.f'
+      - MODEL: 'loofs'
+        CAST: '.f'
+      - MODEL: 'lsofs'
+        CAST: '.f'
+
+tidy forcast data:
+  stage: data
+  needs: []
+  before_script: []
+  script:
+    - ./example_scripts/aws-purge-old-forcasts.sh
+  rules:
+    - if: $SCHEDULED == "true"
+    - if: $TIDY == "true"
+      when: always
+  tags:
+    - macOS

@@ -1,5 +1,4 @@
 import datetime
-from pathlib import Path
 import copernicusmarine
 
 #ME amacfadyen wIkyonos1

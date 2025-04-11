@@ -30,10 +30,11 @@ Model.subset_info(query_params) => info about subset
   - X, Y, Z, T dimensions
   - Estimated File Size
 """
-import yaml
 import dataclasses
+
 import shapely.wkt as wkt
 from shapely.geometry.multipolygon import MultiPolygon
+
 """
 The following is a mapping of 'environmental conditions concepts' to the standard names
 used in the model_catalogs package. These are in turn mapped to the CF names within the

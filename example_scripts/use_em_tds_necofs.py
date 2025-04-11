@@ -1,5 +1,5 @@
 import datetime
-from libgoods import model_em,utilities, metadata
+from libgoods import model_em,utilities
 
 model_id = 'NECOFS'
 model_type = 'FVCOM'  

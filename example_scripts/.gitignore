@@ -1,3 +1,4 @@
+OFS_results/*
 TBOFS_results/*
 test_tbofs_dask.nc
 test_tbofs_dask_single_threded.nc
