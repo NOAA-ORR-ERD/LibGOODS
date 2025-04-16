@@ -58,3 +58,20 @@ def get_models():
     return catalog
 
 
+def open_all():
+    """
+    Check all model datasets to see if models.open_ds() returns an error.
+    Return errors
+    """
+    cat = []
+
+    for key in ALL_MODELS:
+        m = ALL_MODELS[key]()
+        print(m.name)
+        try:
+            m.open_ds()
+            cat.append([m.name,'GOOD'])
+        except Exception as e:
+            cat.append([m.name,e])
+
+    return cat
