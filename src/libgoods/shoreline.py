@@ -11,7 +11,7 @@ shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221.shp'],
                       'NE_CUSP':['ME_to_DE_CUSP','ME_NH_MA_CT_RI_VT_NY_NJ_DE_20241009.shp'],
                       'nos':['nos_shoreline','nosshore.shp'],
                       'OSM':['OpenStreetMap','land-polygons-complete-4326','land_polygons.shp'],
-                      'gshhs':['gshhg','GSHHS_shp.shp'],
+                      'gshhs':['gshhg','GSHHS_shp'],
                      }
 
 
@@ -82,11 +82,10 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
                 else:
                     continue
 
-
-    if len(bna_polys) < 1 and lev == 1: #all water
+    if len(bna_polys) < 1 and lev == 1:  # all water
         bna_polys.append(clip_box.exterior.xy)
         levels = [2,]
-    else: #define levels and add lakes if specified
+    else:  # define levels and add lakes if specified
         levels = [lev for x in range(len(bna_polys))]
 
     # if lev == 1:
@@ -95,27 +94,21 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
 
     return bna_polys, levels
 
+
 def get_map(bounds,
-            shoreline='gshhs',
+            data_source='gshhs',
             ofn='coast.bna',
             resolution='h',
             cross_dateline=False,
             max_filesize=1e6):
 
-    shpfile = shoreline_dir.joinpath(*shoreline_datasets[shoreline])
-    if shoreline=='gshhs':
+    shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
+    if data_source == 'gshhs':
         fname = 'GSHHS_' + resolution + '_L1.shp'
-        shpfile = shpfile.joinpath(resolution,fname)
-        #GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
+        shpfile = shpfile.joinpath(resolution, fname)
+        # GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
 
-    #bbox = utilities.flatten_bbox(bounds)
+    # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
-    bna_polys,levs = load_polys_and_clip(shpfile,bbox,dl=cross_dateline)
-    format_for_bna(ofn,bna_polys,levs)
-
-    #This is for compatibility with current implementation in API which was expecting a file delivered from a URL
-    #Also need to think about how to test for max filesize differently since now its being written directly to server
-    filename = ofn
-    contents = open(filename).read()
-
-    return filename, contents
+    bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+    format_for_bna(ofn, bna_polys, levs)

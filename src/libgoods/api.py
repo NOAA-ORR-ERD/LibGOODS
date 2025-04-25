@@ -13,7 +13,7 @@ from . import (
     utilities,
 )
 from . import model_nc4 as model
-from . import NWS_point
+from . import NWS_point, shoreline
 from .standard_names import get_standard_names
 
 
@@ -180,10 +180,29 @@ def get_model_output(xds, output_pth):
 
     return output_path
 
-def NWS_point_wind(lon,lat):
+
+def NWS_point_wind(lon, lat):
     data = NWS_point.get_data(lon,lat)
     if 'err' in data.keys():
         raise ValueError(data['err'])
     else:
         json_data = NWS_point.format_JSON(data)
     return json_data
+
+
+def get_map(bounds,
+            data_source='gshhs',
+            ofn='coast.bna',
+            resolution='h',
+            cross_dateline=False,
+            max_filesize=1e6):
+    """
+    This is for compatibility with current implementation in API which was expecting a file delivered from a URL
+    Also need to think about how to test for max filesize differently since now its being written directly to server
+    """
+
+    shoreline.get_map(bounds, data_source, ofn, resolution, cross_dateline, max_filesize)
+    filename = ofn
+    contents = open(filename).read()
+
+    return filename, contents
