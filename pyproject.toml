@@ -9,13 +9,12 @@ authors = [
     {name = "Christopher H. Barker", email = "chris.barker@noaa.gov"},
 ]
 description = "Package for retrieving environmental data for GNOME"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"}
 classifiers = [
-    "Framework :: Django",
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     "Topic :: Utilities",
@@ -42,11 +41,11 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
 # [project.optional-dependencies]
 # pdf = ["ReportLab>=1.2", "RXP"]
-# rest = ["docutils>=0.3", "pack ==1.1, ==1.3"]
 
-[project.scripts]
-    # does this work?? -- left over from model_catalogs
-    fetch-model = "libgoods.cli:main"
+# we should have some here!
+# [project.scripts]
+#     # does this work?? -- left over from model_catalogs
+#     fetch-model = "libgoods.cli:main"
 
 [tools.setuptools]
 include-package-data = true

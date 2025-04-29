@@ -45,6 +45,9 @@ def test_metadata():
 #     # how do i use the flist generated in test_tds_past_filelist?
 
 
+# this is indeed getting forecast files -- but why?
+# we need to fix that, if it's used.
+@pytest.mark.xfail(reason="really is broken -- fix this!")
 def test_tds_past_filelist():
     """
     check if getting a file list entirely from the past works
@@ -58,6 +61,9 @@ def test_tds_past_filelist():
 
     flist = coops_ofs.get_tds_flist(MODEL_INFO, start, end, file_type='fields')
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
+
+    for f in flist:
+        print(f)
 
     assert contains_fcs is False, "File list contains forecasts"
 

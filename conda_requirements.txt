@@ -9,7 +9,3 @@ pandas
 yaml
 siphon
 fiona
-
-
-
-
