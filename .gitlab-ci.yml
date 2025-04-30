@@ -56,6 +56,8 @@ test_libgoods:
   script:
     - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
       --file conda_requirements.txt
+    # need xarray_subset_grid -- not released yet
+    - pip install xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
 
     - pip install ./
 
