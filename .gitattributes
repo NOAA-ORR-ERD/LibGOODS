@@ -1,4 +1,4 @@
 example_files/**/* filter=lfs diff=lfs merge=lfs -text
-shoreline_data/**/* filter=lfs diff=lfs merge=lfs -text
+src/libgoods/shoreline_data/**/* filter=lfs diff=lfs merge=lfs -text
 * !text !filter !merge !diff
 src/libgoods/shoreline_data/** filter=lfs diff=lfs merge=lfs -text
