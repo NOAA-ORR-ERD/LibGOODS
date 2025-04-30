@@ -1,3 +1,12 @@
+"""
+Code for extracting shoreline files
+
+Currently supports GSHHS and (older) NOS shoreline
+
+NOTE: for Open Street Map, see some example code in the example_scripts dir
+in this project
+"""
+
 from pathlib import Path
 
 import fiona
