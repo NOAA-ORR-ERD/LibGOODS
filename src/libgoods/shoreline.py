@@ -1,10 +1,22 @@
+"""
+Code for extracting shoreline files
+
+Currently supports GSHHS and (older) NOS shoreline
+
+NOTE: for Open Street Map, see some example code in the example_scripts dir
+in this project
+"""
+
 from pathlib import Path
 
 import fiona
 import numpy as np
 import shapely.geometry as sgeo
 
-shoreline_dir = Path(__file__).parents[2] / 'shoreline_data'
+
+from libgoods.utilities import convert_longitude
+
+shoreline_dir = Path(__file__).parent / 'shoreline_data'
 
 #this dict maps shoreline dataset options to subdirectories where shapefiles can be found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
 shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221.shp'],
@@ -15,14 +27,14 @@ shoreline_datasets = {'AK_CUSP':['AK_CUSP','AK_CUSP_polygon_20240221.shp'],
                      }
 
 
-def format_for_bna(ofn,polys,levs,dl=0):
+def format_for_bna(filename, polys, levs, dl=False):
     data = []
     ii = 1
-    for lev,poly in zip(levs,polys):
+    for lev, poly in zip(levs, polys):
         x = np.array(poly[0])
         y = np.array(poly[1])
         if dl:
-            x = (x < 0).choose(x,x+360)
+            x = (x < 0).choose(x, x+360)
         if lev == 0:
             data.append('"Map Bounds", "2", ' + str(len(x)))
         else:
@@ -31,27 +43,31 @@ def format_for_bna(ofn,polys,levs,dl=0):
             data.append(f"{lon:.6f}" + ', ' + f"{lat:.6f}")
         ii = ii+1
     data = '\n'.join(data)
-    f = open(ofn,'w')
-    f.write(data)
-    f.close()
+    with open(filename, 'w') as outfile:
+        outfile.write(data)
 
-def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
+
+
+def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
 
     '''
     Loop through polygons in shapefile, if they overlap with user
     specified rectangle, load the polygon and clip 
-    Note that GSHHS polygons are -180-->180,i shorelines that cross the 180 line are
+
+    Note that GSHHS polygons are -180-->180,so shorelines that cross the 180 line are
     clipped into west and east polygons, so there is some special casing to handle
     clip rectangles that cross the dateline
     Change lev to 2 if loading lakes
+
     These *may not* be able to be used to clip trajectories from GAn in Arc?
     '''
 
-
-    clip_box = sgeo.box(*bound_box)
+    wl, sl, el, nl = bound_box
 
     if dl:
-        bound_box=(-180,sl,180,nl)
+        bound_box=(-180, sl, 180, nl)
+
+    clip_box = sgeo.box(*bound_box)
 
     bna_polys = []
 
@@ -63,9 +79,9 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
                 if dl:
                     poly_bnds = poly.bounds
                     if poly_bnds[0] > -10 and poly_bnds[2] <= 180:
-                        clip_box = sgeo.box(wl,sl,180,nl)
+                        clip_box = sgeo.box(wl, sl, 180, nl)
                     else:
-                        clip_box = sgeo.box(-180,sl,el,nl)
+                        clip_box = sgeo.box(-180, sl, el, nl)
                 if poly.intersects(clip_box):
                     clipped_polys = poly.intersection(clip_box)
                     if type(clipped_polys) is sgeo.multipolygon.MultiPolygon:
@@ -88,12 +104,14 @@ def load_polys_and_clip(shpfile,bound_box,dl=False,lev=1):
     else:  # define levels and add lakes if specified
         levels = [lev for x in range(len(bna_polys))]
 
-    # if lev == 1:
-        # bna_polys.insert(0,([wl,wl,el,el],[sl,nl,nl,sl]))
-        # levels.insert(0,0)
+    # add the map bounds
+    # level 0 is map bounds
+    if lev == 1:
+        bna_polys.insert(0, ([wl, wl, el, el],
+                             [sl, nl, nl, sl]))
+        levels.insert(0, 0)
 
     return bna_polys, levels
-
 
 def get_map(bounds,
             data_source='gshhs',
@@ -102,13 +120,27 @@ def get_map(bounds,
             cross_dateline=False,
             max_filesize=1e6):
 
+    """
+    Parameters
+    ----------
+        bounds: tuple
+            (lon_min, lat_min, lon_max, lat_max)
+        data_source: str
+            which data to use: options include:
+            "gshhs", "nos" -- others are experimental.
+
+    """
+
     shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
     if data_source == 'gshhs':
         fname = 'GSHHS_' + resolution + '_L1.shp'
         shpfile = shpfile.joinpath(resolution, fname)
         # GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
+    else:
+        shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
 
     # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
     bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
-    format_for_bna(ofn, bna_polys, levs)
+    format_for_bna(ofn, bna_polys, levs, dl=cross_dateline)
+

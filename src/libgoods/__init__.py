@@ -4,11 +4,11 @@ __init__.py for libgoods package
 
 from pathlib import Path
 
-__version__ = "2.0.3dev"
+__version__ = "2.0.4dev"
 
 
 class FileTooBigError(ValueError):
-    """class for file too big"""
+    """Exception for file too big"""
     pass
 
 

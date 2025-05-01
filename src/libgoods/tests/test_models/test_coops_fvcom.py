@@ -6,4 +6,4 @@ def test_NGOFS2_init():
     """
     m = NGOFS2()
 
-    assert m.metadata.name == "NOAA/NOS Northern Gulf of Mexico Operational Forecast System"
+    assert m.metadata.name == "NOAA/NOS Northern Gulf of America Operational Forecast System"
