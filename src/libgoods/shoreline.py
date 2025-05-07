@@ -118,7 +118,8 @@ def get_map(bounds,
             ofn='coast.bna',
             resolution='h',
             cross_dateline=False,
-            max_filesize=1e6):
+            max_filesize=1e6,
+            include_lakes=True):
 
     """
     Parameters
@@ -128,19 +129,28 @@ def get_map(bounds,
         data_source: str
             which data to use: options include:
             "gshhs", "nos" -- others are experimental.
-
+        resolution: str
+            for GSHHS - one of "c", "i", "h", "f" (coarse, intermediate, high, full)
+        include_lakes: bool
+            only valid for GSHHS dataset where lakes are in separate shapefile
     """
-
-    shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
-    if data_source == 'gshhs':
-        fname = 'GSHHS_' + resolution + '_L1.shp'
-        shpfile = shpfile.joinpath(resolution, fname)
-        # GOODS used to also process "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica)
-    else:
-        shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
-
     # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
-    bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+    shpfile_dir = shoreline_dir.joinpath(*shoreline_datasets[data_source])
+    if data_source == 'gshhs':
+        fname = 'GSHHS_' + resolution + '_L1.shp'
+        shpfile = shpfile_dir.joinpath(resolution, fname)
+        bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+        if include_lakes: 
+            #"L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica
+            fname = 'GSHHS_' + resolution + '_L2.shp'
+            shpfile = shpfile_dir.joinpath(resolution, fname)
+            bna_polys2,levs2 = load_polys_and_clip(shpfile, bbox, dl=cross_dateline, lev=2)
+            bna_polys.extend(bna_polys2)
+            levs.extend(levs2)
+    else:
+        shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
+        bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+        
     format_for_bna(ofn, bna_polys, levs, dl=cross_dateline)
 
