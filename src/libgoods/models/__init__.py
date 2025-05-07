@@ -1,3 +1,4 @@
+
 from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
 from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 from .doppio import DOPPIO
@@ -41,19 +42,20 @@ ALL_MODELS = {"NGOFS2": NGOFS2,
               'TBCOM': TBCOM,
             }
 
-# def get_models():
-    # """
-    # To Do: add filtering, selection, etc?
 
-    # get the model objects for all models
-    # """
-    # catalog = []
+def get_models():
+    """
+    To Do: add filtering, selection, etc?
+
+    get the model objects for all models
+    """
+    catalog = []
     
-    # for key in ALL_MODELS:
-        # m = ALL_MODELS[key]()
-        # catalog.append([m.name,key])
+    for key in ALL_MODELS:
+        m = ALL_MODELS[key]()
+        catalog.append([m.name,key])
         
-    # return catalog
+    return catalog
 
 
 def open_all():
