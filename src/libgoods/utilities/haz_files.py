@@ -211,7 +211,7 @@ def GetNextBNAPolygon(f, dtype=np.float64):
 
     returns: (points, poly_type, name, sname) where:
         points:    Nx2numpy array of floats with the points
-        poly_type: one of "point", "line", "poly"
+        poly_type: one of "point", "line", "polygon"
         name:      name defined in the BNA
         sname:     secondary name defined in the BNA
 
@@ -298,13 +298,21 @@ def WriteBNA(filename, polyset):
     """
     outfile = open(filename, 'w')
 
-    for poly in polyset:
-        m = poly.metadata
-        outfile.write('"%s","%s", %i\n' % (m[1], m[2], len(poly)))
+    if hasattr(polyset, "metadata"): # it's a PolyGgonSet object
+        for poly in polyset:
+            m = poly.metadata
+            outfile.write('"%s","%s", %i\n' % (m[1], m[2], len(poly)))
 
-        for point in poly:
-            #point = np.asarray(point)
-            outfile.write('%.8f, %.8f \n' % (point[0], point[1]))
+            for point in poly:
+                #point = np.asarray(point)
+                outfile.write('%.8f, %.8f \n' % (point[0], point[1]))
+    else: # assume it's a list, as returned by ReadBNA
+        for poly in polyset:
+            verts = poly[0]
+            outfile.write(f'"{poly[2]}","{poly[3]}", {len(verts)}\n')
+            for point in verts:
+                #point = np.asarray(point)
+                outfile.write(f'{point[0]:.8f}, {point[1]:.8f} \n')
 
 
 def ReadBNA(filename, polytype="list", dtype=np.float64):
