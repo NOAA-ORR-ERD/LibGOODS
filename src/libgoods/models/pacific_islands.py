@@ -1,7 +1,8 @@
 from .base_models import ROMS
+from libgoods.file_processing import roms_model
 
-tds_url = 'http://pae-paha.pacioos.hawaii.edu/thredds/'
-                   
+tds_url = 'http://pae-paha.pacioos.hawaii.edu/thredds'
+ #To see what's there -- use this link: http://pae-paha.pacioos.hawaii.edu//thredds/roms_native.html                  
 class PacIOOS(ROMS):
     standard_names = ROMS.standard_names.copy()
     tvar = 'time'   
@@ -14,7 +15,8 @@ class PacIOOS(ROMS):
 class HIIG(PacIOOS):
         name = 'Hawaiian Islands 4 km'
         location = tds_url + '/dodsC/hioos/roms_native/hiig/ROMS_Hawaii_Regional_Ocean_Model_Native_Grid_best.ncd'
-        
+        example_bbox = (-155.65,19.2,-154,20,56)
+
 class HIOG(PacIOOS):
         name = 'Oahu 1 km'
         location = tds_url + '/dodsC/hioos/roms_native/hiog/ROMS_Oahu_Regional_Ocean_Model_Native_Grid_best.ncd',
@@ -33,7 +35,7 @@ class HIOEKG(PacIOOS):
         
 class MARI(PacIOOS):
         name = 'Philippine Sea'
-        location = tds_url +  '/dodsC/pacioos/roms_native/mari/ROMS_CNMI_Regional_Ocean_Model_Native_Grid_best.ncd'       
+        location = tds_url +  '/dodsC/pacioos/roms_native/mari/ROMS_CNMI_Regional_Ocean_Model_Native_Grid_best.ncd'
 
 class MARIG(PacIOOS):
         name = 'Guam and Northern Mariana Islands'
