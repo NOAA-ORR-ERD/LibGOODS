@@ -57,7 +57,8 @@ test_libgoods:
     - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
       --file conda_requirements.txt
     # need xarray_subset_grid -- not released yet
-    - pip install xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
+    - pip install
+      xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
 
     - pip install ./
 
@@ -133,6 +134,7 @@ tidy forcast data:
   before_script: []
   script:
     - ./example_scripts/aws-purge-old-forcasts.sh
+    - ./example_scripts/aws-purge-old-nowcasts.sh
   rules:
     - if: $SCHEDULED == "true"
     - if: $TIDY == "true"
