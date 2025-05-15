@@ -27,7 +27,7 @@ class BaseTWDB:
 
         self.urls = {}
         for model in models:
-            if 'error' in html_text:
+            if 'error' in html_text or 'Not Found' in html_text:
                 self.urls[model] = 'URL not found'
             else:
                 fname = re.search(model+r'.\d{6}.\d{2}.zip',html_text).group()
