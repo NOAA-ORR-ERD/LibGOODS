@@ -26,10 +26,10 @@ class COOPS_FVCOM(FVCOM):
 class NGOFS2(COOPS_FVCOM):
 
     metadata=Metadata(
-    identifier="NGOFS2",
-    name="NOAA/NOS Northern Gulf of America Operational Forecast System",
-    description= "",
-    html_desc="""A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
+        identifier="NGOFS2",
+        name="NOAA/NOS Northern Gulf of America Operational Forecast System",
+        description="",
+        html_desc="""A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
             Northern Gulf of America Operational Forecast System (NGOFS)</a>
             was developed in a joint project of the
             <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
@@ -45,41 +45,30 @@ class NGOFS2(COOPS_FVCOM):
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs_info.html" target="_blank">
             model information page.</a>""",
-    regional=True,
-    bounding_box=(),
-    bounding_poly=(),   
+        regional=True,
+        bounding_box=(),
+        bounding_poly=(),
     )
-    identifier = metadata.identifier   # should this be in both places?
     name = "Northern Gulf of America"
     example_bbox = (-91.5, 29.25, -91, 29.75)
     local_file_type = '2ds'  # this is what we're archiving locally
-"""     def __init__(self, access='zarr', start=None, end=None):
-        #overloading local access b/c files are surface only
-        if access == 'local':
-            self.file_type = '2ds'
-            self.access = 'local'
-            local_dir = '/Volumes/Fury 2/s3'
-            self.location = coops_ofs.get_local_flist(self, local_dir, file_type=self.file_type, 
-                                                      start=start, end=end)
-        else:
-            super().__init__(access=access, start=start, end=end) """
-    
+
 class SSCOFS(COOPS_FVCOM):
     
-    identifier = 'SSCOFS'
-    name = 'Salish Sea and Columbia River'
-    example_bbox = (-126.2,47.59,-124.1,49.02)
-    local_file_type = 'fields'
+    metadata=Metadata(
+        identifier = 'SSCOFS',
+        name = 'Salish Sea and Columbia River',
+        example_bbox = (-126.2,47.59,-124.1,49.02),
+        local_file_type = 'fields', 
+    )
+
     standard_names = FVCOM.standard_names.copy()
     standard_names['surface_eastward_sea_water_velocity'] = 'u'
     standard_names['surface_northward_sea_water_velocity'] = 'v'
 
-
 class LMHOFS(COOPS_FVCOM):
-    
-    identifier = 'LMHOFS'
-    name = 'Lakes Michigan and Huron'
-    example_bbox = (-88, 41.57, -86, 44)
+
+
     local_file_type = 'fields'
     standard_names = FVCOM.standard_names.copy()
     standard_names['surface_eastward_sea_water_velocity'] = 'u'

@@ -33,19 +33,16 @@ Model.subset_info(query_params) => info about subset
 
 import dataclasses
 from pathlib import Path
-
-
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
     name: str = ""
-    description: str = ""
+    long_name: str = ""
     html_desc: str = ""
     regional: bool = False
     bounding_box: tuple = ()
     bounding_poly: tuple = ()
     # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
-    has_depth: bool = True
     """
     Class to hold the external meta data for a model source
 
@@ -53,6 +50,47 @@ class Metadata:
 
     Currently this has defaults for everything, but maybe it should require everything? or more?
     """
+
+    def init_from_yaml(self, yaml_file):
+        """
+        given a model, extract the data and set on self. If source is None,
+        get metadata for all sources
+        """
+        with open(yaml_file) as file:
+            model_info = yaml.full_load(file)
+
+
+            
+#         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
+#         try:
+#             with open(yaml_bdry_file) as file:
+#                 model_info.update(yaml.full_load(file))
+#             self.bounding_box = model_info["bbox"]
+#             self.regional = Metadata.regional_test(self.bounding_box)
+#             bounding_poly = wkt.loads(model_info["wkt"])
+#             if isinstance(bounding_poly, MultiPolygon):
+#                 bounding_poly = bounding_poly.convex_hull
+#             self.bounding_poly = list(bounding_poly.boundary.coords)
+#         except FileNotFoundError:
+#             print('No boundary information available for ', yaml_file)
+#         self.identifier = model_info["name"]
+#         self.name = model_info["metadata"]["long_name"]
+#         self.description = model_info["description"]
+#         try:
+#             self.html_desc = model_info["metadata"]["html_desc"]
+#         except KeyError:
+#             self.html_desc = self.description
+
+#         self.grid_type = model_info["metadata"]["grid_type"]
+#         grid_dim_keyname = [
+#             n for n in model_info["metadata"].keys() if "grid_dim_" in n
+#         ][0]
+#         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
+#         self.dimensions = model_info["metadata"][grid_dim_keyname]
+#         self.init_source_metadata(model_info["sources"], source=source)
+#         self.compute_env_params()
+#         return self """
+
 
 # def get_all_metadata():
 #     """

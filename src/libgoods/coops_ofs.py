@@ -74,14 +74,14 @@ aws link: https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
 tds link: https://opendap.co-ops.nos.noaa.gov/thredds/catalog/catalog.html
 """
 
-def get_tds_flist(model_info, start, end, file_type='2ds', old_name_format=False, tds='coops'):
+def get_tds_flist(model_id, start, end, file_type='2ds', old_name_format=False, tds='coops'):
     """
     COOPS TDS has files sorted by model then into year/month/day
             file_type: 2ds for 2d, fields for 3d
 
     Parameters
     ----------
-    model_info: str
+    model_id: str
         ID of the model, should be one of what's in OFS_INFO dict
         (`coops_ofs.OFS_INFO.keys()` to see what's there.)
 
@@ -104,7 +104,9 @@ def get_tds_flist(model_info, start, end, file_type='2ds', old_name_format=False
     -------
     list of filenames on the TDS server.
 
-    """
+    """ 
+    model_info = OFS_INFO[model_id]
+
     nc_list = []
     fc_list = []
 
@@ -175,7 +177,7 @@ def get_tds_flist(model_info, start, end, file_type='2ds', old_name_format=False
     return flist
 
 
-def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False):
+def get_aws_flist(model_id, start, end, file_type='2ds', old_name_format=False):
     """
     AWS S3 bucket has files sorted by model then into year/month
         file_type: '2ds' for 2d, 'fields' for 3d
@@ -192,6 +194,7 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     #       that's getting caught later by a try: except, but
     #       maybe we should be smarter.
     # This could, instead, get a listing, to see what's actually available
+    model_info = OFS_INFO[model_id]
     buffer = datetime.timedelta(hours=6)
     start_b = (start - buffer)
     end_b = (end + buffer)
@@ -235,11 +238,11 @@ def get_aws_flist(model_info, start, end, file_type='2ds', old_name_format=False
     return flist
 
 
-def get_local_flist(model_info, local_dir, start=None, end=None, file_type='2ds'):
+def get_local_flist(model_id, local_dir, start=None, end=None, file_type='2ds'):
     '''
     Assumes all files are in one directory for one OFS
     '''
-
+    model_info = OFS_INFO[model_id]
     nc_list = []
     fc_list = []
 
@@ -259,13 +262,14 @@ def get_local_flist(model_info, local_dir, start=None, end=None, file_type='2ds'
     return flist_out
 
 
-def get_zarr_url(model_info,check_exists=False):
+def get_zarr_url(model_id,check_exists=False):
     """
     Gives the url for the "best timeseries" kerchunked zarr file at:
     https://noaa-nodd-kerchunk-pds.s3.amazonaws.com/
     Exameple URL for WCOFs:
     s3://noaa-nodd-kerchunk-pds/nos/wcofs/wcofs.fields.best.nc.zarr
     """
+    model_info = OFS_INFO[model_id]
     root_url = 's3://noaa-nodd-kerchunk-pds/nos/'
     model_url = root_url + model_info.identifier.lower() + '/' + model_info.identifier.lower(
     ) + '.fields.best.nc.zarr'
@@ -286,11 +290,12 @@ def get_zarr_url(model_info,check_exists=False):
     return flist
 
 
-def get_ioos_tds_agg_url(model_info):
+def get_ioos_tds_agg_url(model_id):
     """
     Gives the url for the "best timeseries" TDS url from IOOS server
 
     """
+    model_info = OFS_INFO[model_id]
     root_url = 'https://tds.ioos.us/thredds/dodsC/ioos/ofs/'
 
     model_url = root_url + model_info.identifier.lower(
@@ -306,7 +311,7 @@ def get_ioos_tds_agg_url(model_info):
     return flist
 
 
-def download_from_aws(model_info, fnames, out_dir='files', temp_dir=None):
+def download_from_aws(model_id, fnames, out_dir='files', temp_dir=None):
     """
     NOS OFS are available in an AWS S3 bucket at:
     https://noaa-nos-ofs-pds.s3.amazonaws.com/index.html
@@ -317,6 +322,7 @@ def download_from_aws(model_info, fnames, out_dir='files', temp_dir=None):
     fnames : list of filenames (str)
 
     """
+    model_info = OFS_INFO[model_id]
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
