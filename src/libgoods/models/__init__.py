@@ -10,6 +10,7 @@ from .wfs import WFCOM, TBCOM
 from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 from .hf_radar import HFRadar
 
+YAML_DIR = Path(__file__).parent / 'metadata'
 ALL_MODELS = {"NGOFS2": NGOFS2,
               "LMHOFS": LMHOFS,
               "LEOFS": LEOFS,

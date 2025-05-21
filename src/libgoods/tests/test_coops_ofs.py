@@ -12,7 +12,7 @@ import pytest
 from libgoods import coops_ofs
 
 # An example to test with: lake Michigan-Huron
-MODEL_INFO = coops_ofs.OFS_INFO['LMHOFS']
+model_id = "LMHOFS"
 
 # utility for the tests:
 def utc_now(freq='min'):
@@ -59,7 +59,7 @@ def test_tds_past_filelist():
 
     print(f"trying to get: {start} to {end}")
 
-    flist = coops_ofs.get_tds_flist(MODEL_INFO, start, end, file_type='fields')
+    flist = coops_ofs.get_tds_flist(model_id, start, end, file_type='fields')
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
 
     for f in flist:
@@ -80,7 +80,7 @@ def test_aws_future_filelist():
     utc_now()
     end = start + datetime.timedelta(days=2)
 
-    flist = coops_ofs.get_aws_flist(MODEL_INFO, start, end, file_type='fields')
+    flist = coops_ofs.get_aws_flist(model_id, start, end, file_type='fields')
 
     contains_fcs = any([fnmatch.fnmatch(f, "*.f???.*") for f in flist])
     contains_ncs = any([fnmatch.fnmatch(f, "*.n???.*") for f in flist])
@@ -94,7 +94,7 @@ def test_tds_nc_fc_filelist():
     start = utc_now() - dt
     end = start + datetime.timedelta(days=3)
 
-    flist = coops_ofs.get_tds_flist(MODEL_INFO, start, end, file_type='fields')
+    flist = coops_ofs.get_tds_flist(model_id, start, end, file_type='fields')
 
     nc_last = np.where([fnmatch.fnmatch(f, "*.n[0-9]??.*") for f in flist])[0][-1]
     fcs = np.where([fnmatch.fnmatch(f, "*.f[0-9]??.*") for f in flist])[0]
