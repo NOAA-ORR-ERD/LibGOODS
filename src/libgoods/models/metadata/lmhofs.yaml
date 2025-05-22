@@ -1,4 +1,4 @@
-identifier: lmhofs
+identifier: LMHOFS
 name: Lakes Michigan and Huron
 long_name: NOAA/NOS Lake Michigan and Huron Operational Forecast System
 html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/lmhofs/lmhofs.html" target="_blank">
@@ -17,12 +17,12 @@ html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/lmhofs/lmhofs.html"
             <a href="http://tidesandcurrents.noaa.gov/ofs/lmhofs/lmhofs_info.html" target="_blank">
             model information page.</a><br>
 regional: true
-bbox:
+bounding_box:
 - 271.9591979980469
 - 41.622066497802734
 - 280.283203125
 - 46.3487663269043
-wkt: POLYGON ((278.7953186035156 45.94536590576172, 278.9179382324219 45.93263244628906,
+bounding_poly: POLYGON ((278.7953186035156 45.94536590576172, 278.9179382324219 45.93263244628906,
   279.0296936035156 45.920501708984375, 279.1358337402344 45.924198150634766, 279.2235412597656
   45.85813522338867, 279.2587890625 45.856666564941406, 279.2754821777344 45.85503387451172,
   279.35369873046875 45.775299072265625, 279.3764343261719 45.68149948120117, 279.4156799316406

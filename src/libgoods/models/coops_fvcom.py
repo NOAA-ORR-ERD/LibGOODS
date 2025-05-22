@@ -57,19 +57,19 @@ class LMHOFS(COOPS_FVCOM):
 
 
 class LOOFS(COOPS_FVCOM):
-    metadata = Metadata.from_yaml(YAML_DIR / 'lmhofs.yaml')
+    metadata = Metadata.from_yaml(YAML_DIR / 'loofs.yaml')
 
     standard_names = gl_standard_names
 
 
 class LSOFS(COOPS_FVCOM):
-    metadata = Metadata.from_yaml(YAML_DIR / 'lmhofs.yaml')
+    metadata = Metadata.from_yaml(YAML_DIR / 'lsofs.yaml')
 
     standard_names = gl_standard_names
 
 
 class LEOFS(COOPS_FVCOM):
-    metadata = Metadata.from_yaml(YAML_DIR / 'lmhofs.yaml')
+    metadata = Metadata.from_yaml(YAML_DIR / 'leofs.yaml')
 
     standard_names = gl_standard_names
 
