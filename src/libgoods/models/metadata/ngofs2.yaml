@@ -1,4 +1,4 @@
-id: NGOFS2
+identifier: NGOFS2
 name: Northern Gulf of America
 long_name: NOAA/NOS Northern Gulf of America Operational Forecast System
 html_desc: A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" target="_blank">
@@ -17,12 +17,15 @@ html_desc: A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" t
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs_info.html" target="_blank">
             model information page.</a>
-bbox:
+regional: false
+
+bounding_box:
 - 262.1488342285156
 - 21.80545997619629
 - 274.262451171875
 - 30.78022003173828
-wkt: POLYGON ((270.6807861328125 30.374494552612305, 271.00927734375 30.4280948638916,
+
+bounding_poly: POLYGON ((270.6807861328125 30.374494552612305, 271.00927734375 30.4280948638916,
   271.0753173828125 30.43028450012207, 271.1471252441406 30.429607391357422, 271.9740905761719
   30.76902198791504, 271.97833251953125 30.772663116455078, 272.0804138183594 30.757190704345703,
   272.8260192871094 30.576993942260742, 272.9963684082031 30.572721481323242, 273.5197448730469

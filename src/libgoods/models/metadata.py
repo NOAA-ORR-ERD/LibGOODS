@@ -31,8 +31,13 @@ Model.subset_info(query_params) => info about subset
   - Estimated File Size
 """
 
+import yaml
+
 import dataclasses
 from pathlib import Path
+
+import shapely.wkt
+
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
@@ -46,20 +51,26 @@ class Metadata:
     """
     Class to hold the external meta data for a model source
 
-    This is about the data that a user wants to see -- not what's needed to impliment it.
+    This is about the data that a user wants to see -- not what's needed to implement it.
 
     Currently this has defaults for everything, but maybe it should require everything? or more?
     """
 
-    def init_from_yaml(self, yaml_file):
+    @classmethod
+    def from_yaml(cls, yaml_file_path):
         """
-        given a model, extract the data and set on self. If source is None,
-        get metadata for all sources
+        Create a metadata object from a yaml file
         """
-        with open(yaml_file) as file:
+        with open(yaml_file_path) as file:
             model_info = yaml.full_load(file)
 
+        md = cls(**model_info)
 
+        return md
+
+
+    def save_as_yaml(self, yaml_file_path):
+        pass
             
 #         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
 #         try:
@@ -90,6 +101,27 @@ class Metadata:
 #         self.init_source_metadata(model_info["sources"], source=source)
 #         self.compute_env_params()
 #         return self """
+
+    def __post_init__(self):
+        # clean up types a bit:
+        self.bounding_box = tuple(self.bounding_box)
+
+        # if the bounding_pollygon is WKT: convert to nested tuples
+        bounding_poly = self.bounding_poly
+        if isinstance(bounding_poly, str):
+            # bounding_poly = shapely.wkt.loads(self.bounding_poly)
+            bounding_poly = tuple(shapely.from_wkt(bounding_poly).boundary.coords)
+        else:
+            bounding_poly = tuple(tuple(p) for p in bounding_poly)
+
+        self.bounding_poly = bounding_poly
+
+            # bounding_poly = shapely.wkt.loads(model_info["wkt"])
+            # if isinstance(bounding_poly, MultiPolygon):
+            #     bounding_poly = bounding_poly.convex_hull
+            # self.bounding_poly = list(bounding_poly.boundary.coords)
+
+
 
 
 # def get_all_metadata():

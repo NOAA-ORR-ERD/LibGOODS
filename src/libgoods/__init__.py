@@ -4,7 +4,7 @@ __init__.py for libgoods package
 
 from pathlib import Path
 
-__version__ = "2.0.6dev"
+__version__ = "2.1.0dev"
 
 
 class FileTooBigError(ValueError):
