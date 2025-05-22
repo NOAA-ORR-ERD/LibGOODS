@@ -17,7 +17,7 @@ html_desc: A <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs2.html" t
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/ngofs2/ngofs_info.html" target="_blank">
             model information page.</a>
-regional: false
+regional: true
 
 bounding_box:
 - 262.1488342285156
