@@ -17,7 +17,7 @@ from . import NWS_point, shoreline
 from .standard_names import get_standard_names
 
 
-def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=False):
+def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=True):
     """
     Return metadata for all available models
     This is the static information about the models (in yaml file). It will not include
@@ -34,7 +34,7 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
                             for env_params is in standard_names and includes
                             "surface currents" etc.
 
-    :param as_pyson=False: If True, result is JSON-compatible dict.
+    :param as_pyson=True: If True, result is JSON-compatible dict.
                            If false, Metadata objects.
 
     :returns: list of metadata for models that satisfy the criteria
