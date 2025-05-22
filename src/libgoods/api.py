@@ -9,23 +9,25 @@ from . import (
     ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
-    metadata,
     utilities,
 )
+
 from . import model_nc4 as model
 from . import NWS_point, shoreline
 from .standard_names import get_standard_names
+from .models import metadata
 
-
-def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pyson=True):
+def list_models(model_ids=None,
+                map_bounds=None,
+                env_params=None,
+                as_pyson=True):
     """
     Return metadata for all available models
     This is the static information about the models (in yaml file). It will not include
     actual start/end time based on querying the server
 
-    :param model_ids_sources=None: Optional dict of particular models names (keys) and
-                                   sources (list). If None all available models will be
-                                   returned.
+    :param model_ids_sources=None: Optional list of models identifiers. If None all available
+                                models will be returned.
 
     :param map_bounds=None: Bounds within which the models must overlap, if None, the
                             whole world.
@@ -43,7 +45,7 @@ def list_models(model_ids_sources=None, map_bounds=None, env_params=None, as_pys
     all_metas = metadata.get_all_metadata()
     retval = utilities.filter_models(
         all_metas.values(),
-        model_ids_sources=model_ids_sources,
+        model_ids=model_ids,
         map_bounds=map_bounds,
         env_params=env_params,
     )
