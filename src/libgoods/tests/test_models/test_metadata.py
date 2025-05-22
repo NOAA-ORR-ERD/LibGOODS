@@ -1,7 +1,7 @@
 """
 tests of the metadata classes - these test construction but nothing else at present
 """
-
+from pathlib import Path
 import numpy as np
 
 from libgoods.models import YAML_DIR
@@ -10,6 +10,9 @@ from libgoods.models.metadata import Metadata
 # using ngofs2 as the prototype
 yaml_file = YAML_DIR / 'ngofs2.yaml'
 
+
+HERE = Path(__file__).parent
+OUTPUT_DIR = HERE / 'output'
 
 def test_from_yaml():
     meta = Metadata.from_yaml(yaml_file)
@@ -70,6 +73,33 @@ def test_init_from_tuples():
                      (268.80035400390625, 30.50692367553711),
                      (270.6807861328125, 30.374494552612305))
 
+def test_to_yaml():
+    meta = Metadata(identifier="AN_ID",
+                    name="An example model",
+                    long_name="An example model -- used to test and explaining the metadata required",
+                    html_desc=("<html> <b>An example model</b> -- "
+                               "used to test and explaining the "
+                               "metadata required </html>"),
+                    regional=True,
+                    bounding_box=(-20, 30, -45, 10),
+                    bounding_poly = ((270.6807861328125, 30.374494552612305),
+                                     (262.9354248046875, 24.568058013916016),
+                                     (268.0373229980469, 29.816688537597656),
+                                     (268.80035400390625, 30.50692367553711),
+                                     (270.6807861328125, 30.374494552612305)),
+
+                    example_bbox=(-10, 20, -40, 5),
+                    )
+
+    outfile = OUTPUT_DIR / "test_metadata.yaml"
+
+    meta.to_yaml(OUTPUT_DIR / "test_metadata.yaml")
+
+    assert outfile.is_file()
+
+    meta2 = Metadata.from_yaml(outfile)
+
+    assert meta == meta2
 
 
 

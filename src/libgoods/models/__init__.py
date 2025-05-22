@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+YAML_DIR = Path(__file__).parent / 'metadata'
+
 from .coops_fvcom import NGOFS2
 # from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
 # from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
@@ -14,9 +16,9 @@ from .coops_fvcom import NGOFS2
 # from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 # from .hf_radar import HFRadar
 
-YAML_DIR = Path(__file__).parent / 'metadata'
 
-# ALL_MODELS = {"NGOFS2": NGOFS2,
+ALL_MODELS = {"NGOFS2": NGOFS2,
+              }
 #               "LMHOFS": LMHOFS,
 #               "LEOFS": LEOFS,
 #               "LOOFS": LOOFS,
