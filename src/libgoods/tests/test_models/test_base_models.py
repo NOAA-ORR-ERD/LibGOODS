@@ -25,10 +25,9 @@ def test_ROMS_init():
 
     assert m.model == "roms"
 
+
 def test_models_init():
     for key in models.ALL_MODELS:
+        print(key)
         m = models.ALL_MODELS[key]()
-        assert hasattr(m,'location')
-
-            
-        
+        assert hasattr(m, "location")

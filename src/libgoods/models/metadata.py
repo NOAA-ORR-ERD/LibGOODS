@@ -38,6 +38,7 @@ from pathlib import Path
 
 import shapely.wkt
 
+
 @dataclasses.dataclass
 class Metadata:
     identifier: str = ""
@@ -45,8 +46,10 @@ class Metadata:
     long_name: str = ""
     html_desc: str = ""
     regional: bool = False
-    bounding_box: tuple = ()
-    bounding_poly: tuple = ()
+    bounding_box: tuple = None
+    bounding_poly: tuple = None
+    example_bbox: tuple = None
+
     # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
     """
     Class to hold the external meta data for a model source
@@ -68,60 +71,58 @@ class Metadata:
 
         return md
 
+    def to_yaml(self, yaml_file_path):
+        dct = dataclasses.asdict(self)
+        with open(yaml_file_path, "w") as outfile:
+            yaml.safe_dump(dct, stream=outfile)
+        return None
 
-    def save_as_yaml(self, yaml_file_path):
-        pass
-            
-#         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
-#         try:
-#             with open(yaml_bdry_file) as file:
-#                 model_info.update(yaml.full_load(file))
-#             self.bounding_box = model_info["bbox"]
-#             self.regional = Metadata.regional_test(self.bounding_box)
-#             bounding_poly = wkt.loads(model_info["wkt"])
-#             if isinstance(bounding_poly, MultiPolygon):
-#                 bounding_poly = bounding_poly.convex_hull
-#             self.bounding_poly = list(bounding_poly.boundary.coords)
-#         except FileNotFoundError:
-#             print('No boundary information available for ', yaml_file)
-#         self.identifier = model_info["name"]
-#         self.name = model_info["metadata"]["long_name"]
-#         self.description = model_info["description"]
-#         try:
-#             self.html_desc = model_info["metadata"]["html_desc"]
-#         except KeyError:
-#             self.html_desc = self.description
+    #         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
+    #         try:
+    #             with open(yaml_bdry_file) as file:
+    #                 model_info.update(yaml.full_load(file))
+    #             self.bounding_box = model_info["bbox"]
+    #             self.regional = Metadata.regional_test(self.bounding_box)
+    #             bounding_poly = wkt.loads(model_info["wkt"])
+    #             if isinstance(bounding_poly, MultiPolygon):
+    #                 bounding_poly = bounding_poly.convex_hull
+    #             self.bounding_poly = list(bounding_poly.boundary.coords)
+    #         except FileNotFoundError:
+    #             print('No boundary information available for ', yaml_file)
+    #         self.identifier = model_info["name"]
+    #         self.name = model_info["metadata"]["long_name"]
+    #         self.description = model_info["description"]
+    #         try:
+    #             self.html_desc = model_info["metadata"]["html_desc"]
+    #         except KeyError:
+    #             self.html_desc = self.description
 
-#         self.grid_type = model_info["metadata"]["grid_type"]
-#         grid_dim_keyname = [
-#             n for n in model_info["metadata"].keys() if "grid_dim_" in n
-#         ][0]
-#         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
-#         self.dimensions = model_info["metadata"][grid_dim_keyname]
-#         self.init_source_metadata(model_info["sources"], source=source)
-#         self.compute_env_params()
-#         return self """
+    #         self.grid_type = model_info["metadata"]["grid_type"]
+    #         grid_dim_keyname = [
+    #             n for n in model_info["metadata"].keys() if "grid_dim_" in n
+    #         ][0]
+    #         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
+    #         self.dimensions = model_info["metadata"][grid_dim_keyname]
+    #         self.init_source_metadata(model_info["sources"], source=source)
+    #         self.compute_env_params()
+    #         return self """
 
     def __post_init__(self):
         # clean up types a bit:
-        self.bounding_box = tuple(self.bounding_box)
+
+        self.bounding_box = tuple(self.bounding_box) if self.bounding_box is not None else None
+        self.example_bbox = tuple(self.example_bbox) if self.example_bbox is not None else None
 
         # if the bounding_pollygon is WKT: convert to nested tuples
         bounding_poly = self.bounding_poly
-        if isinstance(bounding_poly, str):
-            # bounding_poly = shapely.wkt.loads(self.bounding_poly)
-            bounding_poly = tuple(shapely.from_wkt(bounding_poly).boundary.coords)
-        else:
-            bounding_poly = tuple(tuple(p) for p in bounding_poly)
+        if bounding_poly is not None:
+            # convert from WKT to simple tuple of vertices
+            if isinstance(bounding_poly, str):
+                bounding_poly = tuple(shapely.from_wkt(bounding_poly).boundary.coords)
+            else:
+                bounding_poly = tuple(tuple(p) for p in bounding_poly)
 
-        self.bounding_poly = bounding_poly
-
-            # bounding_poly = shapely.wkt.loads(model_info["wkt"])
-            # if isinstance(bounding_poly, MultiPolygon):
-            #     bounding_poly = bounding_poly.convex_hull
-            # self.bounding_poly = list(bounding_poly.boundary.coords)
-
-
+            self.bounding_poly = bounding_poly
 
 
 # def get_all_metadata():

@@ -1,6 +1,6 @@
-
-
 from pathlib import Path
+
+YAML_DIR = Path(__file__).parent / "metadata"
 
 from .coops_fvcom import NGOFS2
 # from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
@@ -14,9 +14,10 @@ from .coops_fvcom import NGOFS2
 # from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 # from .hf_radar import HFRadar
 
-YAML_DIR = Path(__file__).parent / 'metadata'
 
-# ALL_MODELS = {"NGOFS2": NGOFS2,
+ALL_MODELS = {
+    "NGOFS2": NGOFS2,
+}
 #               "LMHOFS": LMHOFS,
 #               "LEOFS": LEOFS,
 #               "LOOFS": LOOFS,
@@ -64,11 +65,11 @@ def get_models():
     get the model objects for all models
     """
     catalog = []
-    
+
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        catalog.append([m.name,key])
-        
+        catalog.append([m.name, key])
+
     return catalog
 
 
@@ -84,8 +85,8 @@ def open_all():
         print(m.name)
         try:
             m.open_ds()
-            cat.append([m.name,'GOOD'])
+            cat.append([m.name, "GOOD"])
         except Exception as e:
-            cat.append([m.name,e])
+            cat.append([m.name, e])
 
     return cat

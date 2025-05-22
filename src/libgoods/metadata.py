@@ -40,7 +40,7 @@ from shapely.geometry.multipolygon import MultiPolygon
 
 from .standard_names import get_env_params
 
-yaml_file_directory = Path(__file__).parent / 'yaml_files'
+yaml_file_directory = Path(__file__).parent / "yaml_files"
 
 
 def get_all_metadata():
@@ -49,12 +49,9 @@ def get_all_metadata():
     dict of the metadata for all models
     """
 
-    flist = yaml_file_directory.glob('*.yaml')
-    all_metas = {
-        f.name.split('.')[0].upper(): Metadata().init_from_yaml(f)
-        for f in flist
-    }
-    return (all_metas)
+    flist = yaml_file_directory.glob("*.yaml")
+    all_metas = {f.name.split(".")[0].upper(): Metadata().init_from_yaml(f) for f in flist}
+    return all_metas
 
 
 def get_metadata_for_model(model, source):
@@ -63,10 +60,10 @@ def get_metadata_for_model(model, source):
 
     """
 
-    yaml_file = Path(yaml_file_directory, model.lower() + '.yaml')
+    yaml_file = Path(yaml_file_directory, model.lower() + ".yaml")
     meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
 
-    return (meta)
+    return meta
 
 
 @dataclasses.dataclass
@@ -98,7 +95,7 @@ class Metadata:
 
         with open(yaml_file) as file:
             model_info = yaml.full_load(file)
-        yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
+        yaml_bdry_file = yaml_file_directory / "boundaries" / yaml_file.name
         try:
             with open(yaml_bdry_file) as file:
                 model_info.update(yaml.full_load(file))
@@ -109,7 +106,7 @@ class Metadata:
                 bounding_poly = bounding_poly.convex_hull
             self.bounding_poly = list(bounding_poly.boundary.coords)
         except FileNotFoundError:
-            print('No boundary information available for ', yaml_file)
+            print("No boundary information available for ", yaml_file)
         self.identifier = model_info["name"]
         self.name = model_info["metadata"]["long_name"]
         self.description = model_info["description"]
@@ -119,9 +116,7 @@ class Metadata:
             self.html_desc = self.description
 
         self.grid_type = model_info["metadata"]["grid_type"]
-        grid_dim_keyname = [
-            n for n in model_info["metadata"].keys() if "grid_dim_" in n
-        ][0]
+        grid_dim_keyname = [n for n in model_info["metadata"].keys() if "grid_dim_" in n][0]
         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
         self.dimensions = model_info["metadata"][grid_dim_keyname]
         self.init_source_metadata(model_info["sources"], source=source)
@@ -181,7 +176,7 @@ class SourceMetadata:
     # axis: dict = dataclasses.field(default_factory=dict)
     #              'dim_x -> [grid_variable_x]
     name: str = ""
-    period: float = (0, )  # output period in hours
+    period: float = (0,)  # output period in hours
     start: str = ""  # human readable timespan: e.g. "7 days in the past"
     end: str = ""  # human readable timespan
     # dict associating CF name to variable name in data

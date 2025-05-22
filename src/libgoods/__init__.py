@@ -9,6 +9,7 @@ __version__ = "2.1.0dev"
 
 class FileTooBigError(ValueError):
     """Exception for file too big"""
+
     pass
 
 
@@ -29,6 +30,7 @@ class NonIntersectingTimeIntervalError(ValueError):
     """
     provided time bounds do not overlap with model time availability
     """
+
 
 class ModelAvailabilityError(ValueError):
     """

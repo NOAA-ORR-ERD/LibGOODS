@@ -1,4 +1,4 @@
-from pathlib import Path 
+from pathlib import Path
 
 import numpy as np
 
@@ -8,6 +8,7 @@ from libgoods.scripting import shift_bna
 import pytest
 
 HERE = Path(__file__).parent
+
 
 def test_shift():
     infile = HERE / "lake_erie_islands.bna"
@@ -19,8 +20,5 @@ def test_shift():
 
     polys = ReadBNA(outfile)
     for poly in polys:
-        assert np.all(poly[0][:,0] >= 0)
-        assert np.all(poly[0][:,0] < 360)
-
-
-
+        assert np.all(poly[0][:, 0] >= 0)
+        assert np.all(poly[0][:, 0] < 360)

@@ -17,7 +17,6 @@ from . import NWS_point, shoreline
 from .standard_names import get_standard_names
 from .models import metadata
 
-
 def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
@@ -69,15 +68,17 @@ def get_model_info(model_id, model_source):
     """
     meta = metadata.get_metadata_for_model(model_id, model_source)
 
-    tvar_name = meta['sources'][0]['standard_names']['time']
-    meta['urlpath'] = meta['sources'][0]['args']['urlpath']
+    tvar_name = meta["sources"][0]["standard_names"]["time"]
+    meta["urlpath"] = meta["sources"][0]["args"]["urlpath"]
     try:
-        stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
+        stime, etime = model.get_time_bounds(meta["urlpath"], tvar_name)
     except:
-        raise ModelAvailabilityError('Unable to retrieve data from server. Please check availability or try again later.')
+        raise ModelAvailabilityError(
+            "Unable to retrieve data from server. Please check availability or try again later."
+        )
 
-    meta['actual_start'] = stime
-    meta['actual_end'] = etime
+    meta["actual_start"] = stime
+    meta["actual_end"] = etime
 
     return meta
 
@@ -103,27 +104,28 @@ def validate_subset(model_id, model_source, start, end, bounds):
     meta = get_model_info(model_id, model_source)
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
-    if not utilities.subset_intersects_model_boundary(meta['bounding_poly'],
-                                                      polybounds):
+    if not utilities.subset_intersects_model_boundary(meta["bounding_poly"], polybounds):
         # no overlap in at least one dimension
-        raise NonIntersectingSubsetError('Subset does not intersect model boundary')
+        raise NonIntersectingSubsetError("Subset does not intersect model boundary")
 
-    if not utilities.check_valid_time_intersection((start, end),
-                                                   (meta['actual_start'],
-                                                    meta['actual_end'])):
-        raise NonIntersectingTimeIntervalError('Subset does not intersect model time bounds')
+    if not utilities.check_valid_time_intersection(
+        (start, end), (meta["actual_start"], meta["actual_end"])
+    ):
+        raise NonIntersectingTimeIntervalError("Subset does not intersect model time bounds")
 
     return True
 
 
-def get_model_subset(model_id,
-                     model_source,
-                     start,
-                     end,
-                     bounds,
-                     surface_only=True,
-                     cross_dateline=False,
-                     environmental_parameters=["surface currents"]):
+def get_model_subset(
+    model_id,
+    model_source,
+    start,
+    end,
+    bounds,
+    surface_only=True,
+    cross_dateline=False,
+    environmental_parameters=["surface currents"],
+):
     """
     Determine the indices for the desired subset (in space and time)
 
@@ -140,7 +142,7 @@ def get_model_subset(model_id,
                                      "surface currents" - see standard_names for mapping
     """
     # polybounds = utilities.bbox2polygon(bounds)
-    if '3D currents' in environmental_parameters:
+    if "3D currents" in environmental_parameters:
         surface_only = False
     else:
         surface_only = True
@@ -148,24 +150,26 @@ def get_model_subset(model_id,
     meta = get_model_info(model_id, model_source)
 
     # build url list if unaggregated
-    if 'noagg' in model_source:
+    if "noagg" in model_source:
         pass
 
     else:
-        urlpath = meta['urlpath']
+        urlpath = meta["urlpath"]
 
     # these are what we want to include
     snames_list = get_standard_names(environmental_parameters)
-    snames_dict = meta['sources'][0]['standard_names']
+    snames_dict = meta["sources"][0]["standard_names"]
     var_dict = {x: snames_dict[x] for x in snames_list if x in snames_dict}
-    ds = model.get_model_subset(urlpath,
-                                start,
-                                end,
-                                list(bounds),
-                                surface_only=surface_only,
-                                cross_dateline=cross_dateline,
-                                var_dict=var_dict,
-                                grid=meta['grid_type'])
+    ds = model.get_model_subset(
+        urlpath,
+        start,
+        end,
+        list(bounds),
+        surface_only=surface_only,
+        cross_dateline=cross_dateline,
+        var_dict=var_dict,
+        grid=meta["grid_type"],
+    )
 
     ds.cross_dateline = cross_dateline
 
@@ -176,26 +180,28 @@ def get_model_output(xds, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = model.write_model_output(xds, output_pth, dl = xds.cross_dateline )
+    output_path = model.write_model_output(xds, output_pth, dl=xds.cross_dateline)
 
     return output_path
 
 
 def NWS_point_wind(lon, lat):
-    data = NWS_point.get_data(lon,lat)
-    if 'err' in data.keys():
-        raise ValueError(data['err'])
+    data = NWS_point.get_data(lon, lat)
+    if "err" in data.keys():
+        raise ValueError(data["err"])
     else:
         json_data = NWS_point.format_JSON(data)
     return json_data
 
 
-def get_map(bounds,
-            data_source='gshhs',
-            ofn='coast.bna',
-            resolution='h',
-            cross_dateline=False,
-            max_filesize=1e6):
+def get_map(
+    bounds,
+    data_source="gshhs",
+    ofn="coast.bna",
+    resolution="h",
+    cross_dateline=False,
+    max_filesize=1e6,
+):
     """
     This is for compatibility with current implementation in API which was expecting a file delivered from a URL
     Also need to think about how to test for max filesize differently since now its being written directly to server
