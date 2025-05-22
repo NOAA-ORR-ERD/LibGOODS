@@ -2,6 +2,8 @@ from .base_models import FVCOM
 from libgoods import coops_ofs
 from .metadata import Metadata
 import datetime
+from . import YAML_DIR
+
 
 class COOPS_FVCOM(FVCOM):
 
@@ -11,12 +13,12 @@ class COOPS_FVCOM(FVCOM):
 
         if access == 'zarr':
             self.access = 'zarr'
-            self.location = coops_ofs.get_zarr_url(self)
-            
+            self.location = coops_ofs.get_zarr_url(self.identifier)
+
         elif access == 'opendap':
             self.access = 'opendap'
-            self.location = coops_ofs.get_ioos_tds_agg_url(self)
-            
+            self.location = coops_ofs.get_ioos_tds_agg_url(self.identifier)
+
         elif access == 'local':
             self.access = 'local'
             local_dir = '/Volumes/Fury 2/s3'
@@ -25,7 +27,7 @@ class COOPS_FVCOM(FVCOM):
 
 class NGOFS2(COOPS_FVCOM):
 
-    yaml_filename = 'ngofs2.yaml'
+    metadata = Metadata.from_yaml(YAML_DIR / 'ngofs2.yaml')
 
     # metadata=Metadata(
     #     identifier="NGOFS2",
@@ -61,7 +63,6 @@ class SSCOFS(COOPS_FVCOM):
         identifier = 'SSCOFS',
         name = 'Salish Sea and Columbia River',
         example_bbox = (-126.2,47.59,-124.1,49.02),
-        local_file_type = 'fields', 
     )
 
     standard_names = FVCOM.standard_names.copy()
