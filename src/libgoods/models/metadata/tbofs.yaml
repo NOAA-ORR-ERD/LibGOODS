@@ -1,3 +1,20 @@
+identifier: TBOFS
+name: Tampa Bay
+long_name: NOAA/NOS Tampa Bay Operational Forecast System
+html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/tbofs/tbofs.html" target="_blank">
+            Tampa Bay Operational Forecast System (TBOFS)</a> was developed by
+            the <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
+            NOAA/National Ocean Service/Office of Coast Survey</a> in a joint project
+            with the <a href="http://tidesandcurrents.noaa.gov/" target="_blank">
+            NOAA/NOS/Center for Operational Oceanographic Products and Services
+            (CO-OPS)</a> and the <a href="http://mag.ncep.noaa.gov" target="_blank">
+            NOAA/National Weather Service/National Centers for
+            Environmental Prediction (NCEP) Central Operations (NCO)</a> using
+            the Regional Ocean Modeling System (ROMS)</a>.
+            For detailed model information, visit the NOAA CO-OPS
+            <a href="http://tidesandcurrents.noaa.gov/ofs/tbofs/tbofs_info.html" target="_blank">
+            model information page.</a>
+regional: true
 bounding_box:
 - -83.17208575033524
 - 27.076960143499157
