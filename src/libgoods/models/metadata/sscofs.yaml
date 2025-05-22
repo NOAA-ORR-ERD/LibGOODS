@@ -5,6 +5,9 @@ html_desc:
 regional:
 
 bounding_box:
-
-
+example_bbox:
+  - -126.2
+  - 47.59
+  - 124.1
+  - 49.02
 bounding_poly:
