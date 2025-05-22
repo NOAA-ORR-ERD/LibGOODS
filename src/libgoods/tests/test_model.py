@@ -1,6 +1,7 @@
 """
 tests of the data models base class (file_processing/base)
 """
+
 import datetime
 
 import numpy as np
@@ -11,12 +12,11 @@ from libgoods.file_processing import base
 
 model = base.nc()
 
-model.time_units = 'hours since 2023-06-01 00:00'
+model.time_units = "hours since 2023-06-01 00:00"
 model.time = np.arange(0, 72)
 
 
 def test_get_timeslice_indices_valid():
-
     start = datetime.datetime(2023, 6, 1, 0, 0)
     end = datetime.datetime(2023, 6, 3, 23, 0)
     t_ind = model.get_timeslice_indices(start, end)
@@ -26,23 +26,20 @@ def test_get_timeslice_indices_valid():
 
 
 def test_get_timeslice_indices_before_range():
-
     start = datetime.datetime(2021, 6, 1, 0, 0)
     end = datetime.datetime(2021, 6, 3, 23, 0)
     with pytest.raises(ValueError):
-        t_ind = model.get_timeslice_indices(start, end) # noqa: F841
+        t_ind = model.get_timeslice_indices(start, end)  # noqa: F841
 
 
 def test_get_timeslice_indices_after_range():
-
     start = datetime.datetime(2027, 6, 1, 0, 0)
     end = datetime.datetime(2027, 6, 3, 23, 0)
     with pytest.raises(ValueError):
-        t_ind = model.get_timeslice_indices(start, end) # noqa: F841
+        t_ind = model.get_timeslice_indices(start, end)  # noqa: F841
 
 
 def test_get_timeslice_indices_overlap():
-
     start = datetime.datetime(2023, 5, 31, 0, 0)
     end = datetime.datetime(2027, 6, 5, 23, 0)
     t_ind = model.get_timeslice_indices(start, end)

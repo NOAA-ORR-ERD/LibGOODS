@@ -1,5 +1,6 @@
 from libgoods.models.coops_fvcom import NGOFS2
 
+
 def test_NGOFS2_init():
     """
     Can you initialize it?

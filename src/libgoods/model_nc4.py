@@ -45,23 +45,21 @@ def get_model_subset(
     if grid == "unstructured":
         pass  # not implemented yet
     elif grid == "curvilinear":
-        if 'longitude' in var_dict:
+        if "longitude" in var_dict:
             model = file_processing.curv()
         else:
             model = file_processing.roms()
-    elif grid == 'rectangular':
+    elif grid == "rectangular":
         model = file_processing.rect()
     else:
-        raise KeyError(
-            "Grid must be specified as unstructured, curvilinear, or rectangular"
-        )
+        raise KeyError("Grid must be specified as unstructured, curvilinear, or rectangular")
 
     model.open_nc(url)
     # get dimensions to determine subset
     if surface_only:
         model.get_dimensions(var_map=var_dict)
     else:
-        model.get_dimensions(var_map=var_dict,get_z=True)
+        model.get_dimensions(var_map=var_dict, get_z=True)
     if model.lon.max() > 180:  # should model catalogs tell us the coordinates?
         bounds[0] = np.mod(bounds[0] + 360, 360)
         bounds[2] = np.mod(bounds[2] + 360, 360)
@@ -84,11 +82,7 @@ def get_model_subset(
 
 
 def write_model_output(model, output_pth, dl=False):
-
-    model.update(model.urlpath
-                 )  # this was removed for api (nc4 Dataset can't be pickled)
-    model.write_nc(var_map=model.var_map,
-                   ofn=output_pth,
-                   t_index=model.tindex,
-                   is3d=model.is3d,
-                   dl=dl)
+    model.update(model.urlpath)  # this was removed for api (nc4 Dataset can't be pickled)
+    model.write_nc(
+        var_map=model.var_map, ofn=output_pth, t_index=model.tindex, is3d=model.is3d, dl=dl
+    )

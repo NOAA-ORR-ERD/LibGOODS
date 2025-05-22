@@ -11,24 +11,25 @@ class nc:
     """
     Base model class
     """
+
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names
     data_vars = [
-        'air_temperature',
-        'angle_of_rotation_from_east_to_x',
-        'dew_point_temperature',
-        'eastward_sea_water_velocity',
-        'eastward_wind',
-        'northward_sea_water_velocity',
-        'northward_wind',
-        'sea_floor_depth',
-        'sea_ice_area_fraction',
-        'sea_ice_thickness',
-        'sea_surface_elevation',
-        'sea_water_temperature',
-        'sea_water_practical_salinity',
-        'upward_sea_water_velocity',
-        'wind_gust'
+        "air_temperature",
+        "angle_of_rotation_from_east_to_x",
+        "dew_point_temperature",
+        "eastward_sea_water_velocity",
+        "eastward_wind",
+        "northward_sea_water_velocity",
+        "northward_wind",
+        "sea_floor_depth",
+        "sea_ice_area_fraction",
+        "sea_ice_thickness",
+        "sea_surface_elevation",
+        "sea_water_temperature",
+        "sea_water_practical_salinity",
+        "upward_sea_water_velocity",
+        "wind_gust",
     ]
 
     def open_nc(self, FileName=None, GridFileName=None, tvar=None):
@@ -57,7 +58,7 @@ class nc:
             self.start_date = num2date(t[0], t.units).strftime()
             self.end_date = num2date(t[-1], t.units).strftime()
 
-# def get_data(self, bounds, cross_dateline, max_filesize, target_dir=None):
+    # def get_data(self, bounds, cross_dateline, max_filesize, target_dir=None):
 
     # """
     # NOTE: This "does it all" -- i.e. it assumes you are already happy with the subset selection
@@ -134,8 +135,7 @@ class nc:
         if len(t1) == 0:
             t1 = 0  # all time values are > than start time
         elif len(t1) == len(dts):
-            raise ValueError(
-                'Specified start time is later than model end time')
+            raise ValueError("Specified start time is later than model end time")
         else:
             t1 = t1[-1]
 
@@ -143,8 +143,7 @@ class nc:
         if len(t2) == 0:
             t2 = len(dts) - 1  # all time values < end time
         elif len(t2) == len(dts):
-            raise ValueError(
-                'Specified end time is before the model start time')
+            raise ValueError("Specified end time is before the model start time")
         else:
             t2 = t2[0] + 1
 

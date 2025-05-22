@@ -20,7 +20,7 @@ import numpy as np
 #     from .filescanner import scan
 #     FILESCANNER = True
 # except:
-FILESCANNER = False #because py3
+FILESCANNER = False  # because py3
 
 ## fixme: It would be MUCH cleaner to internally store VerDat data with
 ## Python style slicing and indexing, including storing a 0 at the beginning
@@ -30,9 +30,10 @@ FILESCANNER = False #because py3
 
 
 class FileToolsException(Exception):
-    '''
-        The base class for all exceptions in the FileTools module
-    '''
+    """
+    The base class for all exceptions in the FileTools module
+    """
+
     pass
 
 
@@ -41,18 +42,19 @@ class BnaError(FileToolsException):
 
 
 class BNAData:
-    '''
-        Class to store the full set of data in a BNA file
-    '''
+    """
+    Class to store the full set of data in a BNA file
+    """
+
     ##fixme: This needs methods to add polygons one by one
     def __init__(self, PointsData=None, Names=None, Types=None, Filename=None):
-        '''
-            :param PointsData: A sequence of numpy Nx2 arrays
-                               of the points (x,y)
-                               i.e. long,lat
-            :param Names: A sequence of stings for the names of the polygons
-            :param Types: A sequence of strings for the types of the polygons.
-        '''
+        """
+        :param PointsData: A sequence of numpy Nx2 arrays
+                           of the points (x,y)
+                           i.e. long,lat
+        :param Names: A sequence of stings for the names of the polygons
+        :param Types: A sequence of strings for the types of the polygons.
+        """
         self.PointsData = PointsData
         self.Filename = Filename
         self.Names = Names
@@ -74,8 +76,7 @@ class BNAData:
             l3 = 0
 
         if l1 != l2 != l3:
-            raise TypeError('PointsData, Types, and Names must be '
-                            'the same length')
+            raise TypeError("PointsData, Types, and Names must be the same length")
 
     def __getitem__(self, index):
         return (self.PointsData[index], self.Names[index])
@@ -84,72 +85,65 @@ class BNAData:
         return len(self.PointsData)
 
     def __str__(self):
-        return 'BNAData instance: {0} polygons'.format(len(self))
+        return "BNAData instance: {0} polygons".format(len(self))
 
     def Save(self, filename=None):
         if not filename:
             filename = self.filename
 
-        fd = open(filename, 'w')
+        fd = open(filename, "w")
         for i, points in enumerate(self.PointsData):
-            fd.write('"%s","%s", %i\n' % (self.Names[i],
-                                            self.Types[i],
-                                            len(points)))
+            fd.write('"%s","%s", %i\n' % (self.Names[i], self.Types[i], len(points)))
             for p in points:
                 fd.write("%.12f,%.12f\n" % (tuple(p)))
 
 
 def ReadDOGSFile(filename):
-
     # Read in the DOGS data:
-    fd = open(filename, 'r')
+    fd = open(filename, "r")
     Header = {}
 
     while 1:
         line = fd.readline().strip()
-        if not line[0] == '[':  # done with header
+        if not line[0] == "[":  # done with header
             break
-        line = line.split(']')
+        line = line.split("]")
         # build dictionary of header data
-        Header[line[0][1:]] = ''.join(line[1]).strip()
+        Header[line[0][1:]] = "".join(line[1]).strip()
 
         # initialize arrays
 
-    Npoints = int(Header['NOBJ'])
+    Npoints = int(Header["NOBJ"])
     Coords = np.zeros((Npoints, 2), dtype=np.float64)
     Depths = np.zeros((Npoints,), dtype=np.float64)
 
-    line = line.split(',')
+    line = line.split(",")
     for n in range(Npoints):
         lon, lat, depth = (float(val) for val in line[1:4])
         Coords[n, :] = (lon, lat)
         Depths[n] = depth
-        line = fd.readline().strip().split(',')
+        line = fd.readline().strip().split(",")
 
     return (Coords, Depths, Header)
 
 
-def WriteDOGSFiles(filename, Coords, Depths, Units='meters'):
+def WriteDOGSFiles(filename, Coords, Depths, Units="meters"):
     N = len(Coords)
 
     # compute bounding box:
     low_long, low_lat = min(Coords)
     high_long, high_lat = max(Coords)
 
-    fd = open(filename, 'w')
+    fd = open(filename, "w")
 
     # I suppose this might change, but then this function will have to also.
     fd.write("[VERS]  2.00\n")
     fd.write("[NOBJ]  %i\n" % N)
     fd.write("[UNIT]  %s\n" % Units)
-    fd.write("[BNDS]  %f, %f, %f, %f\n" % (high_lat, low_long,
-                                           low_lat, high_long))
+    fd.write("[BNDS]  %f, %f, %f, %f\n" % (high_lat, low_long, low_lat, high_long))
 
     for i in range(N):
-        fd.write("%i, %f, %f, %f, 0.0, 0.0, 0\n" % (i + 1,
-                                                    Coords[i, 0],
-                                                    Coords[i, 1],
-                                                    Depths[i]))
+        fd.write("%i, %f, %f, %f, 0.0, 0.0, 0\n" % (i + 1, Coords[i, 0], Coords[i, 1], Depths[i]))
 
 
 def ReadVerdatFile(filename):
@@ -161,12 +155,12 @@ def ReadVerdatFile(filename):
 
     ## fixme -- this doesn't keep the units if they are there in the header
     """
-    infile = open(filename, 'r')
+    infile = open(filename, "r")
     PointData = []
 
     while 1:
-        line = infile.readline().strip().split(',')
-        if line[0][:4] == 'DOGS':
+        line = infile.readline().strip().split(",")
+        if line[0][:4] == "DOGS":
             continue
 
         data = tuple(map(float, line))
@@ -191,9 +185,9 @@ def WriteVerdatFile(filename, PointData, Boundaries):
 
     The data passed in must be Verdat legal, and is zero-index based.
     """
-    fd = open(filename, 'w')
+    fd = open(filename, "w")
 
-    fd.write('DOGS\n')
+    fd.write("DOGS\n")
     for i in range(len(PointData)):
         fd.write("%i, " % (i + 1))  # Verdat indexes from 1
         fd.write("%f, %f, %f\n" % tuple(PointData[i]))
@@ -248,19 +242,17 @@ def GetNextBNAPolygon(f, dtype=np.float64):
         sname = fields[3]
         num_points = int(fields[4].strip()[1:])
     except (ValueError, IndexError):
-        raise ValueError('File has incorrect header for BNA format: {0}'
-                         .format(header))
+        raise ValueError("File has incorrect header for BNA format: {0}".format(header))
 
     if num_points < 0 or num_points == 2:
-        poly_type = 'polyline'
+        poly_type = "polyline"
         num_points = abs(num_points)
     elif num_points == 1:
-        poly_type = 'point'
+        poly_type = "point"
     elif num_points > 2:
-        poly_type = 'polygon'
+        poly_type = "polygon"
     else:
-        raise BnaError("polygon {0} does not have a valid number of points"
-                       .format(name))
+        raise BnaError("polygon {0} does not have a valid number of points".format(name))
 
     if FILESCANNER:
         points = scan(f, num_points * 2)
@@ -273,14 +265,13 @@ def GetNextBNAPolygon(f, dtype=np.float64):
             if not line:
                 raise ValueError(f"empty coords line in {header.strip()}. check number of vertices")
             try:
-                points[i,:] = [float(j) for j in line.split(',')]
+                points[i, :] = [float(j) for j in line.split(",")]
             except ValueError as err:
                 raise ValueError(f"incorrect coords in line: {line} in poly: {header}") from err
 
-    if poly_type == 'polygon':  # first and last points are the same in BNA,
-                                # but we don't want the duplicate point.
-        if (points[0, 0] == points[-1, 0] and
-            points[0, 1] == points[-1, 1]):
+    if poly_type == "polygon":  # first and last points are the same in BNA,
+        # but we don't want the duplicate point.
+        if points[0, 0] == points[-1, 0] and points[0, 1] == points[-1, 1]:
             points = points[0:-1]
 
     return (points, poly_type, name, sname)
@@ -296,23 +287,23 @@ def WriteBNA(filename, polyset):
 
     (such as returned by ReadBNA)
     """
-    outfile = open(filename, 'w')
+    outfile = open(filename, "w")
 
-    if hasattr(polyset, "metadata"): # it's a PolyGgonSet object
+    if hasattr(polyset, "metadata"):  # it's a PolyGgonSet object
         for poly in polyset:
             m = poly.metadata
             outfile.write('"%s","%s", %i\n' % (m[1], m[2], len(poly)))
 
             for point in poly:
-                #point = np.asarray(point)
-                outfile.write('%.8f, %.8f \n' % (point[0], point[1]))
-    else: # assume it's a list, as returned by ReadBNA
+                # point = np.asarray(point)
+                outfile.write("%.8f, %.8f \n" % (point[0], point[1]))
+    else:  # assume it's a list, as returned by ReadBNA
         for poly in polyset:
             verts = poly[0]
             outfile.write(f'"{poly[2]}","{poly[3]}", {len(verts)}\n')
             for point in verts:
-                #point = np.asarray(point)
-                outfile.write(f'{point[0]:.8f}, {point[1]:.8f} \n')
+                # point = np.asarray(point)
+                outfile.write(f"{point[0]:.8f}, {point[1]:.8f} \n")
 
 
 def ReadBNA(filename, polytype="list", dtype=np.float64):
@@ -335,9 +326,9 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
     The dtype parameter specifies what numpy data type you want the points
     data in -- it defaults to float (C double)
     """
-    fd = open(filename, 'r')
+    fd = open(filename, "r")
 
-    if polytype == 'list':
+    if polytype == "list":
         Output = []
 
         while True:
@@ -345,8 +336,9 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
             if poly is None:
                 break
             Output.append(poly)
-    elif polytype == 'PolygonSet':
+    elif polytype == "PolygonSet":
         from ..geometry import polygons
+
         Output = polygons.PolygonSet(dtype=dtype)
 
         while True:
@@ -356,8 +348,9 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
             # fixme: should this be a dict, instead?
             Output.append(poly[0], poly[1:])
 
-    elif polytype == 'BNADataClass':
+    elif polytype == "BNADataClass":
         from ..geometry import polygons
+
         polys = polygons.PolygonSet()
         Types = []
         Names = []
@@ -376,13 +369,12 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
             polygon = np.zeros((num_points, 2), np.float64)
 
             for i in range(num_points):
-                polygon[i, :] = (float(val) for val in fd.readline().split(','))
+                polygon[i, :] = (float(val) for val in fd.readline().split(","))
             polys.append(polygon)
 
         Output = BNAData(polys, Names, Types, os.path.abspath(filename))
     else:
-        raise ValueError('polytype must be either "BNADataClass", "list" '
-                         'or "PolygonSet"')
+        raise ValueError('polytype must be either "BNADataClass", "list" or "PolygonSet"')
 
     fd.close()
     return Output
