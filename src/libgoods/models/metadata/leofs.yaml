@@ -1,3 +1,22 @@
+identifier: LEOFS
+name: Lake Erie
+long_name: NOAA/NOS Lake Erie Operational Forecast System
+html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/leofs/leofs.html" target="_blank">
+            Lake Erie Operational Forecast System (LMHOFS)</a> was jointly developed by the <a href="http://tidesandcurrents.noaa.gov/" target="_blank">
+            NOAA/NOS Center for Operational Oceanographic Products and Services (CO-OPS)</a>
+            and <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
+            Office of Coast Survey</a>, <a href="http://www.glerl.noaa.gov/" target="_blank">
+            the Great Lakes Environmental Research Laboratory (GLERL)</a>,
+            the <a href="http://mag.ncep.noaa.gov" target="_blank">
+            NOAA/National Weather Service's (NWS) National Centers
+            for Environmental Prediction (NCEP) Central Operations (NCO)</a>,
+            and the<a href="http://fvcom.smast.umassd.edu/" target="_blank">
+            University of Massachusetts, Dartmouth </a> using the Finite Volume Coastal Ocean
+            Model (FVCOM).
+            For detailed model information, visit the NOAA CO-OPS
+            <a href="http://tidesandcurrents.noaa.gov/ofs/leofs/leofs_info.html" target="_blank">
+            model information page.</a><br>
+regional: true
 bbox:
 - 276.5288391113281
 - 41.3890380859375
