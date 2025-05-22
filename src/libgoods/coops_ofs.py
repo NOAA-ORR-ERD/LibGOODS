@@ -110,8 +110,8 @@ def get_tds_flist(model_id, start, end, file_type='2ds', old_name_format=False, 
     nc_list = []
     fc_list = []
 
-    # add some buffer for the file search (6 hrs the typical update cycle)
-    buffer = datetime.timedelta(hours=6)
+    # add a generous buffer for the file search (refined later)
+    buffer = datetime.timedelta(hours=24)
     start_b = (start - buffer)
     end_b = (end + buffer)
     if tds == 'coops':
@@ -187,15 +187,14 @@ def get_aws_flist(model_id, start, end, file_type='2ds', old_name_format=False):
     fc_list = []
 
     aws_root = 's3://noaa-nos-ofs-pds/'
-
-    # add some buffer for the file search (6 hrs the typical update cycle)
-    # NOTE: this is going out too far in some (many?) cases
+    #add a generous buffer for the file search (refined later)
+    # NOTE: this is going out too far 
     #        -- to the next day, which then crashes...
     #       that's getting caught later by a try: except, but
     #       maybe we should be smarter.
     # This could, instead, get a listing, to see what's actually available
     model_info = OFS_INFO[model_id]
-    buffer = datetime.timedelta(hours=6)
+    buffer = datetime.timedelta(hours=24)
     start_b = (start - buffer)
     end_b = (end + buffer)
     ts = pd.date_range(start_b, end_b).strftime('%Y/%m/%d')
@@ -442,7 +441,7 @@ def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
         end = max(dts) + datetime.timedelta(days=10) #longest model forecast is 5 days
 
     for f, dt in zip(nc_list, dts):
-        if (dt >= start - buffer and dt <= end + buffer):
+        if (dt >= (start - buffer) and dt <= end + (buffer)):
             pruned_nc_list.append(f)
             pruned_dts.append(dt)
 

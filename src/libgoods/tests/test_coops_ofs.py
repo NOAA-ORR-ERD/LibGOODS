@@ -44,10 +44,6 @@ def test_metadata():
 #     pass
 #     # how do i use the flist generated in test_tds_past_filelist?
 
-
-# this is indeed getting forecast files -- but why?
-# we need to fix that, if it's used.
-@pytest.mark.xfail(reason="really is broken -- fix this!")
 def test_tds_past_filelist():
     """
     check if getting a file list entirely from the past works
@@ -67,13 +63,12 @@ def test_tds_past_filelist():
 
     assert contains_fcs is False, "File list contains forecasts"
 
-@pytest.mark.xfail
+
 def test_aws_future_filelist():
     """
     If you ask for the future, you should only get forecast files,
     and no nowcast files
 
-    NOTE: this is now broken -- need to be implemented
     """
     dt = datetime.timedelta(days=1)
     start = utc_now() + dt
