@@ -11,11 +11,11 @@ import pytest
 
 @pytest.mark.parametrize("model_name", [
     'CBOFS',
-    # 'CIOFS',
-    # 'DBOFS',
-    # 'GOMOFS',
-    # 'TBOFS',
-    # 'WCOFS',
+    'CIOFS',
+    'DBOFS',
+    'GOMOFS',
+    'TBOFS',
+    'WCOFS',
 ])
 def test_model_init(model_name):
     """
