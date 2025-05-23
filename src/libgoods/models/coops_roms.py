@@ -41,7 +41,6 @@ class CIOFS(COOPS_ROMS):
 
 class TBOFS(COOPS_ROMS):
     metadata = Metadata.from_yaml(YAML_DIR / "tbofs.yaml")
-
     local_file_type = "fields"
     standard_names = ROMS.standard_names.copy()
     standard_names["surface_eastward_sea_water_velocity"] = "u"
@@ -59,9 +58,8 @@ class DBOFS(COOPS_ROMS):
 
 class WCOFS(COOPS_ROMS):
     metadata = Metadata.from_yaml(YAML_DIR / "wcofs.yaml")
-
     update_cycle = 24
-    name = "West Coast"
+    # name = "West Coast"
     local_file_type = "2ds"
 
 

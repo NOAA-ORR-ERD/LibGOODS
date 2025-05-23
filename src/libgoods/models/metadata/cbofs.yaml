@@ -1,3 +1,20 @@
+identifier: CBOFS
+name: Chesapeake Bay
+long_name: NOAA/NOS Chesapeake Bay Operational Forecast System
+html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/cbofs/cbofs.html" target="_blank">
+            Chesapeake Bay Operational Forecast System (CBOFS)</a> was developed by
+            the <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
+            NOAA/National Ocean Service/Office of Coast Survey</a> in a joint project
+            with the <a href="http://tidesandcurrents.noaa.gov/" target="_blank">
+            NOAA/NOS/Center for Operational Oceanographic Products and Services
+            (CO-OPS)</a> and the <a href="http://mag.ncep.noaa.gov" target="_blank">
+            NOAA/National Weather Service/National Centers for
+            Environmental Prediction (NCEP) Central Operations (NCO)</a> using
+            the Regional Ocean Modeling System (ROMS)</a>.
+            For detailed model information, visit the NOAA CO-OPS
+            <a href="http://tidesandcurrents.noaa.gov/ofs/cbofs/cbofs_info.html" target="_blank">
+            model information page.</a>
+regional: true
 bounding_box:
 - -77.318225
 - 36.1903575
