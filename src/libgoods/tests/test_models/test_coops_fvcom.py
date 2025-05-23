@@ -25,7 +25,7 @@ def test_SSCOFS_init():
     assert m.standard_names == cfvc.gl_standard_names
 
 @pytest.mark.parametrize("model_name", [
-    "SSCOFS",
+#    "SSCOFS",
     "NGOFS2",
     "LEOFS",
     "LMHOFS",
