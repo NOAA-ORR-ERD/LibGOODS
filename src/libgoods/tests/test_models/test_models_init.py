@@ -18,5 +18,8 @@ def test_get_models():
     """
     mods = models.get_models()
 
+    print(mods)
     # at least it's not empty
     assert mods
+    assert isinstance(mods[0][0], str)
+    assert isinstance(mods[0][1], str)

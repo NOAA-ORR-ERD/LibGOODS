@@ -12,9 +12,9 @@ from libgoods.models.metadata import Metadata
 def test_BaseModel_init():
     bm = base_models.BaseModel()
 
-    assert bm.identifier == "AN_ID"
+    assert bm.identifier == "BASE_MODEL"
 
-    assert bm.metadata.name == 'An example model'
+    assert bm.metadata.name == "An example model"
 
 
 def test_FVCOM_init():

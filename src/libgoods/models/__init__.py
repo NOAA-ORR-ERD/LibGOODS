@@ -2,6 +2,10 @@ from pathlib import Path
 
 YAML_DIR = Path(__file__).parent / "metadata"
 
+# do we need them in the whole namespace?
+
+from .base_models import BaseModel
+
 from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
 from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 # from .doppio import DOPPIO
@@ -13,56 +17,75 @@ from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 # from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 # from .hf_radar import HFRadar
 
+# fixme: should this be an instance or teh model class??
+#        it's currently the class, and get_models instantiates them,
+#        but I think maybe it should be the instance already ??
 
-ALL_MODELS = {
-    "NGOFS2": NGOFS2,
-    "LMHOFS": LMHOFS,
-    "LEOFS": LEOFS,
-    "LOOFS": LOOFS,
-    "LSOFS": LSOFS,
-    "SSCOFS": SSCOFS,
-    "DBOFS": DBOFS,
-    "WCOFS": WCOFS,
-    "CBOFS": CBOFS,
-    "TBOFS": TBOFS,
-    "CIOFS": CIOFS,
-    "GOMOFS": GOMOFS,
-}
-#               "DOPPIO": DOPPIO,
-#               "HIIG": HIIG,
-#               "HIOG": HIOG,
-#               "HIOMSG": HIOMSG,
-#               "HIOMSAG": HIOMSAG,
-#               "HIOEKG": HIOEKG,
-#               "MARI": MARI,
-#               "MARIG": MARIG,
-#               "SAMOA": SAMOA,
-#               "TAMU": TAMU,
-#               "SabineLake": SabineLake,
-#               "MatagordaBay": MatagordaBay,
-#               "SanAntonioBay": SanAntonioBay,
-#               "CorpusChristiBay": CorpusChristiBay,
-#               "GalvestonBay": GalvestonBay,
-#               'NCOM US East Coast': USEast,
-#               'NCOM Alaska': Alaska,
-#               'NCOM American Seas': AmSeas,
-#               'WFCOM': WFCOM,
-#               'TBCOM': TBCOM,
-#               'NECOFS': NECOFS,
-#               'MassCoastal': MassCoastal,
-#               'BostonHarbor': BostonHarbor,
-#               'Hampton': Hampton,
-#               'Scituate': Scituate,
-#               'HFRadar': HFRadar
-#               }
+# getting clever to build the list of al lmodels
+# it's imported, it should be auto-added.
+ALL_MODELS = {mod().identifier: mod
+              for mod in vars().values()
+              if type(mod) is type
+                  and issubclass(mod, BaseModel)
+                  and (mod is not BaseModel)
+              }
+
+# ALL_MODELS = {
+#     "NGOFS2": NGOFS2,
+#     "LMHOFS": LMHOFS,
+#     "LEOFS": LEOFS,
+#     "LOOFS": LOOFS,
+#     "LSOFS": LSOFS,
+#     "SSCOFS": SSCOFS,
+#     "DBOFS": DBOFS,
+#     "WCOFS": WCOFS,
+#     "CBOFS": CBOFS,
+#     "TBOFS": TBOFS,
+#     "CIOFS": CIOFS,
+#     "GOMOFS": GOMOFS,
+# }
+# #               "DOPPIO": DOPPIO,
+# #               "HIIG": HIIG,
+# #               "HIOG": HIOG,
+# #               "HIOMSG": HIOMSG,
+# #               "HIOMSAG": HIOMSAG,
+# #               "HIOEKG": HIOEKG,
+# #               "MARI": MARI,
+# #               "MARIG": MARIG,
+# #               "SAMOA": SAMOA,
+# #               "TAMU": TAMU,
+# #               "SabineLake": SabineLake,
+# #               "MatagordaBay": MatagordaBay,
+# #               "SanAntonioBay": SanAntonioBay,
+# #               "CorpusChristiBay": CorpusChristiBay,
+# #               "GalvestonBay": GalvestonBay,
+# #               'NCOM US East Coast': USEast,
+# #               'NCOM Alaska': Alaska,
+# #               'NCOM American Seas': AmSeas,
+# #               'WFCOM': WFCOM,
+# #               'TBCOM': TBCOM,
+# #               'NECOFS': NECOFS,
+# #               'MassCoastal': MassCoastal,
+# #               'BostonHarbor': BostonHarbor,
+# #               'Hampton': Hampton,
+# #               'Scituate': Scituate,
+# #               'HFRadar': HFRadar
+# #               }
 
 
-def get_models():
+def get_models(which='all'):
     """
-    Fixme: is this useful, it's getting you the name, ID pair -- why??
-    To Do: add filtering, selection, etc?
+    Get the model objects for all the models
 
-    get the model objects for all models
+    :param which: Which set of models do you want.
+                  Currently the only option is 'all'
+                  but in the future -- who knows?
+
+                  default: 'all'
+
+    :returns: a list of (model name, model_id) pairs
+
+    fixme: why??
     """
     catalog = []
 
