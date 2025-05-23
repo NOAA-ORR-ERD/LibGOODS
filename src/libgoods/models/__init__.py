@@ -2,9 +2,8 @@ from pathlib import Path
 
 YAML_DIR = Path(__file__).parent / "metadata"
 
-from .coops_fvcom import NGOFS2
-# from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
-# from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
+from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
+from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 # from .doppio import DOPPIO
 # from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, SAMOA
 # from .tamu import TAMU
@@ -17,18 +16,18 @@ from .coops_fvcom import NGOFS2
 
 ALL_MODELS = {
     "NGOFS2": NGOFS2,
+    "LMHOFS": LMHOFS,
+    "LEOFS": LEOFS,
+    "LOOFS": LOOFS,
+    "LSOFS": LSOFS,
+    "SSCOFS": SSCOFS,
+    "DBOFS": DBOFS,
+    "WCOFS": WCOFS,
+    "CBOFS": CBOFS,
+    "TBOFS": TBOFS,
+    "CIOFS": CIOFS,
+    "GOMOFS": GOMOFS,
 }
-#               "LMHOFS": LMHOFS,
-#               "LEOFS": LEOFS,
-#               "LOOFS": LOOFS,
-#               "LSOFS": LSOFS,
-#               "SSCOFS": SSCOFS,
-#               "DBOFS": DBOFS,
-#               "WCOFS": WCOFS,
-#               "CBOFS": CBOFS,
-#               "TBOFS": TBOFS,
-#               "CIOFS": CIOFS,
-#               "GOMOFS": GOMOFS,
 #               "DOPPIO": DOPPIO,
 #               "HIIG": HIIG,
 #               "HIOG": HIOG,
@@ -60,6 +59,7 @@ ALL_MODELS = {
 
 def get_models():
     """
+    Fixme: is this useful, it's getting you the name, ID pair -- why??
     To Do: add filtering, selection, etc?
 
     get the model objects for all models
@@ -68,7 +68,7 @@ def get_models():
 
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        catalog.append([m.name, key])
+        catalog.append([m.metadata.name, key])
 
     return catalog
 
