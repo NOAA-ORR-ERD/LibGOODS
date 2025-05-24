@@ -57,6 +57,7 @@ where = ["src"]
 libgoods = ["yaml_files/*.yaml",
             "yaml_files/boundaries/*.yaml",
             "shoreline_data/**/*",
+            "src/libgoods/models/metadata/*.yaml"
             ]
 
 [tool.ruff]
