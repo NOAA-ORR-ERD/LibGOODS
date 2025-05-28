@@ -9,7 +9,7 @@ end = datetime.datetime.today() + datetime.timedelta(days=3)
 
 ds = roms_model.roms()
 ds.open_nc(url)
- 
+
 var_map = {'time':'time'}
 ds.get_dimensions(var_map)
 

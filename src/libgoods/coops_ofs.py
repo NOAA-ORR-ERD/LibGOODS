@@ -209,7 +209,7 @@ def get_aws_flist(model_id, start, end, file_type="2ds", old_name_format=False):
 
     aws_root = 's3://noaa-nos-ofs-pds/'
     #add a generous buffer for the file search (refined later)
-    # NOTE: this is going out too far 
+    # NOTE: this is going out too far
     #        -- to the next day, which then crashes...
     #       that's getting caught later by a try: except, but
     #       maybe we should be smarter.

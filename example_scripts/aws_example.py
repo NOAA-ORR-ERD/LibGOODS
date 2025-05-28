@@ -20,12 +20,12 @@ bbox = (-123,44.3008,-122.93,47.3835) #mystery
 m = coops_ofs.coops(model_id)
 fnames = m.get_aws_flist(start,end)
 print(fnames)
-    
+
 #Download files from AWS
 print('Downloading files from AWS')
 filepaths = m.download_from_aws(fnames,out_dir=out_dir)
 
-#Subset and write new smaller files 
+#Subset and write new smaller files
 
 
 # print('Subsetting and writing nc files')
@@ -35,7 +35,7 @@ newfiles = model_em.get_model_subset(filepaths,bounds=bbox,surface_index=0,out_d
 #sometimes you have to do it in batches because the file list gets to long for the command line. I need to write a utility but I haven't yet.
 """
 cd out_dir
-fnames = [f.name for f in newfiles] 
+fnames = [f.name for f in newfiles]
 cmd = 'ncra -Y ncrcat ' + ' '.join(fnames) + ' ' + model_id  + '2d.nc'
 os.system(cmd)
 """

@@ -16,7 +16,7 @@ metadata:
             Model (FVCOM).
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/sfbofs/sfbofs_info.html" target="_blank">
-            model information page.</a><br>             
+            model information page.</a><br>
   grid_dim_(node,nele,siglay): [54120,102264,20]
   grid_res_min_(km): 0.1
   grid_res_max_(km): 4

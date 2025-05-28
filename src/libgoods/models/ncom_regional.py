@@ -35,9 +35,9 @@ class AmSeas(NCOM):
     name = "American Seas NCOM 3 km"
     location = "https://www.ncei.noaa.gov/thredds-coastal/dodsC/ncom_amseas_agg/AmSeas_Dec_17_2020_to_Current_best.ncd"
     desc = """
-            The Naval Oceanographic Office operational ocean prediction system for the 
-            Gulf of Mexico and Caribbean is a ~3km resolution model based on the 
-            Navy Coastal Ocean Model. 
+            The Naval Oceanographic Office operational ocean prediction system for the
+            Gulf of Mexico and Caribbean is a ~3km resolution model based on the
+            Navy Coastal Ocean Model.
             """
     example_bbox = (-91.5 + 360, 29.25, -91 + 360, 29.75)
 
@@ -46,8 +46,8 @@ class USEast(NCOM):
     name = "US East NCOM 3 km"
     location = "https://www.ncei.noaa.gov/thredds-coastal/dodsC/ncom_amseas_agg/AmSeas_Dec_17_2020_to_Current_best.ncd"
     desc = """
-            The Naval Oceanographic Office operational ocean prediction system 
-            for waters off the east coast of the U.S. is a ~3km resolution 
+            The Naval Oceanographic Office operational ocean prediction system
+            for waters off the east coast of the U.S. is a ~3km resolution
             model based on the Navy Coastal Ocean Model.
             """
 
@@ -56,8 +56,8 @@ class Alaska(NCOM):
     name = "Gulf of Alaska NCOM 3 km"
     location = "https://www.ncei.noaa.gov/thredds-coastal/dodsC/ncom_alaska_agg/Alaska_Dec_17_2020_to_Current_best.ncd"
     desc = """
-            The Naval Oceanographic Office operational ocean prediction system 
+            The Naval Oceanographic Office operational ocean prediction system
             for waters of the NE Pacific including the Gulf fo Alaska
-            is a ~3km resolution 
+            is a ~3km resolution
             model based on the Navy Coastal Ocean Model.
             """

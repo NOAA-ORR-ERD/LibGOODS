@@ -54,7 +54,7 @@ sources:
         sea_water_practical_salinity: salt
         time: time
         upward_sea_water_velocity: w
-        
+
   ioos-forecast-agg:
     driver: opendap
     description: Aggregated 3D Delaware Bay model in ROMS from 7 days ago with 48 hour forecast.

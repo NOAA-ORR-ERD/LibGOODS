@@ -118,7 +118,6 @@ def validate_subset(model_id, model_source, start, end, bounds):
 
 def get_model_subset(
     model_id,
-    model_source,
     start,
     end,
     bounds,
@@ -130,7 +129,6 @@ def get_model_subset(
     Determine the indices for the desired subset (in space and time)
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
     :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
@@ -147,7 +145,7 @@ def get_model_subset(
     else:
         surface_only = True
 
-    meta = get_model_info(model_id, model_source)
+    meta = get_model_info(model_id)
 
     # build url list if unaggregated
     if "noagg" in model_source:

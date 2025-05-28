@@ -5,7 +5,7 @@ import os
 import datetime
 
 model_id = 'SSCOFS'
-model_type = 'FVCOM'    
+model_type = 'FVCOM'
 driver = 'local'
 ldir = os.path.join('.','output',model_id)
 
@@ -26,17 +26,16 @@ os.chdir(cdir)
 
 bounds = utilities.get_example_bbox(model_id)
 #bounds = (-122.8,47.27,-122.04,47.8)
-   
-if model_type == 'FVCOM': 
-    m = models.fvcom()    
-elif model_type == 'ROMS': 
-    m = models.roms()    
+
+if model_type == 'FVCOM':
+    m = models.fvcom()
+elif model_type == 'ROMS':
+    m = models.roms()
 else:
     raise NotImplementedError
-    
+
 m.open_ds(os.path.join(ldir,cat_file),driver=driver)
 m.select_surface()
 m.filter_variables()
 m.subset_grid(bounds)
 m.write_nc(os.path.join(ldir,model_id + '_subset.nc'))
-    
