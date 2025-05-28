@@ -47,7 +47,7 @@ ALL_MODELS = {"NGOFS2": NGOFS2,
               'BostonHarbor': BostonHarbor,
               'Hampton': Hampton,
               'Scituate': Scituate,
-              'HFRadar': HFRadar
+#              'HFRadar': HFRadar -- different API
               }
 
 
@@ -61,7 +61,7 @@ def get_models():
     
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        catalog.append([m.name,key])
+        catalog.append([m.name, key])
         
     return catalog
 
