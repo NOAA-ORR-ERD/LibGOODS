@@ -1,6 +1,6 @@
 variables:
   PYTHON_VER: '3.10'
-  IMAGE_NAME: 'miniforge-python'
+  IMAGE_NAME: '/erd/environments/ubuntu/ubuntuforge-python'
   GIT_DEPTH: 2
 
 stages:
@@ -19,7 +19,7 @@ before_script:
 
 configure_env:
   stage: .pre
-  image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
+  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
   before_script:
     - echo '' # manual override of before_script because we're on runner 12.3 and inherit options are only 12.9+
   script:
@@ -39,7 +39,7 @@ configure_env:
 lint_libgoods:
   stage: lint
   allow_failure: true
-  image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
+  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
   script:
     - conda install -y flake8
     - python -m flake8 --statistics src/libgoods
@@ -52,12 +52,14 @@ lint_libgoods:
 test_libgoods:
   stage: test
   allow_failure: false
-  image: registry.orr.noaa.gov/erd/centos-conda/$IMAGE_NAME$PYTHON_VER
+  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
   script:
     - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
       --file conda_requirements.txt
+    - conda install git  # need git to install xarray_subset_grid
     # need xarray_subset_grid -- not released yet
-    - pip install xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
+    - pip install
+      xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
 
     - pip install ./
 
@@ -133,6 +135,7 @@ tidy forcast data:
   before_script: []
   script:
     - ./example_scripts/aws-purge-old-forcasts.sh
+    - ./example_scripts/aws-purge-old-nowcasts.sh
   rules:
     - if: $SCHEDULED == "true"
     - if: $TIDY == "true"
