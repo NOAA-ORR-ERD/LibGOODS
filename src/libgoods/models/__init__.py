@@ -21,7 +21,7 @@ from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
 #        it's currently the class, and get_models instantiates them,
 #        but I think maybe it should be the instance already ??
 
-# getting clever to build the list of al lmodels
+# getting clever to build the list of all models
 # it's imported, it should be auto-added.
 ALL_MODELS = {mod().identifier: mod
               for mod in vars().values()
@@ -29,48 +29,6 @@ ALL_MODELS = {mod().identifier: mod
                   and issubclass(mod, BaseModel)
                   and (mod is not BaseModel)
               }
-
-# ALL_MODELS = {
-#     "NGOFS2": NGOFS2,
-#     "LMHOFS": LMHOFS,
-#     "LEOFS": LEOFS,
-#     "LOOFS": LOOFS,
-#     "LSOFS": LSOFS,
-#     "SSCOFS": SSCOFS,
-#     "DBOFS": DBOFS,
-#     "WCOFS": WCOFS,
-#     "CBOFS": CBOFS,
-#     "TBOFS": TBOFS,
-#     "CIOFS": CIOFS,
-#     "GOMOFS": GOMOFS,
-# }
-# #               "DOPPIO": DOPPIO,
-# #               "HIIG": HIIG,
-# #               "HIOG": HIOG,
-# #               "HIOMSG": HIOMSG,
-# #               "HIOMSAG": HIOMSAG,
-# #               "HIOEKG": HIOEKG,
-# #               "MARI": MARI,
-# #               "MARIG": MARIG,
-# #               "SAMOA": SAMOA,
-# #               "TAMU": TAMU,
-# #               "SabineLake": SabineLake,
-# #               "MatagordaBay": MatagordaBay,
-# #               "SanAntonioBay": SanAntonioBay,
-# #               "CorpusChristiBay": CorpusChristiBay,
-# #               "GalvestonBay": GalvestonBay,
-# #               'NCOM US East Coast': USEast,
-# #               'NCOM Alaska': Alaska,
-# #               'NCOM American Seas': AmSeas,
-# #               'WFCOM': WFCOM,
-# #               'TBCOM': TBCOM,
-# #               'NECOFS': NECOFS,
-# #               'MassCoastal': MassCoastal,
-# #               'BostonHarbor': BostonHarbor,
-# #               'Hampton': Hampton,
-# #               'Scituate': Scituate,
-# #               'HFRadar': HFRadar
-# #               }
 
 
 def get_models(which='all'):
