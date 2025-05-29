@@ -38,6 +38,7 @@ from pathlib import Path
 
 import shapely.wkt
 
+from . import YAML_DIR
 
 @dataclasses.dataclass
 class Metadata:
@@ -125,12 +126,12 @@ class Metadata:
             self.bounding_poly = bounding_poly
 
 
-def get_all_metadata(yaml_file_directory):
+def get_all_metadata(yaml_file_directory=None):
     """
     Loop though all the files in the yaml files directory and return a
     dict of the metadata for all models
     """
-
+    yaml_file_directory = YAML_DIR if yaml_file_directory is None else yaml_file_directory
     flist = yaml_file_directory.glob('*.yaml')
     all_metas = {
         f.name.split('.')[0].upper(): Metadata().from_yaml(f)
