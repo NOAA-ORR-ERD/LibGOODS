@@ -125,18 +125,18 @@ class Metadata:
             self.bounding_poly = bounding_poly
 
 
-# def get_all_metadata():
-#     """
-#     Loop though all the files in the yaml files directory and return a
-#     dict of the metadata for all models
-#     """
+def get_all_metadata(yaml_file_directory):
+    """
+    Loop though all the files in the yaml files directory and return a
+    dict of the metadata for all models
+    """
 
-#     flist = yaml_file_directory.glob('*.yaml')
-#     all_metas = {
-#         f.name.split('.')[0].upper(): Metadata().init_from_yaml(f)
-#         for f in flist
-#     }
-#     return (all_metas)
+    flist = yaml_file_directory.glob('*.yaml')
+    all_metas = {
+        f.name.split('.')[0].upper(): Metadata().from_yaml(f)
+        for f in flist
+    }
+    return (all_metas)
 
 
 # def get_metadata_for_model(model, source):

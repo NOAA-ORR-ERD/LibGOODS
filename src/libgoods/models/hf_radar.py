@@ -23,7 +23,7 @@ class HFRadar(BaseModel):
     tvar = "time"
     access = "opendap"
 
-    def __init__(self, region, res="6km"):
+    def __init__(self, region=None, res="6km"):
         """
         Regions - must be key from dict above
         Resolution - 500m, 1km, 2km, 6km
@@ -35,7 +35,8 @@ class HFRadar(BaseModel):
             fname = "HFRADAR_" + regions[region] + "_" + res + "_Resolution_Hourly_RTV_best.ncd"
             self.location = url_base + region + "/" + res + "/hourly/RTV/" + fname
         else:
-            raise KeyError("Region must be in ", list(regions.keys()))
+            print("HFRadar: Region must be in ", list(regions.keys()))
+            self.location = None
 
     def filter_variables(self, variable_list=None, is3d=False):
         # variable list default is based on surface u/v variable names

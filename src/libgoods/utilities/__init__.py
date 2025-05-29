@@ -380,32 +380,23 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     return model_bounds_poly.intersects(poly_bounds_poly)
 
 
-def filter_models(models_metadatas, map_bounds=None, model_ids_sources=None, env_params=None):
+def filter_models(models_metadatas, map_bounds=None, model_ids=None, env_params=None):
     """
     Filters a provided list of model metadata via three criteria:
     1. Intersects with provided polygon boundary
-    2. Model ids and source locations
+    2. Model ids
     3. Present environmental parameters
 
     :param models_metadatas: list of model Metadata objects
     :param map_bounds: list of tuples (coordinates), or shapely Polygon, or None
-    :param model_ids_sources: dict with keys as names of models and lists of sources
+    :param model_ids_sources: list of ids of models
     :param env_params: string e.g. 'surface_currents' or list of strings
                        e.g. ['surface_currents', '3D_temperature']
                        see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
     retlist = models_metadatas
-    if model_ids_sources is not None:
-        retlist = [m for m in retlist if m.identifier in model_ids_sources.keys()]
-
-        # we might want to make the sorting on source optional so we can return all w/o specifying
-        for ii, m in enumerate(retlist):
-            sources = m.sources
-            keep_source_list = []
-            for source in sources:
-                if source.name in model_ids_sources[m.identifier]:
-                    keep_source_list.append(source)
-            retlist[ii].sources = keep_source_list
+    if model_ids is not None:
+        retlist = [m for m in retlist if m.identifier in model_ids]
 
     if map_bounds is not None:
         map_bounds = Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
