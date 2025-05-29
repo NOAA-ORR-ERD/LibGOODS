@@ -1,3 +1,22 @@
+identifier: SFBOFS
+name: San Francisco Bay
+long_name: NOAA/NOS San Francisco Bay Operational Forecast System
+html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/sfbofs/sfbofs.html" target="_blank">
+            San Francisco Bay Operational Forecast System (SFBOFS)</a>
+            was jointly developed by <a href="http://www.nauticalcharts.noaa.gov/" target="_blank">
+            NOAA/National Ocean Service's (NOS) Office of Coast Survey </a>,
+            the <a href="http://tidesandcurrents.noaa.gov/" target="_blank">
+            NOAA/NOS Center for Operational Oceanographic Products and Services (CO-OPS)</a>,
+            the <a href="http://mag.ncep.noaa.gov" target="_blank">
+            NOAA/National Weather Service's (NWS) National Centers
+            for Environmental Prediction (NCEP) Central Operations (NCO)</a>, and the
+            <a href="http://fvcom.smast.umassd.edu/" target="_blank">
+            University of Massachusetts, Dartmouth </a> using the Finite Volume Coastal Ocean
+            Model (FVCOM).
+            For detailed model information, visit the NOAA CO-OPS
+            <a href="http://tidesandcurrents.noaa.gov/ofs/sfbofs/sfbofs_info.html" target="_blank">
+            model information page.</a><br>
+regional: true
 bounding_box:
 - 236.9785614013672
 - 37.4278450012207
