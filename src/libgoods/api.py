@@ -15,12 +15,13 @@ from . import (
 from . import model_nc4 as model
 from . import NWS_point, shoreline
 from .standard_names import get_standard_names
-from .models import metadata
+from .models import YAML_DIR
 
 def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
-                as_pyson=True):
+                # as_pyson=True
+                ):
     """
     Return metadata for all available models
     This is the static information about the models (in yaml file). It will not include
@@ -42,7 +43,7 @@ def list_models(model_ids=None,
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = metadata.get_all_metadata()
+    all_metas = metadata.get_all_metadata(YAML_DIR)
     retval = utilities.filter_models(
         all_metas.values(),
         model_ids=model_ids,
@@ -50,11 +51,10 @@ def list_models(model_ids=None,
         env_params=env_params,
     )
 
-    if as_pyson:
-        retval = [m.as_pyson() for m in retval]
+    #if as_pyson:
+    #    retval = [m.as_pyson() for m in retval]
 
     return retval
-
 
 def get_model_info(model_id, model_source):
     """
