@@ -44,6 +44,7 @@ def get_models(which='all'):
 
     fixme: why??
     """
+    breakpoint()
     catalog = []
 
     for key in ALL_MODELS:
