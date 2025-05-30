@@ -3,13 +3,34 @@ tests of the model sub package init
 """
 
 from libgoods import models
+from libgoods.models.metadata import Metadata
 
+import pytest
 
 def test_init():
     """
     Just to make sure that some importing is going on
     """
     assert hasattr(models, "WCOFS")
+
+
+def test_ALL_MODELS():
+    """
+    not sure what to test here, except BASE_MODEL should not be there
+    """
+    assert 'BASE_MODEL' not in models.ALL_MODELS
+
+
+@pytest.mark.parametrize("mod_id", models.ALL_MODELS.keys())
+def test_all_models(mod_id):
+    """
+    testing that all models can be instantiated, and have some basic metadata.
+    """
+    mod = models.ALL_MODELS[mod_id]()
+
+    assert mod.identifier
+    assert isinstance(mod.metadata, Metadata)
+    assert mod.metadata.env_params
 
 
 def test_get_models():

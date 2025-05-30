@@ -26,9 +26,8 @@ ALL_MODELS = {mod.metadata.identifier: mod
               for mod in vars().values()
               if type(mod) is type
                   and issubclass(mod, BaseModel)
-                  and (mod is not BaseModel)
               }
-
+del ALL_MODELS[BaseModel.metadata.identifier]
 
 def get_models():
     """
