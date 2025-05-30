@@ -8,6 +8,7 @@ class COOPS_ROMS(ROMS):
     update_cycle = 6
 
     def __init__(self, access="zarr", start=None, end=None):
+        super().__init__()
         if access == "zarr":
             self.access = "zarr"
             self.location = coops_ofs.get_zarr_url(self.identifier)

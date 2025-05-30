@@ -11,7 +11,7 @@ def test_NGOFS2_init():
 
     assert m.identifier == "NGOFS2"
     assert m.metadata.name == "Northern Gulf of America"
-
+    assert m.metadata.env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
 
 def test_SSCOFS_init():
     """
@@ -23,6 +23,8 @@ def test_SSCOFS_init():
     assert m.metadata.name == "Salish Sea and Columbia River"
     assert m.local_file_type == "fields"
     assert m.standard_names == cfvc.gl_standard_names
+    assert m.metadata.env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
+
 
 @pytest.mark.parametrize("model_name", [
 #    "SSCOFS",

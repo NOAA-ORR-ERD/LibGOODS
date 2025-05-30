@@ -9,16 +9,23 @@ from shapely.geometry import Polygon
 
 from libgoods import api
 
-try:
-    import model_catalogs  # noqa: F401
 
-    HAVE_MODEL_CATALOGS = True
-except ImportError:
-    HAVE_MODEL_CATALOGS = False
-    pytest.skip(
-        "Can't run these tests without the model_catalogs package",
-        allow_module_level=True,
-    )
+def test_list_models():
+    """
+    just testing the main list metadata with no filtering
+    """
+    # This gets then all, with no filter
+    models = api.list_models()
+
+    print(f"got: {len(models)} models")
+
+    print(type(models[0]))
+    print(models[0]['identifier'])
+
+    # what else to test??
+    for m in models:
+        assert isinstance(m, dict)
+        assert m['identifier']
 
 
 @pytest.mark.skip("don't have actual models to test with")

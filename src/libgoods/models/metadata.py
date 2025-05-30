@@ -50,7 +50,7 @@ class Metadata:
     bounding_box: tuple = None
     bounding_poly: tuple = None
     example_bbox: tuple = None
-
+    env_params: set = None
     # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
     """
     Class to hold the external meta data for a model source
@@ -74,45 +74,27 @@ class Metadata:
 
     def to_yaml(self, yaml_file_path):
         dct = dataclasses.asdict(self)
+        if not dct['env_params']:
+            del dct['env_params']
+        else:
+            dct['env_params'] = list(dct['env_params'])
         with open(yaml_file_path, "w") as outfile:
             yaml.safe_dump(dct, stream=outfile)
         return None
 
-    #         yaml_bdry_file = yaml_file_directory / 'boundaries' / yaml_file.name
-    #         try:
-    #             with open(yaml_bdry_file) as file:
-    #                 model_info.update(yaml.full_load(file))
-    #             self.bounding_box = model_info["bbox"]
-    #             self.regional = Metadata.regional_test(self.bounding_box)
-    #             bounding_poly = wkt.loads(model_info["wkt"])
-    #             if isinstance(bounding_poly, MultiPolygon):
-    #                 bounding_poly = bounding_poly.convex_hull
-    #             self.bounding_poly = list(bounding_poly.boundary.coords)
-    #         except FileNotFoundError:
-    #             print('No boundary information available for ', yaml_file)
-    #         self.identifier = model_info["name"]
-    #         self.name = model_info["metadata"]["long_name"]
-    #         self.description = model_info["description"]
-    #         try:
-    #             self.html_desc = model_info["metadata"]["html_desc"]
-    #         except KeyError:
-    #             self.html_desc = self.description
+    def as_pyson(self):
+        dct = dataclasses.asdict(self)
+        dct['env_params'] = list(dct['env_params']) if dct['env_params'] is not None else None
 
-    #         self.grid_type = model_info["metadata"]["grid_type"]
-    #         grid_dim_keyname = [
-    #             n for n in model_info["metadata"].keys() if "grid_dim_" in n
-    #         ][0]
-    #         self.has_depth = len(model_info["metadata"][grid_dim_keyname]) == 4
-    #         self.dimensions = model_info["metadata"][grid_dim_keyname]
-    #         self.init_source_metadata(model_info["sources"], source=source)
-    #         self.compute_env_params()
-    #         return self """
+        return dct
 
     def __post_init__(self):
         # clean up types a bit:
 
         self.bounding_box = tuple(self.bounding_box) if self.bounding_box is not None else None
         self.example_bbox = tuple(self.example_bbox) if self.example_bbox is not None else None
+
+        self.env_params = set(self.env_params) if self.env_params is not None else None
 
         # if the bounding_pollygon is WKT: convert to nested tuples
         bounding_poly = self.bounding_poly
@@ -126,18 +108,7 @@ class Metadata:
             self.bounding_poly = bounding_poly
 
 
-def get_all_metadata(yaml_file_directory=None):
-    """
-    Loop though all the files in the yaml files directory and return a
-    dict of the metadata for all models
-    """
-    yaml_file_directory = YAML_DIR if yaml_file_directory is None else yaml_file_directory
-    flist = yaml_file_directory.glob('*.yaml')
-    all_metas = {
-        f.name.split('.')[0].upper(): Metadata().from_yaml(f)
-        for f in flist
-    }
-    return (all_metas)
+
 
 
 # def get_metadata_for_model(model, source):

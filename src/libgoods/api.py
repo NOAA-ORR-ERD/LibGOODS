@@ -15,12 +15,12 @@ from . import (
 from . import model_nc4 as model
 from . import NWS_point, shoreline
 from .standard_names import get_standard_names
+from . import models
 from .models import metadata
 
 def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
-                # as_pyson=True
                 ):
     """
     Return metadata for all available models
@@ -43,18 +43,18 @@ def list_models(model_ids=None,
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = metadata.get_all_metadata()
+    all_metas = models.get_model_metadata(model_ids)
     retval = utilities.filter_models(
-        all_metas.values(),
+        all_metas,
         model_ids=model_ids,
         map_bounds=map_bounds,
         env_params=env_params,
     )
 
-    #if as_pyson:
-    #    retval = [m.as_pyson() for m in retval]
+    retval = [m.as_pyson() for m in retval]
 
     return retval
+
 
 def get_model_info(model_id, model_source):
     """

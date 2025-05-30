@@ -22,7 +22,7 @@ from .hf_radar import HFRadar
 
 # getting clever to build the list of all models
 # it's imported, it should be auto-added.
-ALL_MODELS = {mod().identifier: mod
+ALL_MODELS = {mod.metadata.identifier: mod
               for mod in vars().values()
               if type(mod) is type
                   and issubclass(mod, BaseModel)
@@ -30,21 +30,14 @@ ALL_MODELS = {mod().identifier: mod
               }
 
 
-def get_models(which='all'):
+def get_models():
     """
     Get the model objects for all the models
 
-    :param which: Which set of models do you want.
-                  Currently the only option is 'all'
-                  but in the future -- who knows?
-
-                  default: 'all'
-
     :returns: a list of (model name, model_id) pairs
 
-    fixme: why??
+    fixme: what is this used for?
     """
-    breakpoint()
     catalog = []
 
     for key in ALL_MODELS:
@@ -52,6 +45,21 @@ def get_models(which='all'):
         catalog.append([m.metadata.name, key])
 
     return catalog
+
+
+def get_model_metadata(model_ids=None,):
+    """
+    Returns the metadata for all the models available
+
+    :param model_ids=None: Sequence of ids of the models you want.
+                           If None -- all available with be returned
+
+    :returns: list of Metadata objects
+    """
+
+    metas = [mod().metadata for mod in ALL_MODELS.values()]
+
+    return (metas)
 
 
 def open_all():

@@ -85,6 +85,35 @@ def test_init_from_tuples():
     )
 
 
+def test_as_pyson():
+    meta = Metadata(
+        identifier="AN_ID",
+        name="An example model",
+        long_name="An example model -- used to test and explaining the metadata required",
+        html_desc=(
+            "<html> <b>An example model</b> -- "
+            "used to test and explaining the "
+            "metadata required </html>"
+        ),
+        regional=True,
+        bounding_box=(-20, 30, -45, 10),
+        bounding_poly=(
+            (270.6807861328125, 30.374494552612305),
+            (262.9354248046875, 24.568058013916016),
+            (268.0373229980469, 29.816688537597656),
+            (268.80035400390625, 30.50692367553711),
+            (270.6807861328125, 30.374494552612305),
+        ),
+        example_bbox=(-10, 20, -40, 5),
+    )
+
+    pyson = meta.as_pyson()
+
+    meta2 = Metadata(**pyson)
+
+    assert meta == meta2
+
+
 def test_to_yaml():
     meta = Metadata(
         identifier="AN_ID",
