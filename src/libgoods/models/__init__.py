@@ -57,8 +57,10 @@ def get_model_metadata(model_ids=None,):
     :returns: list of Metadata objects
     """
 
-    metas = [mod().metadata for mod in ALL_MODELS.values()]
 
+    metas = [mod().metadata for mod in ALL_MODELS.values()]
+    if model_ids is not None:
+        metas = [mod for mod in metas if mod.identifier in model_ids]
     return (metas)
 
 
