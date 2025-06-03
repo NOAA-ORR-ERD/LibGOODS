@@ -46,7 +46,10 @@ class Metadata:
     name: str = ""
     long_name: str = ""
     html_desc: str = ""
+    # regional: bool = True
     regional: bool = False
+    # global_model: bool = True
+    # global_model: bool = False
     bounding_box: tuple = None
     bounding_poly: tuple = None
     example_bbox: tuple = None
