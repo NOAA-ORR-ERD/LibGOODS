@@ -60,7 +60,8 @@ libgoods = [#"yaml_files/*.yaml",
             # still including them all ?!?!!?
             "shoreline_data/nos_shoreline/*",
             "shoreline_data/gshhg/**/*",
-            "models/metadata/*.yaml"
+            "models/metadata/*.yaml",
+            "tests/test_utilities/lake_erie_islands.bna",
             ]
 # I could not get exclude to work ?????
 # [tool.setuptools.exclude-package-data]
@@ -91,3 +92,12 @@ select = [
 extend-safe-fixes = [
   "TID252", # absolute imports
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# examples
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+# "__init__.py" = ["E402"]
+# "path/to/file.py" = ["E402"]
+"src/libgoods/utilities/haz_files.py" = ["UP031"]
+
+

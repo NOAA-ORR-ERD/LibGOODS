@@ -15,7 +15,8 @@ import shapely.geometry as sgeo
 
 shoreline_dir = Path(__file__).parent / "shoreline_data"
 
-# this dict maps shoreline dataset options to subdirectories where shapefiles can be found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
+# this dict maps shoreline dataset options to subdirectories where shapefiles can be
+# found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
 shoreline_datasets = {
     "AK_CUSP": ["AK_CUSP", "AK_CUSP_polygon_20240221.shp"],
     "NE_CUSP": ["ME_to_DE_CUSP", "ME_NH_MA_CT_RI_VT_NY_NJ_DE_20241009.shp"],
@@ -141,7 +142,8 @@ def get_map(
         shpfile = shpfile_dir.joinpath(resolution, fname)
         bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
         if include_lakes:
-            # "L2" which is lakes (L3/4 gets down to ponds in islands in lakes and L5/6 are for Antarctica
+            # "L2" which is lakes (L3/4 gets down to ponds in islands in lakes
+            # and L5/6 are for Antarctica
             fname = "GSHHS_" + resolution + "_L2.shp"
             shpfile = shpfile_dir.joinpath(resolution, fname)
             bna_polys2, levs2 = load_polys_and_clip(shpfile, bbox, dl=cross_dateline, lev=2)

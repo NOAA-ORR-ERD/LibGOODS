@@ -21,7 +21,7 @@ import numpy as np
 #     from .filescanner import scan
 #     FILESCANNER = True
 # except:
-FILESCANNER = False  # because py3
+# FILESCANNER = False  # because py3
 
 ## fixme: It would be MUCH cleaner to internally store VerDat data with
 ## Python style slicing and indexing, including storing a 0 at the beginning
@@ -255,20 +255,20 @@ def GetNextBNAPolygon(f, dtype=np.float64):
     else:
         raise BnaError(f"polygon {name} does not have a valid number of points")
 
-    if FILESCANNER:
-        points = scan(f, num_points * 2)
-        points = np.asarray(points, dtype=dtype)
-        points.shape = (-1, 2)
-    else:
-        points = np.zeros((num_points, 2), dtype)
-        for i in range(num_points):
-            line = f.readline()
-            if not line:
-                raise ValueError(f"empty coords line in {header.strip()}. check number of vertices")
-            try:
-                points[i, :] = [float(j) for j in line.split(",")]
-            except ValueError as err:
-                raise ValueError(f"incorrect coords in line: {line} in poly: {header}") from err
+    # if FILESCANNER:
+    #     points = scan(f, num_points * 2)
+    #     points = np.asarray(points, dtype=dtype)
+    #     points.shape = (-1, 2)
+    # else:
+    points = np.zeros((num_points, 2), dtype)
+    for i in range(num_points):
+        line = f.readline()
+        if not line:
+            raise ValueError(f"empty coords line in {header.strip()}. check number of vertices")
+        try:
+            points[i, :] = [float(j) for j in line.split(",")]
+        except ValueError as err:
+            raise ValueError(f"incorrect coords in line: {line} in poly: {header}") from err
 
     if poly_type == "polygon":  # first and last points are the same in BNA,
         # but we don't want the duplicate point.

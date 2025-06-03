@@ -15,6 +15,8 @@ yaml_file = YAML_DIR / "ngofs2.yaml"
 HERE = Path(__file__).parent
 OUTPUT_DIR = HERE / "output"
 
+OUTPUT_DIR.mkdir(exist_ok=True)
+
 
 def test_from_yaml():
     meta = Metadata.from_yaml(yaml_file)
