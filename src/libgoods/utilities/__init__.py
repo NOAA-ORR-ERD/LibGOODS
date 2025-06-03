@@ -264,7 +264,7 @@ def _filter_by_env_params(mdl_meta, ev_p):
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
         # assume singular string
         # Huh? where is ENVIRONMENTAL_PARAMETERS supposed to be from?
-        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
+        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():  # noqa
             raise KeyError(f"{ev_p} is not a valid environmental parameter")
         return ev_p in mdl_meta.env_params
     else:

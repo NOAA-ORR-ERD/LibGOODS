@@ -1,6 +1,6 @@
-import libgoods.models.coops_fvcom as cfvc
-
 import pytest
+
+import libgoods.models.coops_fvcom as cfvc
 
 
 def test_NGOFS2_init():
@@ -11,7 +11,10 @@ def test_NGOFS2_init():
 
     assert m.identifier == "NGOFS2"
     assert m.metadata.name == "Northern Gulf of America"
-    assert m.metadata.env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
+    assert m.metadata.env_params == {
+        '3D currents', 'surface currents', 'surface winds', 'water properties'
+    }
+
 
 def test_SSCOFS_init():
     """
@@ -23,17 +26,21 @@ def test_SSCOFS_init():
     assert m.metadata.name == "Salish Sea and Columbia River"
     assert m.local_file_type == "fields"
     assert m.standard_names == cfvc.gl_standard_names
-    assert m.metadata.env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
+    assert m.metadata.env_params == {
+        '3D currents', 'surface currents', 'surface winds', 'water properties'
+    }
 
 
-@pytest.mark.parametrize("model_name", [
-#    "SSCOFS",
-    "NGOFS2",
-    "LEOFS",
-    "LMHOFS",
-    "LOOFS",
-    "LSOFS",
-])
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        #    "SSCOFS",
+        "NGOFS2",
+        "LEOFS",
+        "LMHOFS",
+        "LOOFS",
+        "LSOFS",
+    ])
 def test_model_init(model_name):
     """
     Can you initialize it only testing the identifier, but at least it will catch

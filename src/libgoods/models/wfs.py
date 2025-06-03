@@ -1,6 +1,8 @@
-from .base_models import FVCOM
 from datetime import datetime, timedelta
+
 import requests
+
+from .base_models import FVCOM
 
 
 class BaseWFS(FVCOM):

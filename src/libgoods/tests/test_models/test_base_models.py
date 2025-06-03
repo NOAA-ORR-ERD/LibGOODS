@@ -4,8 +4,8 @@ Test of the base models
 Not much here, but at least they can be instantiated.
 """
 
-from libgoods.models import base_models
 import libgoods.models as models
+from libgoods.models import base_models
 from libgoods.models.metadata import Metadata
 
 

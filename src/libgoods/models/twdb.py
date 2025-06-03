@@ -1,11 +1,9 @@
-import datetime
-import urllib
-import requests
-from requests.exceptions import Timeout
-import zipfile
-import tempfile, os
-import numpy as np
 import re
+import tempfile
+import urllib
+import zipfile
+
+import requests
 
 """
 These are provided as zip files downloaded from a URL - we could add an api that allows subsetting similar to others but I'm not sure we need it as they are not very big and being replaced by SELFE versions.
@@ -17,7 +15,14 @@ base_url = "http://midgewater.twdb.texas.gov/bays_estuaries/GNOME/MostRecent/"
 
 
 class BaseTWDB:
-    html_info = r'The <a href="http://www.twdb.texas.gov/index.asp" target="_blank"> Texas Water Development Board (TWDB)</a>, in partnership with the <a href="http://www.glo.texas.gov/" target="_blank"> Texas General Land Office (TGLO) </a> Oil Spill Prevention and Response effort, maintains <a href="http://www.twdb.texas.gov/surfacewater/bays/oil_spill/index.asp" target="_blank"> near real-time and forecast simulations of water circulation in the major bays </a> for use in the event that an oil spill occurs within Texas bays.'
+    html_info = r'''The <a href="http://www.twdb.texas.gov/index.asp" target="_blank">
+        Texas Water Development Board (TWDB)</a>, in partnership with the
+        <a href="http://www.glo.texas.gov/" target="_blank"> Texas General Land Office (TGLO) </a>
+        Oil Spill Prevention and Response effort, maintains
+        <a href="http://www.twdb.texas.gov/surfacewater/bays/oil_spill/index.asp" target="_blank">
+        near real-time and forecast simulations of water circulation in the major bays </a>
+        for use in the event that an oil spill occurs within Texas bays.
+        '''
 
     def __init__(self):
         try:
@@ -49,7 +54,7 @@ class BaseTWDB:
         tzip.write(u.read())
         tzip.close()
 
-        if ofn == None:
+        if ofn is None:
             ofn = self.name.replace(" ", "") + ".nc"
 
         zfile = zipfile.ZipFile(tfn)

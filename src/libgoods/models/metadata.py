@@ -31,14 +31,11 @@ Model.subset_info(query_params) => info about subset
   - Estimated File Size
 """
 
-import yaml
-
 import dataclasses
-from pathlib import Path
 
 import shapely.wkt
+import yaml
 
-from . import YAML_DIR
 
 @dataclasses.dataclass
 class Metadata:
@@ -46,7 +43,10 @@ class Metadata:
     name: str = ""
     long_name: str = ""
     html_desc: str = ""
+    # regional: bool = True
     regional: bool = False
+    # global_model: bool = True
+    # global_model: bool = False
     bounding_box: tuple = None
     bounding_poly: tuple = None
     example_bbox: tuple = None

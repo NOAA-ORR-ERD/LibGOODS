@@ -1,7 +1,8 @@
-from .base_models import ROMS
 from libgoods import coops_ofs
-from .metadata import Metadata
+
 from . import YAML_DIR
+from .base_models import ROMS
+from .metadata import Metadata
 
 
 class COOPS_ROMS(ROMS):

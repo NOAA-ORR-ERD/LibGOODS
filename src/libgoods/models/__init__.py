@@ -5,16 +5,16 @@ YAML_DIR = Path(__file__).parent / "metadata"
 # do we need them in the whole namespace?
 
 from .base_models import BaseModel
-from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
-from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
+from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS
+from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO
-from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, SAMOA
-from .tamu import TAMU
-from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay
-from .ncom_regional import AmSeas, Alaska, USEast
-from .wfs import WFCOM, TBCOM
-from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 from .hf_radar import HFRadar
+from .ncom_regional import Alaska, AmSeas, USEast
+from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
+from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARI, MARIG, SAMOA
+from .tamu import TAMU
+from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
+from .wfs import TBCOM, WFCOM
 
 # fixme: should this be an instance or teh model class??
 #        it's currently the class, and get_models instantiates them,

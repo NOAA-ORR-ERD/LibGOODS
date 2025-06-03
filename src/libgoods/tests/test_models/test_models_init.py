@@ -2,10 +2,11 @@
 tests of the model sub package init
 """
 
+import pytest
+
 from libgoods import models
 from libgoods.models.metadata import Metadata
 
-import pytest
 
 def test_init():
     """
@@ -49,14 +50,8 @@ def test_get_models():
 def test_get_model_metadata_all():
     metadata = models.get_model_metadata()
 
+    # what else to test??
     assert len(metadata) == len(models.ALL_MODELS)
 
-
-    print(metadata[0])
-    assert metadata[0].identifier == "NGOFS2"
-    assert metadata[0].env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
-
-
-
-
-
+    for md in metadata:
+        assert isinstance(md, Metadata)
