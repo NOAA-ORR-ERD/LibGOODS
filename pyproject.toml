@@ -10,13 +10,13 @@ authors = [
 ]
 description = "Package for retrieving environmental data for GNOME"
 requires-python = ">=3.10"
-license = {text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"}
+license = "CC0-1.0"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     "Topic :: Utilities",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Meteorology/Oceanography",
@@ -54,11 +54,19 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-libgoods = ["yaml_files/*.yaml",
-            "yaml_files/boundaries/*.yaml",
-            "shoreline_data/**/*",
-            "src/libgoods/models/metadata/*.yaml"
+libgoods = [#"yaml_files/*.yaml",
+            #"yaml_files/boundaries/*.yaml",
+            # "shoreline_data/**/*", # don't want them all
+            # still including them all ?!?!!?
+            "shoreline_data/nos_shoreline/*",
+            "shoreline_data/gshhg/**/*",
+            "models/metadata/*.yaml"
             ]
+# I could not get exclude to work ?????
+# [tool.setuptools.exclude-package-data]
+# # these are really big -- excluding them until they are used.
+# libgoods = ["shoreline_data/OpenStreetMap/land-polygons-complete-4326/*",
+#             "shoreline_data/AK_CUSP/*"]
 
 [tool.ruff]
 builtins = ["ellipsis"]
