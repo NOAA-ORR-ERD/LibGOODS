@@ -3,6 +3,7 @@ tests of the metadata classes - these test construction but nothing else at pres
 """
 
 from pathlib import Path
+
 import numpy as np
 
 from libgoods.models import YAML_DIR

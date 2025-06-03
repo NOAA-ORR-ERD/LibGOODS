@@ -13,9 +13,6 @@ import fiona
 import numpy as np
 import shapely.geometry as sgeo
 
-
-from libgoods.utilities import convert_longitude
-
 shoreline_dir = Path(__file__).parent / "shoreline_data"
 
 # this dict maps shoreline dataset options to subdirectories where shapefiles can be found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client

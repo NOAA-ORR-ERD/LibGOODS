@@ -9,7 +9,6 @@ from pathlib import Path
 import numpy as np
 
 from libgoods import shoreline
-
 from libgoods.utilities.haz_files import ReadBNA
 
 OUTPUT_DIR = Path(__file__).parent / "output"

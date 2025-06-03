@@ -5,9 +5,10 @@ So far, only that you can initialize them, and they get the key metadata
 
 """
 
+import pytest
+
 import libgoods.models.coops_roms as croms
 
-import pytest
 
 @pytest.mark.parametrize("model_name", [
     'CBOFS',

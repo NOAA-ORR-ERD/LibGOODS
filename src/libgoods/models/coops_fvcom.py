@@ -1,10 +1,9 @@
-from .base_models import FVCOM
+
 from libgoods import coops_ofs
-from .metadata import Metadata
-import datetime
+
 from . import YAML_DIR
-
-
+from .base_models import FVCOM
+from .metadata import Metadata
 
 # the standard names used by the Great Lakes COOPS models
 gl_standard_names = FVCOM.standard_names | {"surface_eastward_sea_water_velocity": "u",

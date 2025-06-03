@@ -2,10 +2,11 @@
 tests of the model sub package init
 """
 
+import pytest
+
 from libgoods import models
 from libgoods.models.metadata import Metadata
 
-import pytest
 
 def test_init():
     """

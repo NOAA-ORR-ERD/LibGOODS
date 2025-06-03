@@ -2,10 +2,8 @@ from pathlib import Path
 
 import numpy as np
 
-from libgoods.utilities.haz_files import ReadBNA
 from libgoods.scripting import shift_bna
-
-import pytest
+from libgoods.utilities.haz_files import ReadBNA
 
 HERE = Path(__file__).parent
 

@@ -31,14 +31,11 @@ Model.subset_info(query_params) => info about subset
   - Estimated File Size
 """
 
-import yaml
-
 import dataclasses
-from pathlib import Path
 
 import shapely.wkt
+import yaml
 
-from . import YAML_DIR
 
 @dataclasses.dataclass
 class Metadata:

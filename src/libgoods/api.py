@@ -9,14 +9,15 @@ from . import (
     ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
+    NWS_point,
+    models,
+    shoreline,
     utilities,
 )
-
 from . import model_nc4 as model
-from . import NWS_point, shoreline
-from .standard_names import get_standard_names
-from . import models
 from .models import metadata
+from .standard_names import get_standard_names
+
 
 def list_models(model_ids=None,
                 map_bounds=None,

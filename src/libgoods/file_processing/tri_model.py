@@ -6,9 +6,10 @@ variable names can be customized for different models or datasets
 NOTE -- this writes the old GNOME trigrid format and should be updated
 """
 import numpy as np
-from netCDF4 import Dataset, MFDataset, num2date
+from netCDF4 import Dataset, num2date
 
 from . import base
+
 
 class tri(base.nc):
     """
@@ -280,7 +281,7 @@ class tri(base.nc):
     def read_bndry_file(self, bnd_file):
 
         bnd = []
-        f = open(bnd_file, 'r')
+        f = open(bnd_file)
         for line in f:
             vals = [int(val) for val in line.split()]
             bnd.append(vals)
@@ -504,7 +505,7 @@ class tri(base.nc):
         self.nodes_in_ss = np.intersect1d(subset_lat,subset_lon) + 1 #node numbering starts at 1 (subtract one for indexing lon/lat)
 
         self.eles_in_ss = []
-        nv_ss = []; nbe_ss = [];
+        nv_ss = []; nbe_ss = []
 
         #determine which nodes are in subset boundary and elements with all nodes in ss
         print('Finding nodes and entire elements in ss')
@@ -608,7 +609,7 @@ class tri(base.nc):
         find and order boundary
         Should move the thinning/writing code to utilities
         '''
-        id = [];
+        id = []
         for line in self.data['bnd']:
             if line[2] == 0:
                 id.append(line[0]-1)

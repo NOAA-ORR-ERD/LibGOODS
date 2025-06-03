@@ -1,11 +1,9 @@
-import datetime
-import urllib
-import requests
-from requests.exceptions import Timeout
-import zipfile
-import tempfile, os
-import numpy as np
 import re
+import tempfile
+import urllib
+import zipfile
+
+import requests
 
 """
 These are provided as zip files downloaded from a URL - we could add an api that allows subsetting similar to others but I'm not sure we need it as they are not very big and being replaced by SELFE versions.

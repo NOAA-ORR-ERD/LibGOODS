@@ -14,6 +14,7 @@ check_receptors extension module. I should put that in another library.
 """
 
 import os
+
 import numpy as np
 
 # try:
@@ -85,7 +86,7 @@ class BNAData:
         return len(self.PointsData)
 
     def __str__(self):
-        return "BNAData instance: {0} polygons".format(len(self))
+        return f"BNAData instance: {len(self)} polygons"
 
     def Save(self, filename=None):
         if not filename:
@@ -100,7 +101,7 @@ class BNAData:
 
 def ReadDOGSFile(filename):
     # Read in the DOGS data:
-    fd = open(filename, "r")
+    fd = open(filename)
     Header = {}
 
     while 1:
@@ -155,7 +156,7 @@ def ReadVerdatFile(filename):
 
     ## fixme -- this doesn't keep the units if they are there in the header
     """
-    infile = open(filename, "r")
+    infile = open(filename)
     PointData = []
 
     while 1:
@@ -242,7 +243,7 @@ def GetNextBNAPolygon(f, dtype=np.float64):
         sname = fields[3]
         num_points = int(fields[4].strip()[1:])
     except (ValueError, IndexError):
-        raise ValueError("File has incorrect header for BNA format: {0}".format(header))
+        raise ValueError(f"File has incorrect header for BNA format: {header}")
 
     if num_points < 0 or num_points == 2:
         poly_type = "polyline"
@@ -252,7 +253,7 @@ def GetNextBNAPolygon(f, dtype=np.float64):
     elif num_points > 2:
         poly_type = "polygon"
     else:
-        raise BnaError("polygon {0} does not have a valid number of points".format(name))
+        raise BnaError(f"polygon {name} does not have a valid number of points")
 
     if FILESCANNER:
         points = scan(f, num_points * 2)
@@ -326,7 +327,7 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
     The dtype parameter specifies what numpy data type you want the points
     data in -- it defaults to float (C double)
     """
-    fd = open(filename, "r")
+    fd = open(filename)
 
     if polytype == "list":
         Output = []
@@ -337,7 +338,7 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
                 break
             Output.append(poly)
     elif polytype == "PolygonSet":
-        from ..geometry import polygons
+        from libgoods.geometry import polygons
 
         Output = polygons.PolygonSet(dtype=dtype)
 
@@ -349,7 +350,7 @@ def ReadBNA(filename, polytype="list", dtype=np.float64):
             Output.append(poly[0], poly[1:])
 
     elif polytype == "BNADataClass":
-        from ..geometry import polygons
+        from libgoods.geometry import polygons
 
         polys = polygons.PolygonSet()
         Types = []

@@ -1,5 +1,5 @@
+
 from .base_models import ROMS
-from libgoods.file_processing import roms_model
 
 tds_url = "http://pae-paha.pacioos.hawaii.edu/thredds"
 

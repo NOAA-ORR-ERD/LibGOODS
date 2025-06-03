@@ -1,6 +1,6 @@
-import libgoods.models.coops_fvcom as cfvc
-
 import pytest
+
+import libgoods.models.coops_fvcom as cfvc
 
 
 def test_NGOFS2_init():
