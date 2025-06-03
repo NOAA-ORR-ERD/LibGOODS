@@ -55,11 +55,3 @@ def test_get_model_metadata_all():
 
     for md in metadata:
         assert isinstance(md, Metadata)
-
-    # assert metadata[0].identifier == "NGOFS2"
-    # assert metadata[0].env_params == {'3D currents', 'surface currents', 'surface winds', 'water properties'}
-
-
-
-
-

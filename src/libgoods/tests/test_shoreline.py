@@ -117,7 +117,10 @@ def test_get_map_great_lakes():
 
     # Decimal latitude, range: ± 90 degrees North Latitude
     # 41.6
-    # Decimal longitude, range: ± 180 degrees West Longitude      Decimal longitude, range: ± 180 degrees East Longitude  Check if subset spans 180th parallel (eg: West Lon = 170, East Lon = -170 Cross dateline?
+    # Decimal longitude, range: ± 180 degrees West Longitude
+    # Decimal longitude, range: ± 180 degrees East Longitude
+    # Check if subset spans 180th parallel
+    # (eg: West Lon = 170, East Lon = -170 Cross dateline?
     # -82.3
     # -82
 
