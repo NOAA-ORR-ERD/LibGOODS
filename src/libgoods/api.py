@@ -15,12 +15,13 @@ from . import (
 from . import model_nc4 as model
 from . import NWS_point, shoreline
 from .standard_names import get_standard_names
+#from .models import metadata
 from . import models
-from .models import metadata
 
 def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
+                # as_pyson=True
                 ):
     """
     Return metadata for all available models
@@ -43,7 +44,7 @@ def list_models(model_ids=None,
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = models.get_model_metadata(model_ids)
+    all_metas = models.get_model_metadata()
     retval = utilities.filter_models(
         all_metas,
         model_ids=model_ids,
@@ -55,8 +56,7 @@ def list_models(model_ids=None,
 
     return retval
 
-
-def get_model_info(model_id, model_source):
+def get_model_info(model_id):
     """
     Return metadata about a particular model from a particular source. This will
     query the server to add the actual time bounds to the metadata
@@ -66,21 +66,20 @@ def get_model_info(model_id, model_source):
 
     :returns: libgoods.metadata.Metadata object with metadata of the model and source.
     """
-    meta = metadata.get_metadata_for_model(model_id, model_source)
+    meta = models.get_model_metadata(model_id)
+    #meta["actual_start"] = ''
+    #meta["actual_end"] = ''
 
-    tvar_name = meta["sources"][0]["standard_names"]["time"]
+    """     tvar_name = meta["sources"][0]["standard_names"]["time"]
     meta["urlpath"] = meta["sources"][0]["args"]["urlpath"]
     try:
         stime, etime = model.get_time_bounds(meta["urlpath"], tvar_name)
     except:
         raise ModelAvailabilityError(
             "Unable to retrieve data from server. Please check availability or try again later."
-        )
+        ) """
 
-    meta["actual_start"] = stime
-    meta["actual_end"] = etime
-
-    return meta
+    return meta[0].as_pyson()
 
 
 def validate_subset(model_id, model_source, start, end, bounds):

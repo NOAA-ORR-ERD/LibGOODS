@@ -51,6 +51,8 @@ class Metadata:
     bounding_poly: tuple = None
     example_bbox: tuple = None
     env_params: set = None
+    start: str = ""
+    end: str = ""
     # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
     """
     Class to hold the external meta data for a model source

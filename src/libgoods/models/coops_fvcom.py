@@ -21,6 +21,8 @@ class COOPS_FVCOM(FVCOM):
         if access == "zarr":
             self.access = "zarr"
             self.location = coops_ofs.get_zarr_url(self.identifier)
+            self.metadata.start = 'approximately one week before present time'
+            self.metadata.end = 'the 48-120 hours forecast period'
 
         elif access == "opendap":
             self.access = "opendap"
