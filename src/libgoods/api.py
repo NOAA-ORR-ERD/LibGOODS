@@ -72,8 +72,9 @@ def get_model_info(model_id, model_source):
     tvar_name = meta["sources"][0]["standard_names"]["time"]
     meta["urlpath"] = meta["sources"][0]["args"]["urlpath"]
     try:
+        # is calling get_time_bounds the right way to check if it's valid ??
         stime, etime = model.get_time_bounds(meta["urlpath"], tvar_name)
-    except:
+    except:  # what exceptions might we get here??
         raise ModelAvailabilityError(
             "Unable to retrieve data from server. Please check availability or try again later."
         )
@@ -202,8 +203,9 @@ def get_map(
     max_filesize=1e6,
 ):
     """
-    This is for compatibility with current implementation in API which was expecting a file delivered from a URL
-    Also need to think about how to test for max filesize differently since now its being written directly to server
+    This is for compatibility with current implementation in API which was expecting a file
+    delivered from a URL Also need to think about how to test for max filesize differently since
+    now its being written directly to server
     """
 
     shoreline.get_map(bounds, data_source, ofn, resolution, cross_dateline, max_filesize)

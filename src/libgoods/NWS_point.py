@@ -6,14 +6,48 @@ import dateutil.parser
 import numpy as np
 
 
+"""
+Getting the point forecast from NWS.
+
+NOTE: there is a new? API here:
+
+https://www.weather.gov/documentation/services-web-api
+
+It provides JSON, etc -- maybe easier than the XML?
+
+Also -- we are hitting:
+
+marine.weather.gov -- does it provide on-land? which we might want??
+
+"""
+
+
 def get_data(lon, lat):
+    """
+    Get the data from the NWS NGDF point API
+
+    Parameters
+    ----------
+    lon : float | str
+        longitude (decimal degrees)
+    lat : float | str
+        latitude (decimal degrees)
+
+    Returns
+    -------
+    data: dict
+         keys- ?????
+
+    """
+    lon, lat = str(lon), str(lat)
     nws_data = {}
 
     url_stem = "https://marine.weather.gov/MapClick.php"
     nws_url = url_stem + "?lat=" + lat + "&lon=" + lon + "&FcstType=digitalDWML"
     try:
         xml_file = urllib.request.urlopen(nws_url)
-    except:
+    # check status??
+    except:  # Fixme: what exceptions are we trapping?
         nws_data["err"] = (
             "Error: Unable to open: <br>"
             + url_stem
@@ -146,6 +180,7 @@ def format_OSSM(data):
 
 def write_ossm(ossm_data, ofn="wind.nws"):
     f = open(ofn, "w")
+    # is this list comp neccesary at all?
     f.writelines([l for l in ossm_data])
     f.close()
 

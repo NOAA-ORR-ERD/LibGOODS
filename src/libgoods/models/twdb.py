@@ -6,7 +6,10 @@ import zipfile
 import requests
 
 """
-These are provided as zip files downloaded from a URL - we could add an api that allows subsetting similar to others but I'm not sure we need it as they are not very big and being replaced by SELFE versions.
+These are provided as zip files downloaded from a URL - we could add an api that allows subsetting
+similar to others but I'm not sure we need it as they are not very big and being replaced by
+SELFE versions.
+
 U/V are depth averaged.
 """
 
@@ -25,9 +28,12 @@ class BaseTWDB:
         '''
 
     def __init__(self):
+        # Fixme: this should be cleaned up:
+        #        should it hit the server on init? -- maybe...
+        # this should probably make the request, then check the status...
         try:
             html_text = requests.get(base_url, timeout=1).text
-        except:
+        except:  # noqa
             html_text = "error"
 
         self.urls = {}

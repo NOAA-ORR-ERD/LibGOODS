@@ -211,7 +211,8 @@ class Metadata:
 #     def regional_test(bb):
 #         """
 #         Selection criteria for 'regional' flag in the metadata
-#         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
+#         Effectively, a flag to describe what is a 'large' regional model
+#          (HYCOM, GFS) and what isn't
 #         """
 #         return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
 
