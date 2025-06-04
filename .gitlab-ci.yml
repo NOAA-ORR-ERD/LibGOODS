@@ -41,8 +41,8 @@ lint_libgoods:
   allow_failure: true
   image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
   script:
-    - conda install -y flake8
-    - python -m flake8 --statistics src/libgoods
+    - conda install -y ruff
+    - ruff check src/libgoods
   rules:
     - if: $SCHEDULED == "true"
       when: never
