@@ -53,6 +53,8 @@ class Metadata:
     env_params: set = None
     start: str = ""
     end: str = ""
+    actual_start: str = ""
+    actual_end: str = ""
     # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
     """
     Class to hold the external meta data for a model source
@@ -130,7 +132,7 @@ class Metadata:
 #     identifier: str = ""
 #     name: str = ""
 #     description: str = ""
-#     html_desc: str = ""
+    #     html_desc: str = ""
 #     regional: bool = False
 #     bounding_box: tuple = ()
 #     bounding_poly: tuple = ()

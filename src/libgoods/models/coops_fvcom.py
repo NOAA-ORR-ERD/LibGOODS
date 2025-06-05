@@ -10,6 +10,7 @@ gl_standard_names = FVCOM.standard_names | {"surface_eastward_sea_water_velocity
                                             "surface_northward_sea_water_velocity": "v",
                                             }
 
+
 class COOPS_FVCOM(FVCOM):
     update_cycle = 6
     local_file_type = "fields"
@@ -22,6 +23,9 @@ class COOPS_FVCOM(FVCOM):
             self.location = coops_ofs.get_zarr_url(self.identifier)
             self.metadata.start = 'approximately one week before present time'
             self.metadata.end = 'the 48-120 hours forecast period'
+            self.standard_names = FVCOM.standard_names | {"surface_eastward_sea_water_velocity": "u",
+                                                          "surface_northward_sea_water_velocity": "v",
+                                                          }
 
         elif access == "opendap":
             self.access = "opendap"

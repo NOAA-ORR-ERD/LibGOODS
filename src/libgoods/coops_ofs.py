@@ -216,7 +216,7 @@ def get_aws_flist(model_id, start, end, file_type="2ds", old_name_format=False):
     #       maybe we should be smarter.
     # This could, instead, get a listing, to see what's actually available
     model_info = OFS_INFO[model_id]
-    buffer = datetime.timedelta(hours=24)
+    buffer = datetime.timedelta(hours=72)
     start_b = (start - buffer)
     end_b = (end + buffer)
     ts = pd.date_range(start_b, end_b).strftime('%Y/%m/%d')
@@ -366,28 +366,34 @@ def download_from_aws(model_id, fnames, out_dir="files", temp_dir=None):
 
     aws_url = "https://noaa-nos-ofs-pds.s3.amazonaws.com/"
     newfilenames = []
+
     for fname in fnames:
+
         fpath = os.path.join(out_dir, fname.split("/")[-1])
+        newfilenames.append(fpath)
+
         if os.path.exists(fpath):
             logging.info(f"Already downloaded, {fname}")
-            # print('Already downloaded', fname)
+            print('Already downloaded', fname)
+            continue
         else:
             if temp_dir is not None:
                 fpath = os.path.join(temp_dir, fname.split("/")[-1])
                 if os.path.exists(fpath):
+                    logging.info(f"Already downloaded, {fname}")
                     print("Already downloaded", fname)
-                else:
-                    print("Downloading:", fname)
-                    url = aws_url + fname.split("pds/")[-1]
-                    r = requests.get(url)
-                    # resp = http.request("GET", url, preload_content=False)
+                    continue
 
-                    if r.headers["Content-Type"] == "application/xml":
-                        print(r.content)
-                    else:
-                        with open(fpath, "wb") as f:
-                            f.write(r.content)
-                    newfilenames.append(fpath)
+        print("Downloading:", fname)
+        url = aws_url + fname.split("pds/")[-1]
+        r = requests.get(url)
+        # resp = http.request("GET", url, preload_content=False)
+
+        if r.headers["Content-Type"] == "application/xml":
+            print(r.content)
+        else:
+            with open(fpath, "wb") as f:
+                f.write(r.content)
 
     return newfilenames
 

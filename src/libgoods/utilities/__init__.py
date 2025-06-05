@@ -372,8 +372,7 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
         # poly should already be in -180 == 180, but won't hurt
         poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "-180--180", normalize=False)
     # else:  # no need to convert.
-    print(poly_bounds)
-    print(model_bounds)
+
 
     poly_bounds_poly = Polygon(poly_bounds)
     model_bounds_poly = Polygon(model_bounds)

@@ -1,6 +1,6 @@
 """
 This is a list of the standard names used in libGOODS.
-In the model subclasses these are mapped to particular variable names used in the 
+In the model subclasses these are mapped to particular variable names used in the
 model output files. The list is included for reference (as a Python list,
 however it is not currently used anywhere). The method below returns the standard
 names to include based on what "environmental conditions" are being requested -- e.g,
@@ -97,6 +97,6 @@ def get_standard_names(env_params):
 
 def get_env_params(standard_names):
     """ """
-    params = {k for k, v in Ep.items() if all(subv in standard_names for subv in v)}
+    params = {k for k, v in EP_map.items() if all(subv in standard_names for subv in v)}
 
     return params

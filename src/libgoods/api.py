@@ -62,16 +62,16 @@ def list_models(model_ids=None,
 def get_model_info(model_id):
     """
     Return metadata about a particular model from a particular source. This will
-    query the server to add the actual time bounds to the metadata
+    instantiate the model object to add the actual time bounds to the metadata
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
-
-    :returns: libgoods.metadata.Metadata object with metadata of the model and source.
+    :returns: libgoods.metadata.Metadata object with metadata of the model
     """
-    meta = models.get_model_metadata(model_id)
-    #meta["actual_start"] = ''
-    #meta["actual_end"] = ''
+    meta = models.get_model_metadata(model_id)[0]
+    model_obj = models.ALL_MODELS[model_id](access='local')
+    #model_obj.open_ds(access='local')
+    meta.actual_start = model_obj.actual_start.isoformat()
+    meta.actual_end = model_obj.actual_end.isoformat()
 
     """     tvar_name = meta["sources"][0]["standard_names"]["time"]
     meta["urlpath"] = meta["sources"][0]["args"]["urlpath"]
@@ -83,16 +83,15 @@ def get_model_info(model_id):
             "Unable to retrieve data from server. Please check availability or try again later."
         ) """
 
-    return meta[0].as_pyson()
+    return meta.as_pyson()
 
 
-def validate_subset(model_id, model_source, start, end, bounds):
+def validate_subset(model_id, start, end, bounds):
     """
     Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
     :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
@@ -104,7 +103,7 @@ def validate_subset(model_id, model_source, start, end, bounds):
 
     polybounds = utilities.bbox2polygon(bounds)
 
-    meta = get_model_info(model_id, model_source)
+    meta = get_model_info(model_id)
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
     if not utilities.subset_intersects_model_boundary(meta["bounding_poly"], polybounds):
@@ -147,41 +146,22 @@ def get_model_subset(
         surface_only = False
     else:
         surface_only = True
+    print(start)
+    model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end)
+    model_obj.open_ds()
+    #model_obj.subset_time(start,end)
+    model_obj.subset_grid(bounds)
+    #model_obj.select_surface()
+    model_obj.filter_variables()
 
-    meta = get_model_info(model_id)
-
-    # build url list if unaggregated
-    if "noagg" in model_source:
-        pass
-
-    else:
-        urlpath = meta["urlpath"]
-
-    # these are what we want to include
-    snames_list = get_standard_names(environmental_parameters)
-    snames_dict = meta["sources"][0]["standard_names"]
-    var_dict = {x: snames_dict[x] for x in snames_list if x in snames_dict}
-    ds = model.get_model_subset(
-        urlpath,
-        start,
-        end,
-        list(bounds),
-        surface_only=surface_only,
-        cross_dateline=cross_dateline,
-        var_dict=var_dict,
-        grid=meta["grid_type"],
-    )
-
-    ds.cross_dateline = cross_dateline
-
-    return ds
+    return model_obj
 
 
 def get_model_output(xds, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = model.write_model_output(xds, output_pth, dl=xds.cross_dateline)
+    output_path = xds.write_nc(output_pth)
 
     return output_path
 
