@@ -52,7 +52,7 @@ individual files. So each update generates some number of nowcast files and fore
 The update cycle time will be the last model output timestep in the nowcast
 files and the first timestep in the forecast files
 
-Format prior to Aug2024
+Format prior to Aug2024 (ON AWS this format goes through April 2024 - after that only new format)
 nos.{OFS}.fields.nHHH.YYYYMMDD.tCCz.nc or
 
 Post Aug2024
@@ -201,8 +201,10 @@ def get_tds_flist(model_id, start, end, file_type="2ds", old_name_format=False, 
 
 def get_aws_flist(model_id, start, end, file_type="2ds", old_name_format=False):
     """
-    AWS S3 bucket has files sorted by model then into year/month
+    AFTER 2024/11/19:
+    AWS S3 bucket has files sorted by model then into year then month then day
         file_type: '2ds' for 2d, 'fields' for 3d
+    !!!!!!For dates prior to this use the get_aws_flist_year method!!!!!!
     """
 
     nc_list = []
@@ -259,6 +261,43 @@ def get_aws_flist(model_id, start, end, file_type="2ds", old_name_format=False):
     flist = prune_files_to_daterange(nc_list, fc_list, start, end, model_info.update_cycle)
 
     return flist
+
+def get_aws_flist_all(model_id, file_type="2ds", old_name_format=False):
+    """
+    Get the aws paths for all the nowcast files
+    Files are ordered in folders by year/month until 11/2024
+    After that ordered by year/month/day
+    New file name convention from 05/2024
+    model_id: str
+        ID of the model, should be one of what's in OFS_INFO dict
+        (`coops_ofs.OFS_INFO.keys()` to see what's there.)
+
+    file_type='2ds' : str
+        whether you want the 2D or 3D files. Options: '2ds' for 2D, 'fields' for 3D
+    """
+
+    nc_list = []
+
+    aws_root = 's3://noaa-nos-ofs-pds/'
+    model_info = OFS_INFO[model_id]
+
+
+    fs = s3fs.S3FileSystem(anon=True)
+
+
+    url = aws_root + model_info.identifier.lower() + "/netcdf/"
+
+    for dirpath, dirnames, filenames in fs.walk(url):
+
+        for f in filenames:
+            fpath = f"{dirpath}/{f}"
+            if file_type in f.split("/")[-1] and re.search(".n[0-9]{3}.", f) and ".n000" not in f:
+                nc_list.append(str(fpath))
+                print(f"Adding file: {fpath}")
+
+    nc_list_sorted = prune_files_to_daterange(nc_list, [], start=None, end=None, update_cycle=model_info.update_cycle)
+
+    return nc_list_sorted
 
 
 def get_local_flist(model_id, local_dir, start=None, end=None, file_type="2ds"):
@@ -398,7 +437,7 @@ def download_from_aws(model_id, fnames, out_dir="files", temp_dir=None):
     return newfilenames
 
 
-def file2dt(filename, tshift, coops_fname_format="new"):
+def file2dt(filename, update_cycle):
     """
     Return Timestamp of NOAA OFS filename based on naming convention.
     This is for OFS output with 1 timestep per file (everything but NYOFS)
@@ -407,10 +446,9 @@ def file2dt(filename, tshift, coops_fname_format="new"):
     ----------
     filename : str
         Filename for which to decipher datetime.
-    tshift : int
+    update_cycle : int
         Update cycle for COOPS OFS -- typically 6 but WCOFS is 24
-    coops_fname_format : str
-        Either "old" or "new" based on COOPS naming conventions (see notes in class)
+
     Returns
     -------
     Timestamp
@@ -419,14 +457,10 @@ def file2dt(filename, tshift, coops_fname_format="new"):
     Examples
     --------
     >>> fname = 'nos.cbofs.fields.n001.20220701.t00z.nc' #old format
-    >>> file2dt(fname)
+    >>> file2dt(fname,6)
     Timestamp('2022-06-30 19:00:00')
     """
 
-    if coops_fname_format == "new":
-        ofs = filename.split(".")[0].upper()
-    else:
-        ofs = filename.split(".")[1].upper()
     # read in date from filename
     date = pd.to_datetime(filename, format="%Y%m%d", exact=False)  # has time 00:00
 
@@ -443,7 +477,7 @@ def file2dt(filename, tshift, coops_fname_format="new"):
 
     # if nowcast file, subtract dt hours
     if fnmatch.fnmatch(filename, "*.n???.*"):
-        dt -= tshift
+        dt -= update_cycle
 
     # construct datetime. dt might be negative.
     date += pd.Timedelta(f"{dt} hours")
@@ -452,24 +486,12 @@ def file2dt(filename, tshift, coops_fname_format="new"):
 
 
 def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
-    if len(nc_list) > 1:
-        test_it = nc_list[0].split(".")[-2]  # look at last part of fname to check old/newformat
-    elif len(fc_list) > 1:
-        test_it = fc_list[0].split(".")[-2]
-    else:
-        print("No files found")
-        raise IndexError
-    try:
-        test_it.index("t")
-        coops_fname_format = "old"
-    except ValueError:
-        coops_fname_format = "new"
 
     # keep nowcast/forecast files in time range
     pruned_nc_list = []
     pruned_fc_list = []
     pruned_dts = []
-    dts = [file2dt(f.split("/")[-1], update_cycle, coops_fname_format) for f in nc_list]
+    dts = [file2dt(f.split("/")[-1], update_cycle) for f in nc_list]
 
     buffer = datetime.timedelta(
         hours=3
@@ -494,20 +516,20 @@ def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
     regex = re.compile(".t[0-9]{2}z.")
     try:
         last_nc_file = pruned_nc_list[-1].split("/")[-1]
-        if file2dt(last_nc_file, update_cycle, coops_fname_format) < end:
+        if file2dt(last_nc_file, update_cycle) < end:
             cycle = regex.findall(last_nc_file)[0][2:4]
             date = pd.to_datetime(last_nc_file, format="%Y%m%d", exact=False).strftime("%Y%m%d")
             for f in fc_list:
                 if f.find(date + ".t" + cycle + "z") + f.find("t" + cycle + "z." + date) > -1:
                     pruned_fc_list.append(f)
             dts = [
-                file2dt(f.split("/")[-1], update_cycle, coops_fname_format) for f in pruned_fc_list
+                file2dt(f.split("/")[-1], update_cycle) for f in pruned_fc_list
             ]
             pruned_fc_list = [x for y, x in sorted(zip(dts, pruned_fc_list))]
     except IndexError:
         print("No nowcast files available")
         no_nowcasts = True
-        dts = [file2dt(f.split("/")[-1], update_cycle, coops_fname_format) for f in fc_list]
+        dts = [file2dt(f.split("/")[-1], update_cycle) for f in fc_list]
         sorted_fc_list = [x for y, x in sorted(zip(dts, fc_list))]
         cycle = regex.findall(sorted_fc_list[-1])[0][2:4]
         date = pd.to_datetime(sorted_fc_list[-1], format="%Y%m%d", exact=False).strftime("%Y%m%d")

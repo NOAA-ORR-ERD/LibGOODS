@@ -11,7 +11,7 @@ from .doppio import DOPPIO
 from .hf_radar import HFRadar
 from .ncom_regional import Alaska, AmSeas, USEast
 from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
-from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARI, MARIG, SAMOA
+from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, WPAC, MARIG, SAMOA
 from .tamu import TAMU
 from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM

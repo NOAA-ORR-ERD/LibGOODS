@@ -69,7 +69,6 @@ def get_model_info(model_id):
     """
     meta = models.get_model_metadata(model_id)[0]
     model_obj = models.ALL_MODELS[model_id](access='local')
-    #model_obj.open_ds(access='local')
     meta.actual_start = model_obj.actual_start.isoformat()
     meta.actual_end = model_obj.actual_end.isoformat()
 
@@ -146,7 +145,7 @@ def get_model_subset(
         surface_only = False
     else:
         surface_only = True
-    print(start)
+
     model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end)
     model_obj.open_ds()
     #model_obj.subset_time(start,end)

@@ -59,11 +59,11 @@ class HIOEKG(PacIOOS):
     )
 
 
-class MARI(PacIOOS):
-    name = "Philippine Sea"
+class WPAC(PacIOOS):
+    name = "Western North Pacific"
     location = (
         tds_url
-        + "/dodsC/pacioos/roms_native/mari/ROMS_CNMI_Regional_Ocean_Model_Native_Grid_best.ncd"
+        + "/dodsC/pacioos/roms_native/wpac/ROMS_Western_North_Pacific_Regional_Ocean_Model_Native_Grid_best.ncd"
     )
 
 
