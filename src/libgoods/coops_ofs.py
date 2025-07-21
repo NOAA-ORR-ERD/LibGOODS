@@ -262,7 +262,7 @@ def get_aws_flist(model_id, start, end, file_type="2ds", old_name_format=False):
 
     return flist
 
-def get_aws_flist_all(model_id, file_type="2ds", old_name_format=False):
+def get_aws_flist_all(model_id, file_type="2ds"):
     """
     Get the aws paths for all the nowcast files
     Files are ordered in folders by year/month until 11/2024

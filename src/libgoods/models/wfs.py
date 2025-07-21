@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta
-
 import requests
-
 from .base_models import FVCOM
-
+from .metadata import Metadata
 
 class BaseWFS(FVCOM):
     # might not need this base class -- we'll see
@@ -12,8 +10,10 @@ class BaseWFS(FVCOM):
 
 
 class WFCOM(BaseWFS):
-    name = "West Florida Coastal Ocean Circulation Model"
-    example_bbox = (-82.0, 24.0, -81.0, 26.0)
+    metadata = Metadata()
+    metadata.identifier = 'WFCOM'
+    metadata.name = "West Florida Coastal Ocean Circulation Model"
+    metadata.example_bbox = (-82.0, 24.0, -81.0, 26.0)
 
     locbase = "http://ocgtds.marine.usf.edu:8080/thredds/dodsC/WFCOM4_NF_model/WFCOM4_NF_"
     day_str = datetime.today().strftime("%Y%m%d")
@@ -27,6 +27,8 @@ class WFCOM(BaseWFS):
 
 
 class TBCOM(BaseWFS):
+    metadata = Metadata()
+    metadata.identifier = 'TBCOM'
     name = "Tampa Bay Coastal Ocean Model"
     example_bbox = (-82.75, 27.5, -82.4, 27.75)
     # location = 'http://ocgtds.marine.usf.edu:8080/thredds/dodsC/TBCOM2_NF_model/TBCOM2_NF_20250327.nc'

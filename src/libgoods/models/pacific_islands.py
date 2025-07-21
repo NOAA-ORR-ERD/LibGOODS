@@ -1,5 +1,6 @@
 
 from .base_models import ROMS
+from .metadata import Metadata
 
 tds_url = "http://pae-paha.pacioos.hawaii.edu/thredds"
 
@@ -19,7 +20,9 @@ class PacIOOS(ROMS):
 
 
 class HIIG(PacIOOS):
-    name = "Hawaiian Islands 4 km"
+    metadata = Metadata()
+    metadata.identifier = 'HIIG'
+    metadata.name = "Hawaiian Islands 4 km"
     location = (
         tds_url
         + "/dodsC/hioos/roms_native/hiig/ROMS_Hawaii_Regional_Ocean_Model_Native_Grid_best.ncd"
@@ -28,7 +31,9 @@ class HIIG(PacIOOS):
 
 
 class HIOG(PacIOOS):
-    name = "Oahu 1 km"
+    metadata = Metadata()
+    metadata.identifier = 'HIOG'
+    metadata.name = "Oahu 1 km"
     location = (
         tds_url
         + "/dodsC/hioos/roms_native/hiog/ROMS_Oahu_Regional_Ocean_Model_Native_Grid_best.ncd",
@@ -36,7 +41,9 @@ class HIOG(PacIOOS):
 
 
 class HIOMSG(PacIOOS):
-    name = "Oahu South Shore"
+    metadata = Metadata()
+    metadata.identifier = 'HIOMSG'
+    metadata.name = "Oahu South Shore"
     location = (
         tds_url
         + "/dodsC/hioos/roms_native/hiomsg/ROMS_Oahu_South_Shore_Regional_Ocean_Model_Native_Grid_best.ncd"  # noqa
@@ -44,7 +51,9 @@ class HIOMSG(PacIOOS):
 
 
 class HIOMSAG(PacIOOS):
-    name = "Waikiki"
+    metadata = Metadata()
+    metadata.identifier = 'HIOMSAG'
+    metadata.name = "Waikiki"
     location = (
         tds_url
         + "/dodsC/hioos/roms_native/hiomsag/ROMS_Waikiki_Regional_Ocean_Model_Native_Grid_best.ncd"
@@ -52,7 +61,9 @@ class HIOMSAG(PacIOOS):
 
 
 class HIOEKG(PacIOOS):
-    name = "Kaneohe Bay"
+    metadata = Metadata()
+    metadata.identifier = 'HIOEKG'
+    metadata.name = "Kaneohe Bay"
     location = (
         tds_url
         + "/dodsC/hioos/roms_native/hioekg/ROMS_Kaneohe_Regional_Ocean_Model_Native_Grid_best.ncd"
@@ -60,7 +71,9 @@ class HIOEKG(PacIOOS):
 
 
 class WPAC(PacIOOS):
-    name = "Western North Pacific"
+    metadata = Metadata()
+    metadata.identifier = 'WPAC'
+    metadata.name = "Western North Pacific"
     location = (
         tds_url
         + "/dodsC/pacioos/roms_native/wpac/ROMS_Western_North_Pacific_Regional_Ocean_Model_Native_Grid_best.ncd"
@@ -68,7 +81,9 @@ class WPAC(PacIOOS):
 
 
 class MARIG(PacIOOS):
-    name = "Guam and Northern Mariana Islands"
+    metadata = Metadata()
+    metadata.identifier = 'MARIG'
+    metadata.name = "Guam and Northern Mariana Islands"
     location = (
         tds_url
         + "/dodsC/pacioos/roms_native/marig/ROMS_Guam_Regional_Ocean_Model_Native_Grid_best.ncd"
@@ -76,7 +91,9 @@ class MARIG(PacIOOS):
 
 
 class SAMOA(PacIOOS):
-    name = "Samoa"
+    metadata = Metadata()
+    metadata.identifier = 'SAMOA'
+    metadata.name = "Samoa"
     location = (
         tds_url
         + "/dodsC/pacioos/roms_native/samoa/ROMS_Samoa_Regional_Ocean_Model_Native_Grid_best.ncd"

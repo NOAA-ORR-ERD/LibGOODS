@@ -1,4 +1,5 @@
 from .base_models import BaseModel
+from .metadata import Metadata
 
 url_base = "http://hfrnet-tds.ucsd.edu/thredds/dodsC/HFR/"
 
@@ -31,6 +32,8 @@ class HFRadar(BaseModel):
         but URLs are inconsistent for 25h, monthly, annual
         maybe port code from GOODS which builds urls from server
         """
+        metadata = Metadata()
+        metadata.identifier = 'HFRadar'
         if region in regions:
             fname = "HFRADAR_" + regions[region] + "_" + res + "_Resolution_Hourly_RTV_best.ncd"
             self.location = url_base + region + "/" + res + "/hourly/RTV/" + fname

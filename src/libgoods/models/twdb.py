@@ -2,9 +2,8 @@ import re
 import tempfile
 import urllib
 import zipfile
-
 import requests
-
+from .metadata import Metadata
 """
 These are provided as zip files downloaded from a URL - we could add an api that allows subsetting
 similar to others but I'm not sure we need it as they are not very big and being replaced by
@@ -37,6 +36,8 @@ class BaseTWDB:
             html_text = "error"
 
         self.urls = {}
+        self.metadata = Metadata()
+
         for model in models:
             if "error" in html_text or "Not Found" in html_text:
                 self.urls[model] = "URL not found"
@@ -77,32 +78,37 @@ class SabineLake(BaseTWDB):
     def __init__(self):
         super().__init__()
         self.location = self.urls["Sabine"]
-        self.name = "Sabine Lake"
+        self.metadata.identifier = 'SabineLake'
+        self.metadata.name = "Sabine Lake"
 
 
 class GalvestonBay(BaseTWDB):
     def __init__(self):
         super().__init__()
         self.location = self.urls["Galv"]
-        self.name = "Galveston Bay"
+        self.metadata.identifier = 'GalvestonBay'
+        self.metadata.name = "Galveston Bay"
 
 
 class MatagordaBay(BaseTWDB):
     def __init__(self):
         super().__init__()
         self.location = self.urls["Matag"]
-        self.name = "Matagorda Bay"
+        self.metadata.identifier = 'MatagordaBay'
+        self.metadata.name = "Matagorda Bay"
 
 
 class CorpusChristiBay(BaseTWDB):
     def __init__(self):
         super().__init__()
         self.location = self.urls["CCBay"]
-        self.name = "Corpus Christi Bay"
+        self.metadata.identifier = 'CorpusChristiBay'
+        self.metadata.name = "Corpus Christi Bay"
 
 
 class SanAntonioBay(BaseTWDB):
     def __init__(self):
         super().__init__()
         self.location = self.urls["CopSA"]
-        self.name = "San Antonio Bay"
+        self.metadata.identifier = 'SanAntonioBay'
+        self.metadata.name = "San Antonio Bay"

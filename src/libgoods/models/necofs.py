@@ -1,5 +1,5 @@
 from .base_models import FVCOM
-
+from .metadata import Metadata
 
 class BaseNECOFS(FVCOM):
     access = "opendap"
@@ -21,26 +21,36 @@ class BaseNECOFS(FVCOM):
 
 
 class NECOFS(BaseNECOFS):
-    name = "Northeast Coastal Ocean Forecast (GOM7)"
+    metadata = Metadata()
+    metadata.identifier = 'NECOFS'
+    metadata.name = "Northeast Coastal Ocean Forecast (GOM7)"
     location = "http://www.smast.umassd.edu:8080/thredds/dodsC/models/fvcom/NECOFS/Forecasts/NECOFS_GOM7_FORECAST.nc"
-    example_bbox = (-70, 41, -66, 44)
+    metadata.example_bbox = (-70, 41, -66, 44)
 
 
 class MassCoastal(BaseNECOFS):
-    name = "Massachusetts Coastal Model"
+    metadata = Metadata()
+    metadata.identifier = 'MassCoastal'
+    metadata.name = "Massachusetts Coastal Model"
     location = "http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NECOFS_FVCOM_OCEAN_MASSBAY_FORECAST.nc"
 
 
 class BostonHarbor(BaseNECOFS):
-    name = "Boston Harbor, MA"
+    metadata = Metadata()
+    metadata.identifier = 'BostonHarbor'
+    metadata.name = "Boston Harbor, MA"
     location = "http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NECOFS_FVCOM_OCEAN_BOSTON_FORECAST.nc"
 
 
 class Hampton(BaseNECOFS):
-    name = "Hampton, NH"
+    metadata = Metadata()
+    metadata.identifier = 'Hampton'
+    metadata.name = "Hampton, NH"
     location = "http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NECOFS_FVCOM_OCEAN_HAMPTON_FORECAST.nc"
 
 
 class Scituate(BaseNECOFS):
-    name = "Scituate, MA"
+    metadata = Metadata()
+    metadata.identifier = 'Scituate'
+    metadata.name = "Scituate, MA"
     location = "http://www.smast.umassd.edu:8080/thredds/dodsC/FVCOM/NECOFS/Forecasts/NECOFS_FVCOM_OCEAN_SCITUATE_FORECAST.nc"
