@@ -4,7 +4,8 @@ Core API for accessing model results
 These are the functions that the WebGNOME client will call
 
 """
-
+import datetime
+from pathlib import Path
 from . import (
     ModelAvailabilityError,
     NonIntersectingSubsetError,
@@ -14,21 +15,17 @@ from . import (
     shoreline,
     utilities,
 )
-from . import model_nc4 as model
-from . import NWS_point, shoreline
-from .standard_names import get_standard_names
-from . import models
+
 from .models import metadata
-from .standard_names import get_standard_names
 
 def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
-                # as_pyson=True
+                as_pyson=True
                 ):
     """
     Return metadata for all available models
-    This is the static information about the models (in yaml file). It will not include
+    This is the static information about the models (typically in a yaml file). It will not include
     actual start/end time based on querying the server
 
     :param model_ids_sources=None: Optional list of models identifiers. If None all available
@@ -55,11 +52,12 @@ def list_models(model_ids=None,
         env_params=env_params,
     )
 
-    retval = [m.as_pyson() for m in retval]
+    if as_pyson:
+        retval = [m.as_pyson() for m in retval]
 
     return retval
 
-def get_model_info(model_id):
+def get_model_info(model_id, archive_dir=None):
     """
     Return metadata about a particular model from a particular source. This will
     instantiate the model object to add the actual time bounds to the metadata
@@ -68,7 +66,19 @@ def get_model_info(model_id):
     :returns: libgoods.metadata.Metadata object with metadata of the model
     """
     meta = models.get_model_metadata(model_id)[0]
-    model_obj = models.ALL_MODELS[model_id](access='local')
+    local_model_dir = Path("/path/to/nonexistent/file.txt")
+    # FIXME -- I need to figure out the logic for this to allow
+    # an archive_dir to exist but not include a specific model
+    if archive_dir is not None:
+        local_model_dir = Path(archive_dir) / model_id.lower()
+
+    if local_model_dir.exists():
+        model_obj = models.ALL_MODELS[model_id](access='local', archive_dir=archive_dir)
+    else:
+        model_obj = models.ALL_MODELS[model_id]()
+        model_obj.open_ds() #try/except here?
+        model_obj.get_start_end()
+
     meta.actual_start = model_obj.actual_start.isoformat()
     meta.actual_end = model_obj.actual_end.isoformat()
 
@@ -85,7 +95,7 @@ def get_model_info(model_id):
     return meta.as_pyson()
 
 
-def validate_subset(model_id, start, end, bounds):
+def validate_subset(model_id, start, end, bounds, archive_dir=None):
     """
     Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
@@ -102,7 +112,7 @@ def validate_subset(model_id, start, end, bounds):
 
     polybounds = utilities.bbox2polygon(bounds)
 
-    meta = get_model_info(model_id)
+    meta = get_model_info(model_id, archive_dir=archive_dir)
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
     if not utilities.subset_intersects_model_boundary(meta["bounding_poly"], polybounds):
@@ -125,7 +135,8 @@ def get_model_subset(
     surface_only=True,
     cross_dateline=False,
     environmental_parameters=["surface currents"],
-):
+    archive_dir=None
+    ):
     """
     Determine the indices for the desired subset (in space and time)
 
@@ -146,21 +157,39 @@ def get_model_subset(
     else:
         surface_only = True
 
-    model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end)
-    model_obj.open_ds()
-    #model_obj.subset_time(start,end)
+    if type(start) is not datetime.datetime:
+        start = datetime.datetime.fromisoformat(start)
+    if type(end) is not datetime.datetime:
+        end = datetime.datetime.fromisoformat(end)
+
+    local_model_dir = Path("/path/to/nonexistent/file.txt")
+    # FIXME -- I need to figure out the logic for this to allow
+    # an archive_dir to exist but not include a specific model
+    if archive_dir is not None:
+        local_model_dir = Path(archive_dir) / model_id.lower()
+
+    if local_model_dir.exists():
+        model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
+        model_obj.open_ds()
+    else:
+        model_obj = models.ALL_MODELS[model_id]()
+        model_obj.open_ds()
+        model_obj.subset_time(start,end)
+
+    #model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end)
+    #model_obj.open_ds()
     model_obj.subset_grid(bounds)
-    #model_obj.select_surface()
+    model_obj.select_surface()
     model_obj.filter_variables()
 
     return model_obj
 
 
-def get_model_output(xds, output_pth):
+def get_model_output(model_obj, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = xds.write_nc(output_pth)
+    output_path = model_obj.write_nc(output_pth)
 
     return output_path
 

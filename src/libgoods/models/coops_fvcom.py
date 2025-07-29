@@ -1,6 +1,6 @@
 
 from libgoods import coops_ofs
-
+from pathlib import Path
 from . import YAML_DIR
 from .base_models import FVCOM
 from .metadata import Metadata
@@ -10,7 +10,7 @@ gl_standard_names = FVCOM.standard_names | {"surface_eastward_sea_water_velocity
                                             "surface_northward_sea_water_velocity": "v",
                                             }
 
-
+LOCAL_CACHE_DIR = Path("C:/Users/amy.macfadyen/PyProjects/webgnomeapi/libgoods-cache")
 class COOPS_FVCOM(FVCOM):
     update_cycle = 6
     local_file_type = "fields"
@@ -33,7 +33,8 @@ class COOPS_FVCOM(FVCOM):
 
         elif access == "local":
             self.access = "local"
-            local_dir = "/Volumes/Fury 2/s3"
+            #local_dir = "/Volumes/Fury 2/s3"
+            local_dir = LOCAL_CACHE_DIR
             self.location = coops_ofs.get_local_flist(
                 self.identifier, local_dir, file_type=self.local_file_type, start=start, end=end
             )

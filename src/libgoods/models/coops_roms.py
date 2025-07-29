@@ -4,11 +4,10 @@ from . import YAML_DIR
 from .base_models import ROMS
 from .metadata import Metadata
 
-LOCAL_CACHE_DIR = Path("C:/Users/amy.macfadyen/PyProjects/webgnomeapi/libgoods-cache")
 class COOPS_ROMS(ROMS):
     update_cycle = 6
 
-    def __init__(self, access="zarr", start=None, end=None):
+    def __init__(self, access="zarr", start=None, end=None, archive_dir=None):
         super().__init__()
         if access == "zarr":
             self.access = "zarr"
@@ -27,9 +26,9 @@ class COOPS_ROMS(ROMS):
         elif access == "local":
             self.access = "local"
             # local_dir = "/Volumes/Fury 2/s3"
-            local_dir = LOCAL_CACHE_DIR
+
             self.location = coops_ofs.get_local_flist(
-                self.identifier, local_dir, file_type=self.local_file_type, start=start, end=end
+                self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end
             )
             self.actual_start = coops_ofs.file2dt(self.location[0], self.update_cycle)
             self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)
