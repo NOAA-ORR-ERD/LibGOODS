@@ -6,7 +6,7 @@ import datetime
 import warnings
 
 import numpy as np
-from shapely.geometry import MultiPoint, Polygon
+from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
 
 def get_example_bbox(model_id):
@@ -468,3 +468,26 @@ def round_dt_to_hours(dt):
 
     dt += datetime.timedelta(minutes=30)
     return dt.replace(microsecond=0).replace(second=0).replace(minute=0)
+
+def thin_and_write_bnd(blon, blat, bnd_res=10):
+
+    #Thin boundary as required (10 km spacing is default)
+    tblon = [blon[0],]; tblat = [blat[0],];
+
+    for ii in range(1,len(blon)):
+            dx = (blon[ii] - tblon[-1]) * 111.325 * np.cos(blat[ii]*np.pi/180)
+            dy = (blat[ii] - tblat[-1]) * 111.325
+            d = np.sqrt(dx**2 + dy**2)
+            if d > bnd_res:
+                tblon.append(blon[ii])
+                tblat.append(blat[ii])
+
+    ll = np.column_stack((tblon,tblat))
+    poly = Polygon(ll)
+
+    # convert to GeoJSON format
+    geojson = mapping(poly)
+    geojson['coordinates'] = np.round(np.array(geojson['coordinates']),4)
+
+    with open('bry.txt','w') as f:
+        f.write(shape(geojson).wkt)
