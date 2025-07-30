@@ -210,9 +210,6 @@ def GetNextBNAPolygon(f, dtype=np.float64):
         name:      name defined in the BNA
         sname:     secondary name defined in the BNA
 
-    NOTE: It is the BNA standard to duplicate the first and last points.
-          In that case, the duplicated last point is removed.
-
            "holes" in polygons are not supported in this code.
     See:
        http://www.softwright.com/faq/support/boundary_file_bna_format.html
@@ -270,10 +267,11 @@ def GetNextBNAPolygon(f, dtype=np.float64):
         except ValueError as err:
             raise ValueError(f"incorrect coords in line: {line} in poly: {header}") from err
 
-    if poly_type == "polygon":  # first and last points are the same in BNA,
-        # but we don't want the duplicate point.
-        if points[0, 0] == points[-1, 0] and points[0, 1] == points[-1, 1]:
-            points = points[0:-1]
+    # maybe should check for duplicate first and last points -- we do want them!
+    # if poly_type == "polygon":  # first and last points are the same in BNA,
+    #     # but we don't want the duplicate point.
+    #     if points[0, 0] == points[-1, 0] and points[0, 1] == points[-1, 1]:
+    #         points = points[0:-1]
 
     return (points, poly_type, name, sname)
 
@@ -290,10 +288,10 @@ def WriteBNA(filename, polyset):
     """
     outfile = open(filename, "w")
 
-    if hasattr(polyset, "metadata"):  # it's a PolyGgonSet object
+    if hasattr(polyset, "metadata"):  # it's a PolyGonSet object
         for poly in polyset:
             m = poly.metadata
-            outfile.write('"%s","%s", %i\n' % (m[1], m[2], len(poly)))
+            outfile.write('"%s", "%s", %i\n' % (m[1], m[2], len(poly)))
 
             for point in poly:
                 # point = np.asarray(point)
@@ -301,10 +299,10 @@ def WriteBNA(filename, polyset):
     else:  # assume it's a list, as returned by ReadBNA
         for poly in polyset:
             verts = poly[0]
-            outfile.write(f'"{poly[2]}","{poly[3]}", {len(verts)}\n')
+            outfile.write(f'"{poly[2]}", "{poly[3]}", {len(verts)}\n')
             for point in verts:
                 # point = np.asarray(point)
-                outfile.write(f"{point[0]:.8f}, {point[1]:.8f} \n")
+                outfile.write(f"{point[0]:.12f}, {point[1]:.12f} \n")
 
 
 def ReadBNA(filename, polytype="list", dtype=np.float64):

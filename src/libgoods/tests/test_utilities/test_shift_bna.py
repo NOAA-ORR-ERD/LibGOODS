@@ -1,16 +1,14 @@
-from pathlib import Path
-
 import numpy as np
 
 from libgoods.scripting import shift_bna
 from libgoods.utilities.haz_files import ReadBNA
 
-HERE = Path(__file__).parent
+from .conftest import DATA_DIR, OUTPUT_DIR
 
 
 def test_shift():
-    infile = HERE / "lake_erie_islands.bna"
-    outfile = HERE / "lake_erie_islands_shifted.bna"
+    infile = DATA_DIR / "lake_erie_islands.bna"
+    outfile = OUTPUT_DIR / "lake_erie_islands_shifted.bna"
 
     outfile.unlink(missing_ok=True)
 

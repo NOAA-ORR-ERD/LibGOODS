@@ -43,27 +43,26 @@ from .standard_names import get_env_params
 yaml_file_directory = Path(__file__).parent / "yaml_files"
 
 
-def get_all_metadata():
-    """
-    Loop though all the files in the yaml files directory and return a
-    dict of the metadata for all models
-    """
+# def get_all_metadata():
+#     """
+#     Loop though all the files in the yaml files directory and return a
+#     dict of the metadata for all models
+#     """
 
-    flist = yaml_file_directory.glob("*.yaml")
-    all_metas = {f.name.split(".")[0].upper(): Metadata().init_from_yaml(f) for f in flist}
-    return all_metas
+#     flist = yaml_file_directory.glob("*.yaml")
+#     all_metas = {f.name.split(".")[0].upper(): Metadata().init_from_yaml(f) for f in flist}
+#     return all_metas
 
 
-def get_metadata_for_model(model, source):
-    """
-    Return the metadata for a particular model/source
+# def get_metadata_for_model(model, source):
+#     """
+#     Return the metadata for a particular model/source
+#     """
 
-    """
+#     yaml_file = Path(yaml_file_directory, model.lower() + ".yaml")
+#     meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
 
-    yaml_file = Path(yaml_file_directory, model.lower() + ".yaml")
-    meta = Metadata().init_from_yaml(yaml_file, source=source).as_pyson()
-
-    return meta
+#     return meta
 
 
 @dataclasses.dataclass
