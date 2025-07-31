@@ -40,7 +40,7 @@ t("filtering_variables")
 # t("computing the whole thing")
 
 #write it
-wpac.write_nc('wpac.nc')
+wpac.write_nc('output/wpac.nc')
 t("saving as netCDF")
 
 t.end()
