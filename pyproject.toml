@@ -61,7 +61,7 @@ libgoods = ["yaml_files/*.yaml",
 
 [tool.ruff]
 builtins = ["ellipsis"]
-extend-exclude = ["xarray_subset_grid/_version.py"]
+# extend-exclude = ["xarray_subset_grid/_version.py"]
 target-version = "py310"
 # Use a longer line length.
 line-length = 100
