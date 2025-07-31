@@ -9,3 +9,4 @@ pandas
 yaml
 siphon
 fiona
+xarray_subset_grid>=0.1.0
