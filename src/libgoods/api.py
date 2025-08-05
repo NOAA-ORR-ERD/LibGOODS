@@ -71,7 +71,6 @@ def get_model_info(model_id, archive_dir=None):
     # an archive_dir to exist but not include a specific model
     if archive_dir is not None:
         local_model_dir = Path(archive_dir) / model_id.lower()
-
     if local_model_dir.exists():
         model_obj = models.ALL_MODELS[model_id](access='local', archive_dir=archive_dir)
     else:
@@ -176,10 +175,12 @@ def get_model_subset(
         model_obj.open_ds()
         model_obj.subset_time(start,end)
 
-    #model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end)
-    #model_obj.open_ds()
     model_obj.subset_grid(bounds)
-    model_obj.select_surface()
+    if surface_only:
+        try:
+            model_obj.select_surface()
+        except AttributeError: #may be surface only output
+            pass
     model_obj.filter_variables()
 
     return model_obj

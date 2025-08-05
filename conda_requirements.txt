@@ -1,5 +1,5 @@
 python>=3.10,<3.13
-extract_model
+xarray_subset_grid
 netCDF4
 numpy
 requests
@@ -9,3 +9,4 @@ pandas
 yaml
 siphon
 fiona
+cfgrib

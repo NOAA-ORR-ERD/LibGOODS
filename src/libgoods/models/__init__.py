@@ -15,6 +15,7 @@ from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, WPAC, MARIG, S
 from .tamu import TAMU
 from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
+from .espc import ESPC
 
 # fixme: should this be an instance or teh model class??
 #        it's currently the class, and get_models instantiates them,
