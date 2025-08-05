@@ -13,10 +13,13 @@ import fiona
 import numpy as np
 import shapely.geometry as sgeo
 
-shoreline_dir = Path(__file__).parent / "shoreline_data"
+from libgoods import config
+
+# shoreline_dir = Path(__file__).parent / "shoreline_data"
 
 # this dict maps shoreline dataset options to subdirectories where shapefiles can be
 # found (the "nos" and "gshhs" keys match what is curently coming from WebGNOME client
+
 shoreline_datasets = {
     "AK_CUSP": ["AK_CUSP", "AK_CUSP_polygon_20240221.shp"],
     "NE_CUSP": ["ME_to_DE_CUSP", "ME_NH_MA_CT_RI_VT_NY_NJ_DE_20241009.shp"],
@@ -24,6 +27,10 @@ shoreline_datasets = {
     "OSM": ["OpenStreetMap", "land-polygons-complete-4326", "land_polygons.shp"],
     "gshhs": ["gshhg", "GSHHS_shp"],
 }
+# call this in one place:
+# opens up the option of having different datasets in different places.
+shoreline_datasets = {name: config.shoreline_dir.joinpath(*paths)
+                      for name, paths in shoreline_datasets.items()}
 
 
 def format_for_bna(filename, polys, levs, dl=False):
@@ -136,8 +143,9 @@ def get_map(
     """
     # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
-    shpfile_dir = shoreline_dir.joinpath(*shoreline_datasets[data_source])
+    shpfile_dir = shoreline_datasets[data_source]
     if data_source == "gshhs":
+        # extra stuff to find the nested dirs for the resolution
         fname = "GSHHS_" + resolution + "_L1.shp"
         shpfile = shpfile_dir.joinpath(resolution, fname)
         bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
@@ -150,7 +158,6 @@ def get_map(
             bna_polys.extend(bna_polys2)
             levs.extend(levs2)
     else:
-        shpfile = shoreline_dir.joinpath(*shoreline_datasets[data_source])
-        bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+        bna_polys, levs = load_polys_and_clip(shpfile_dir, bbox, dl=cross_dateline)
 
     format_for_bna(ofn, bna_polys, levs, dl=cross_dateline)

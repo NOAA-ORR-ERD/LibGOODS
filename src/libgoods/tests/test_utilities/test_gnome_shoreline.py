@@ -48,4 +48,7 @@ def test_write_bna():
 
     assert outfilename.is_file()
 
-    assert False
+    # re-read it:
+    gs2 = GNOME_shoreline(outfilename)
+
+    assert gs.is_similar(gs2)

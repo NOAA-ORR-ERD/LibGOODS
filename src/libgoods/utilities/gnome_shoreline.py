@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 
-class GNOME_shoreline():
+class GNOME_shoreline:
     """
     class to hold GNOME shoreline data
     """
@@ -143,4 +143,18 @@ class GNOME_shoreline():
                 f"{len(self.land_polys)} Land polygons\n"
                 f"{len(self.other_polys)} Other polygons\n"
                 )
+    def is_similar(self, other):
+        """
+        returns true if the two shorelines are similar (maybe the same):
 
+        same number of polygons of each type, etc.
+        """
+        if (len(self.map_bounds) == len(other.map_bounds)
+            and len(self.spillable_area) == len(other.spillable_area)
+            and len(self.lake_polys) == len(other.lake_polys)
+            and len(self.land_polys) == len(other.land_polys)
+            and len(self.other_polys) == len(other.other_polys)
+            ):
+            return True
+        else:
+            return False

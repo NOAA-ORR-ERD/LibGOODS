@@ -14,9 +14,11 @@ from . import (
     models,
     shoreline,
     utilities,
+    config,
 )
 
 from .models import metadata
+
 
 def list_models(model_ids=None,
                 map_bounds=None,
@@ -57,22 +59,26 @@ def list_models(model_ids=None,
 
     return retval
 
+
 def get_model_info(model_id, archive_dir=None):
     """
-    Return metadata about a particular model from a particular source. This will
-    instantiate the model object to add the actual time bounds to the metadata
+    Return latest metadata about a particular model.
+    This will instantiate the model object to add the current
+    time bounds.
 
-    :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :returns: libgoods.metadata.Metadata object with metadata of the model
+    :param model_id: the name (unique ID) of the model as in `api.list_models()`
+    :returns: "pyson" object (nested dict) with metadata of the model
     """
+    if archive_dir is None:
+        archive_dir = config.archive_dir
     meta = models.get_model_metadata(model_id)[0]
-    local_model_dir = Path("/path/to/nonexistent/file.txt")
+    # # why set this to garbage???
+    # local_model_dir = Path("/path/to/nonexistent/file.txt")
     # FIXME -- I need to figure out the logic for this to allow
     # an archive_dir to exist but not include a specific model
-    if archive_dir is not None:
-        local_model_dir = Path(archive_dir) / model_id.lower()
-
-    if local_model_dir.exists():
+    if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
+        # local_model_dir = Path(archive_dir) / model_id.lower()
+        # if local_model_dir.exists():
         model_obj = models.ALL_MODELS[model_id](access='local', archive_dir=archive_dir)
     else:
         model_obj = models.ALL_MODELS[model_id]()

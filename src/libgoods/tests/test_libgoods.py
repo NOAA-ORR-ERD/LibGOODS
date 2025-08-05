@@ -3,20 +3,31 @@ tests for stuff in the main libgoods namespace
 
 e.g. the stuff in __init__
 """
+
+
 from pathlib import Path
 
-from libgoods import Config
+from libgoods import Config, UnsetConfigError
 
+import pytest
 
-def test_config():
+def test_config_path():
     """
     Not much here but we want to test what happens when we set a path
     """
     config = Config()
     config.archive_dir = "./"
 
-    assert config.shoreline_dir is None
     assert isinstance(config.archive_dir, Path)
 
+def test_config_None():
+    """
+    Not much here but we want to test what happens when we set a path
+    """
+    config = Config()
+    config.archive_dir = "./"
+
+    with pytest.raises(UnsetConfigError):
+        d = config.shoreline_dir
 
 

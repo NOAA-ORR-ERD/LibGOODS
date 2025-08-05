@@ -38,6 +38,19 @@ def test_filter_by_poly_bounds():
     assert not api._filter_by_poly_bounds(api.all_metas["NYOFS"], testbounds180)
 
 
+def test_get_model_info_no_archive():
+    """
+    at least something ...
+    """
+    mi = api.get_model_info(model_id="WFCOM") # arbitrary choice
+
+    assert 'actual_start' in mi
+    assert 'actual_end' in mi
+
+
+
+
+
 # def test_filter_by_env_params():
 #     pass
 
