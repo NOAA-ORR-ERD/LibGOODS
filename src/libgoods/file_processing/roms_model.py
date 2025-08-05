@@ -40,6 +40,21 @@ class roms(curv_model.curv):
             self.x = [0, self.lon.shape[1]]
             self.y = [0, self.lat.shape[0]]
 
+    def get_bdry(self):
+
+            blon = []
+            blat = []
+            blon.extend(self.lon[0,:])
+            blon.extend(self.lon[:,-1])
+            blon.extend(self.lon[-1,::-1])
+            blon.extend(self.lon[::-1,0])
+            blat.extend(self.lat[0,:])
+            blat.extend(self.lat[:,-1])
+            blat.extend(self.lat[-1,::-1])
+            blat.extend(self.lat[::-1,0])
+
+            return blon, blat
+
     def write_nc(  # noqa: C901
         self,
         var_map=None,
