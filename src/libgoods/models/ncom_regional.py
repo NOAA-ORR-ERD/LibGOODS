@@ -1,4 +1,4 @@
-from .base_models import BaseModel
+from .base import BaseModel
 
 
 class NCOM(BaseModel):

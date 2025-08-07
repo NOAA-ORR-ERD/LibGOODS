@@ -2,7 +2,7 @@
 from libgoods import coops_ofs
 from pathlib import Path
 from . import YAML_DIR
-from .base_models import FVCOM
+from .base_xsg import FVCOM
 from .metadata import Metadata
 
 # the standard names used by the Great Lakes COOPS models
@@ -16,6 +16,7 @@ class COOPS_FVCOM(FVCOM):
     local_file_type = "fields"
 
     def __init__(self, access="zarr", start=None, end=None):
+        #start/end are only used for local archives, ignored otherwise - fix?
         super().__init__()
 
         if access == "zarr":

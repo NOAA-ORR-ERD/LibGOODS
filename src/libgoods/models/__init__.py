@@ -4,7 +4,7 @@ YAML_DIR = Path(__file__).parent / "metadata"
 
 # do we need them in the whole namespace?
 
-from .base_models import BaseModel
+from .base import BaseModel
 from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS
 from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO

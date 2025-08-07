@@ -1,4 +1,5 @@
-from .base_models import BaseModel
+from .base import BaseModel
+from libgoods.file_processing import rect_model
 from .metadata import Metadata
 from . import YAML_DIR
 

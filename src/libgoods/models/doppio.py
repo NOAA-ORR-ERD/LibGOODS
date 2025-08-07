@@ -1,4 +1,4 @@
-from .base_models import ROMS
+from .base_xsg import ROMS
 from .metadata import Metadata
 
 class DOPPIO(ROMS):

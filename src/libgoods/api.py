@@ -71,6 +71,8 @@ def get_model(model_id, start=None, end=None):
     """
 
     archive_dir = config.archive_dir
+    print('********************************')
+    print(archive_dir)
 
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
         model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)

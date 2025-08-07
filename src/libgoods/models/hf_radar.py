@@ -1,4 +1,4 @@
-from .base_models import BaseModel
+from .base_xsg import BaseModel
 from .metadata import Metadata
 
 url_base = "http://hfrnet-tds.ucsd.edu/thredds/dodsC/HFR/"

@@ -7,10 +7,10 @@ variable names can be customized for different models or datasets
 import numpy as np
 from netCDF4 import Dataset, MFDataset
 
-from . import base
+from . import base_nc4
 
 
-class rect(base.nc):
+class rect(base_nc4.nc):
     """
     A class for dealing with regular grid model output and converting to GNOME format
     By passing in a var_map dict the

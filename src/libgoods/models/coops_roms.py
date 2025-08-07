@@ -1,13 +1,14 @@
 from libgoods import coops_ofs
 from pathlib import Path
 from . import YAML_DIR
-from .base_models import ROMS
+from .base_xsg import ROMS
 from .metadata import Metadata
 
 class COOPS_ROMS(ROMS):
     update_cycle = 6
 
     def __init__(self, access="zarr", start=None, end=None, archive_dir=None):
+        #start/end are only used for local archives, ignored otherwise - fix?
         super().__init__()
         if access == "zarr":
             self.access = "zarr"

@@ -1,5 +1,5 @@
 
-from .base_models import ROMS
+from .base_xsg import ROMS
 from .metadata import Metadata
 
 tds_url = "http://pae-paha.pacioos.hawaii.edu/thredds"

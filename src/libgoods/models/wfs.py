@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import requests
-from .base_models import FVCOM
+from .base_xsg import FVCOM
 from .metadata import Metadata
 
 class BaseWFS(FVCOM):

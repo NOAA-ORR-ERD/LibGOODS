@@ -5,12 +5,12 @@ Not much here, but at least they can be instantiated.
 """
 
 import libgoods.models as models
-from libgoods.models import base_models
+from libgoods.models import base
 from libgoods.models.metadata import Metadata
 
 
 def test_BaseModel_init():
-    bm = base_models.BaseModel()
+    bm = base.BaseModel()
 
     assert bm.identifier == "BASE_MODEL"
 
@@ -19,14 +19,14 @@ def test_BaseModel_init():
 
 def test_FVCOM_init():
     """Not testing much, but at least it gets initialized without error"""
-    m = base_models.FVCOM()
+    m = base.FVCOM()
 
     assert m.drop_variables == ["Itime", "Itime2"]
 
 
 def test_ROMS_init():
     """Not testing much, but at least it gets initialized without error"""
-    m = base_models.ROMS()
+    m = base.ROMS()
 
     assert m.tvar == "ocean_time"
 
