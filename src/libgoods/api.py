@@ -14,9 +14,11 @@ from . import (
     models,
     shoreline,
     utilities,
+    config,
 )
 
 from .models import metadata
+
 
 def list_models(model_ids=None,
                 map_bounds=None,
@@ -57,44 +59,39 @@ def list_models(model_ids=None,
 
     return retval
 
-def get_model_info(model_id, archive_dir=None):
-    """
-    Return metadata about a particular model from a particular source. This will
-    instantiate the model object to add the actual time bounds to the metadata
 
-    :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :returns: libgoods.metadata.Metadata object with metadata of the model
+def get_model(model_id, start=None, end=None):
     """
-    meta = models.get_model_metadata(model_id)[0]
-    local_model_dir = Path("/path/to/nonexistent/file.txt")
-    # FIXME -- I need to figure out the logic for this to allow
-    # an archive_dir to exist but not include a specific model
-    if archive_dir is not None:
-        local_model_dir = Path(archive_dir) / model_id.lower()
-    if local_model_dir.exists():
-        model_obj = models.ALL_MODELS[model_id](access='local', archive_dir=archive_dir)
+    Return model object for a particular model.
+    This will instantiate the model object to add the current
+    time bounds.
+
+    :param model_id: the name (unique ID) of the model as in `api.list_models()`
+    :returns: model obj with metadata of the model converted to dict
+    """
+
+    archive_dir = config.archive_dir
+
+    if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
+        model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
+        if start is not None:
+             model_obj.open_ds()
     else:
         model_obj = models.ALL_MODELS[model_id]()
         model_obj.open_ds() #try/except here?
-        model_obj.get_start_end()
+        if start is not None:
+            model_obj.subset_time(start, end) #update actual start/end?
 
+    meta = model_obj.metadata
     meta.actual_start = model_obj.actual_start.isoformat()
     meta.actual_end = model_obj.actual_end.isoformat()
 
-    """     tvar_name = meta["sources"][0]["standard_names"]["time"]
-    meta["urlpath"] = meta["sources"][0]["args"]["urlpath"]
-    try:
-        # is calling get_time_bounds the right way to check if it's valid ??
-        stime, etime = model.get_time_bounds(meta["urlpath"], tvar_name)
-    except:  # what exceptions might we get here??
-        raise ModelAvailabilityError(
-            "Unable to retrieve data from server. Please check availability or try again later."
-        ) """
+    model_obj.metadata = meta.as_pyson()
 
-    return meta.as_pyson()
+    return model_obj
 
 
-def validate_subset(model_id, start, end, bounds, archive_dir=None):
+def validate_subset(model_id, start, end, bounds):
     """
     Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
@@ -111,15 +108,16 @@ def validate_subset(model_id, start, end, bounds, archive_dir=None):
 
     polybounds = utilities.bbox2polygon(bounds)
 
-    meta = get_model_info(model_id, archive_dir=archive_dir)
+    model_obj = get_model(model_id)
+
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
-    if not utilities.subset_intersects_model_boundary(meta["bounding_poly"], polybounds):
+    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"], polybounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError("Subset does not intersect model boundary")
 
     if not utilities.check_valid_time_intersection(
-        (start, end), (meta["actual_start"], meta["actual_end"])
+        (start, end), (model_obj.metadata["actual_start"], model_obj.metadata["actual_end"])
     ):
         raise NonIntersectingTimeIntervalError("Subset does not intersect model time bounds")
 
@@ -134,7 +132,6 @@ def get_model_subset(
     surface_only=True,
     cross_dateline=False,
     environmental_parameters=["surface currents"],
-    archive_dir=None
     ):
     """
     Determine the indices for the desired subset (in space and time)
@@ -161,20 +158,10 @@ def get_model_subset(
     if type(end) is not datetime.datetime:
         end = datetime.datetime.fromisoformat(end)
 
-    local_model_dir = Path("/path/to/nonexistent/file.txt")
-    # FIXME -- I need to figure out the logic for this to allow
-    # an archive_dir to exist but not include a specific model
-    if archive_dir is not None:
-        local_model_dir = Path(archive_dir) / model_id.lower()
-
-    if local_model_dir.exists():
-        model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
-        model_obj.open_ds()
-    else:
-        model_obj = models.ALL_MODELS[model_id]()
-        model_obj.open_ds()
-        model_obj.subset_time(start,end)
-
+    model_obj = get_model(model_id, start=start, end=end)
+    print('*********************************')
+    print(model_obj.access)
+    print('*********************************')
     model_obj.subset_grid(bounds)
     if surface_only:
         try:

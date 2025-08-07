@@ -33,11 +33,13 @@ class COOPS_FVCOM(FVCOM):
 
         elif access == "local":
             self.access = "local"
-            #local_dir = "/Volumes/Fury 2/s3"
-            local_dir = LOCAL_CACHE_DIR
+            # local_dir = "/Volumes/Fury 2/s3"
+
             self.location = coops_ofs.get_local_flist(
-                self.identifier, local_dir, file_type=self.local_file_type, start=start, end=end
+                self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end
             )
+            self.actual_start = coops_ofs.file2dt(self.location[0], self.update_cycle)
+            self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)
 
 
 class NGOFS2(COOPS_FVCOM):
