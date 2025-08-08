@@ -8,9 +8,9 @@ import numpy as np
 import pytest
 from netCDF4 import num2date
 
-from libgoods.file_processing import base_nc4
+from libgoods.file_processing import base
 
-model = base_nc4.nc()
+model = base.nc()
 
 model.time_units = "hours since 2023-06-01 00:00"
 model.time = np.arange(0, 72)

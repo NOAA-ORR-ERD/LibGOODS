@@ -5,12 +5,12 @@ variable names can be customized for different models or datasets
 """
 
 import numpy as np
-from netCDF4 import Dataset, MFDataset
+from netCDF4 import Dataset, MFDataset, num2date
 
-from . import base_nc4
+from . import base
 
 
-class rect(base_nc4.nc):
+class rect(base.BaseModel):
     """
     A class for dealing with regular grid model output and converting to GNOME format
     By passing in a var_map dict the
@@ -24,6 +24,7 @@ class rect(base_nc4.nc):
             self.time = self.Dataset.variables[var_map["time"]][:]
             self.time_units = self.Dataset[var_map["time"]].units
             self.time_dimension = self.Dataset.variables[var_map["time"]].dimensions
+            self.time_dts = num2date(self.time, self.time_units, only_use_cftime_datetimes=False)
 
         if get_xy:
             if self.GridDataset is not None:
@@ -37,7 +38,7 @@ class rect(base_nc4.nc):
             self.x = [0, len(self.lon), 1]
             self.y = [0, len(self.lat), 1]
 
-            # self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
+            self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
 
         if get_z:
             self.depth = ds.variables[var_map["z"]][:]

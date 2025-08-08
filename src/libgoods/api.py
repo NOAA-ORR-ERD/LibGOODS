@@ -168,9 +168,13 @@ def get_model_subset(
     if surface_only:
         try:
             model_obj.select_surface()
+            model_obj.is3d = False # this is used by nc4 based subclasses
         except AttributeError: #may be surface only output
-            pass
+            model_obj.is3d = True
     model_obj.filter_variables()
+
+    if not hasattr(model_obj,'ds'):
+        model_obj.make_xr_dataset()
 
     return model_obj
 

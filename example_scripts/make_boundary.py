@@ -1,6 +1,6 @@
 """
-This is a one-off script that I used to generate the boundary for SSCOFS (FVCOM). Some of it could be leveraged into a utility that takes
-the boundary lat/lons for each model and writes the info the metadata yaml file.
+This is an example that can be used to generate the boundary for ROMS or FVCOM models.
+Its using utilties in the older nc4 "file_processing" classes
 """
 from libgoods.file_processing import tri_model, roms_model
 from libgoods.utilities import thin_and_write_bnd
