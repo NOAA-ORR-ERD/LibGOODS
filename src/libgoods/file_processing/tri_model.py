@@ -8,10 +8,10 @@ NOTE -- this writes the old GNOME trigrid format and should be updated
 import numpy as np
 from netCDF4 import Dataset, num2date
 
-from . import base_nc4
+from . import base
 
 
-class tri(base_nc4.nc):
+class tri(base.BaseModel):
     """
     A class for dealing with unstructured (tri) grid model output and converting to GNOME format
     Although I use variable names consistent with FVCOM, by passing in a var_map dict the

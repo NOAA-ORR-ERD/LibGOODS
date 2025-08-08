@@ -7,10 +7,10 @@ variable names can be customized for different models or datasets
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401
 
-from . import base_nc4
+from . import base
 
 
-class curv(base_nc4.nc):
+class curv(base.BaseModel):
     """
     A class for dealing with curvilinear grid model output and converting to GNOME format
     By passing in a var_map dict the
