@@ -86,7 +86,7 @@ class XSGBaseModel(BaseModel):
         self.ds = self.ds.xsg.subset_bbox(bbox)
 
     def filter_variables(self, variable_list=None):
-        # This one is for surface only models (used by HFradar and ESPC)
+        # This one is for surface only models (used by HFradar)
         # variable list default is based on surface u/v variable names
         if variable_list is None:
             variable_list = ["eastward_sea_water_velocity", "northward_sea_water_velocity"]
@@ -177,7 +177,7 @@ class ROMS(XSGBaseModel):
         "sea_floor_depth": "h",
         "sea_surface_elevation": "zeta",
         "sea_water_temperature": "temp",
-        "sea_water_practical_salinity": "salinity",
+        "sea_water_practical_salinity": "salt",
     }
     tvar = "ocean_time"
     zcoord = "sigma_layers"

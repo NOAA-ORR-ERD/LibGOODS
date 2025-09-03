@@ -15,8 +15,8 @@ class COOPS_FVCOM(FVCOM):
     update_cycle = 6
     local_file_type = "fields"
 
-    def __init__(self, access="zarr", start=None, end=None):
-        #start/end are only used for local archives, ignored otherwise - fix?
+    def __init__(self, access="zarr", start=None, end=None, archive_dir=None):
+        # start/end are only used for local archives to create file list
         super().__init__()
 
         if access == "zarr":

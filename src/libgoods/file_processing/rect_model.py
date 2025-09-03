@@ -41,8 +41,8 @@ class rect(base.BaseModel):
             self.lon = (self.lon > 180).choose(self.lon, self.lon - 360)
 
         if get_z:
-            self.depth = ds.variables[var_map["z"]][:]
-            self.depth_dimension = ds.variables[var_map["z"]].dimensions
+            self.depth = ds.variables[var_map["depth"]][:]
+            self.depth_dimension = ds.variables[var_map["depth"]].dimensions
             self.z = [0, self.depth.shape[0]]
 
     def subset(self, bbox, stride=1, dl=False):
@@ -134,7 +134,7 @@ class rect(base.BaseModel):
 
         if is3d:  # this only works with level depths (all I have seen so far)
             nc_out.createDimension(self.depth_dimension[0], self.z[1])
-            var_in = nc_in.variables[var_map["z"]]
+            var_in = nc_in.variables[var_map["depth"]]
             dims = var_in.dimensions[0]
             var_out = nc_out.createVariable("depth", var_in.dtype, dims)
             var_out[:] = var_in[:]

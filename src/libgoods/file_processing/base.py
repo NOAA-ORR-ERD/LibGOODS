@@ -4,6 +4,7 @@ Base model class
 
 import datetime
 from netCDF4 import Dataset, MFDataset, num2date
+from libgoods import standard_names
 
 class BaseModel():
     """
@@ -12,23 +13,7 @@ class BaseModel():
 
     # This should be the master list of variables we might want to retreive.
     # Individual model var_maps will map to these names
-    data_vars = [
-        "air_temperature",
-        "angle_of_rotation_from_east_to_x",
-        "dew_point_temperature",
-        "eastward_sea_water_velocity",
-        "eastward_wind",
-        "northward_sea_water_velocity",
-        "northward_wind",
-        "sea_floor_depth",
-        "sea_ice_area_fraction",
-        "sea_ice_thickness",
-        "sea_surface_elevation",
-        "sea_water_temperature",
-        "sea_water_practical_salinity",
-        "upward_sea_water_velocity",
-        "wind_gust",
-    ]
+    data_vars = standard_names.standard_names
 
     def open_nc(self, FileName=None, GridFileName=None, tvar=None):
         """

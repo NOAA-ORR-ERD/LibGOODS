@@ -12,6 +12,7 @@ from . import (
     NonIntersectingTimeIntervalError,
     NWS_point,
     models,
+    standard_names,
     shoreline,
     utilities,
     config,
@@ -67,12 +68,18 @@ def get_model(model_id, start=None, end=None):
     time bounds.
 
     :param model_id: the name (unique ID) of the model as in `api.list_models()`
+    :param start: datetime (optional) used to restrict model output (see note)
+    param end: datetime (optional) used to restrict model output time series (see note)
+
+    NOTE: the start/end time is more typically for the local archive where files are
+    unaggregated and a MFDataset object is created from a filelist. For aggregated
+    model output (e.g. on TDS or zarr) subsetting in time is typically done after
+    opening the dataset
+
     :returns: model obj with metadata of the model converted to dict
     """
 
     archive_dir = config.archive_dir
-    print('********************************')
-    print(archive_dir)
 
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
         model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
@@ -131,7 +138,7 @@ def get_model_subset(
     start,
     end,
     bounds,
-    surface_only=True,
+    #surface_only=True,
     cross_dateline=False,
     environmental_parameters=["surface currents"],
     ):
@@ -146,14 +153,12 @@ def get_model_subset(
     :param bounds: spatial bounds to subset -- (west, south, east, north)
     :param surface_only: boolean to select only surface values
     :param cross_dateline: boolean to specify dateline cross TODO: check implementation
-    :param environmental_parameters: which variables to include, e.g.,
-                                     "surface currents" - see standard_names for mapping
+    :param environmental_parameters: which variables to include - can be a subset of
+    ["surface currents", "surface winds", "3D currents", "water properties", "ice"]
+    If 3D currents are selected, water properties will be 3D
+
     """
     # polybounds = utilities.bbox2polygon(bounds)
-    if "3D currents" in environmental_parameters:
-        surface_only = False
-    else:
-        surface_only = True
 
     if type(start) is not datetime.datetime:
         start = datetime.datetime.fromisoformat(start)
@@ -161,17 +166,24 @@ def get_model_subset(
         end = datetime.datetime.fromisoformat(end)
 
     model_obj = get_model(model_id, start=start, end=end)
-    print('*********************************')
-    print(model_obj.access)
-    print('*********************************')
+
+    if "3D currents" in environmental_parameters:
+        surface_only = False
+        model_obj.get3d = True  # this is used by nc4 based subclasses
+    else:
+        surface_only = True
+        model_obj.get3d = False
+
     model_obj.subset_grid(bounds)
     if surface_only:
         try:
             model_obj.select_surface()
-            model_obj.is3d = False # this is used by nc4 based subclasses
+             # this is used by nc4 based subclasses
         except AttributeError: #may be surface only output
-            model_obj.is3d = True
-    model_obj.filter_variables()
+            pass
+
+    var_list = standard_names.get_standard_names(environmental_parameters)
+    model_obj.filter_variables(var_list)
 
     if not hasattr(model_obj,'ds'):
         model_obj.make_xr_dataset()

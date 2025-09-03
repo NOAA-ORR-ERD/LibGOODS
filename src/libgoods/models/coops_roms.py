@@ -8,7 +8,7 @@ class COOPS_ROMS(ROMS):
     update_cycle = 6
 
     def __init__(self, access="zarr", start=None, end=None, archive_dir=None):
-        #start/end are only used for local archives, ignored otherwise - fix?
+        # start/end are only used for local archives to create file list
         super().__init__()
         if access == "zarr":
             self.access = "zarr"
