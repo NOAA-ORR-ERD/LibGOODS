@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
-
+# TO DO: move these to metadata where wanted for testing
 def get_example_bbox(model_id):
     bboxes = {
         "CBOFS": (-76.5, 36.75, -75.25, 37.75),
@@ -317,7 +317,7 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     """
     :param model_bounds: model boundary from metadata - can be in any (allowed)
                          longitude coords.
-    :param poly_bounds: shapely Polygon (map) boundary.
+    :param poly_bounds:  list of coords [(-180, 10), (-150, 10), (-150, 0), (-180, 0)]
            Coords must be in (-180 -- 180) longitude form
 
     :param xDateline=None: Whether the poly bounds cross the dateline.

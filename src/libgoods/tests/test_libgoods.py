@@ -27,7 +27,13 @@ def test_config_None():
     config = Config()
     config.archive_dir = "./"
 
-    with pytest.raises(UnsetConfigError):
-        d = config.shoreline_dir
+    # This is no longer raising an error but leaving test here in case we change our minds
+
+    assert config.shoreline_dir is None
+
+"""     with pytest.raises(UnsetConfigError):
+        d = config.shoreline_dir """
+
+
 
 

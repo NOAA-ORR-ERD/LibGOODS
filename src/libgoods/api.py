@@ -7,7 +7,6 @@ These are the functions that the WebGNOME client will call
 import datetime
 from pathlib import Path
 from . import (
-    ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     NWS_point,

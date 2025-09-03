@@ -74,7 +74,7 @@ class BaseModel():
         Buffer_hrs - adds a default 6 hour buffer to start and end times
         since model timestep may not align with chosen start/end time
         """
-        dts = num2date(self.time, self.time_units)
+        dts = num2date(self.time, self.time_units, only_use_cftime_datetimes=False)
         if not isinstance(start, datetime.datetime):
             start = datetime.datetime.strptime(start, fmt)
         if not isinstance(end, datetime.datetime):
@@ -94,6 +94,6 @@ class BaseModel():
         elif len(t2) == len(dts):
             raise ValueError("Specified end time is before the model start time")
         else:
-            t2 = t2[0] + 1
+            t2 = t2[0]
 
         return [t1, t2, 1]
