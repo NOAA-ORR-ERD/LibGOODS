@@ -11,10 +11,8 @@ standard_names = [
     "air_temperature",
     "angle_of_rotation_from_east_to_x",
     "dew_point_temperature",
-    "surface_eastward_sea_water_velocity",
     "eastward_sea_water_velocity",
     "eastward_wind",
-    "surface_northward_sea_water_velocity",
     "northward_sea_water_velocity",
     "northward_wind",
     "sea_floor_depth",
@@ -33,7 +31,7 @@ in turn mapped to the CF names within the specific model output.
 """
 EP_map = {
     "surface winds": ["eastward_wind", "northward_wind"],
-    "surface currents": ["surface_eastward_sea_water_velocity", "surface_northward_sea_water_velocity"],
+    "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
     "3D currents": [
         "eastward_sea_water_velocity",
         "northward_sea_water_velocity",
@@ -59,7 +57,7 @@ def get_standard_names(env_params):
     """
     EP_map = {
         "surface winds": ["eastward_wind", "northward_wind"],
-        "surface currents": ["surface_eastward_sea_water_velocity", "surface_northward_sea_water_velocity"],
+        "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
         "3D currents": [
             "eastward_sea_water_velocity",
             "northward_sea_water_velocity",

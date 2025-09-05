@@ -61,7 +61,7 @@ class roms(curv_model.curv):
         ofn="test.nc",
         t_index=None,
         d_index=-1,
-        is3d=False,
+        get3d=False,
         grid_only=False,
         dl=False,
     ):
@@ -109,7 +109,7 @@ class roms(curv_model.curv):
         nc_out.createDimension("eta_v", self.y[1] - self.y[0] - 1)
         nc_out.createDimension("xi_v", self.x[1] - self.x[0])
 
-        if is3d:
+        if get3d:
             nc_out.createDimension("s_rho", nc_grid.dimensions["s_rho"].size)
 
         # List of variables to copy (they have to be in nc_in...):
@@ -129,7 +129,7 @@ class roms(curv_model.curv):
             "angle",
         ]
 
-        if is3d:
+        if get3d:
             grid_vars.extend(["hc", "Cs_r", "s_rho", "h"])
 
         for var in grid_vars:
@@ -177,7 +177,7 @@ class roms(curv_model.curv):
             # data_vars = ['u','v','temp','salt']
             data_vars = ["u", "v"]
 
-            if is3d:
+            if get3d:
                 data_vars.extend(["zeta"])
 
             if include_wind:
@@ -188,7 +188,7 @@ class roms(curv_model.curv):
                 var_in = nc_in.variables[var]
                 coords = var_in.coordinates
 
-                if is3d:
+                if get3d:
                     try:
                         dims = (
                             self.time_dimension[0],

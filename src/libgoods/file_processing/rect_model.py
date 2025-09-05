@@ -71,7 +71,7 @@ class rect(base.BaseModel):
         ofn="test.nc",
         t_index=None,
         d_index=0,
-        is3d=False,
+        get3d=False,
         grid_only=False,
         dl=False,
     ):
@@ -132,7 +132,7 @@ class rect(base.BaseModel):
             for attr in var_in.ncattrs():
                 var_out.setncattr(attr, var_in.getncattr(attr))
 
-        if is3d:  # this only works with level depths (all I have seen so far)
+        if get3d:  # this only works with level depths (all I have seen so far)
             nc_out.createDimension(self.depth_dimension[0], self.z[1])
             var_in = nc_in.variables[var_map["depth"]]
             dims = var_in.dimensions[0]
@@ -152,7 +152,7 @@ class rect(base.BaseModel):
             for var in data_vars:
                 var_in = nc_in.variables[var]
                 # Create variable in new file
-                if is3d:
+                if get3d:
                     dims = (
                         self.time_dimension[0],
                         self.depth_dimension[0],
@@ -168,7 +168,7 @@ class rect(base.BaseModel):
                 var_out = nc_out.createVariable(var, var_in.dtype, dims)
                 # Copy data:
                 if len(var_in.shape) == 4:
-                    if is3d:
+                    if get3d:
                         var_out[:] = var_in[
                             t_index[0] : t_index[1] : t_index[2],
                             :,

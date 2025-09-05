@@ -7,6 +7,7 @@ These are the functions that the WebGNOME client will call
 import datetime
 from pathlib import Path
 from . import (
+    ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     NWS_point,
@@ -167,22 +168,24 @@ def get_model_subset(
     model_obj = get_model(model_id, start=start, end=end)
 
     if "3D currents" in environmental_parameters:
-        surface_only = False
-        model_obj.get3d = True  # this is used by nc4 based subclasses
+        if model_obj.is3d:
+            get3d = True
+            model_obj.get3d = True  # this is used by nc4 based subclasses in writing step
+        else:
+            raise ModelAvailabilityError('3D output not available')
     else:
-        surface_only = True
+        get3d = False
         model_obj.get3d = False
 
     model_obj.subset_grid(bounds)
-    if surface_only:
+    if not get3d:
         try:
             model_obj.select_surface()
-             # this is used by nc4 based subclasses
         except AttributeError: #may be surface only output
             pass
 
     var_list = standard_names.get_standard_names(environmental_parameters)
-    model_obj.filter_variables(var_list)
+    model_obj.filter_variables(var_list, get3d=get3d)
 
     if not hasattr(model_obj,'ds'):
         model_obj.make_xr_dataset()

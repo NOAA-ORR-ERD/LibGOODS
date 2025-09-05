@@ -106,10 +106,8 @@ class FVCOM(XSGBaseModel):
     drop_variables = ["Itime", "Itime2"]
     standard_names = {
         "eastward_sea_water_velocity": "u",
-        "surface_eastward_sea_water_velocity": "u_surface",
         "eastward_wind": "uwind_speed",
         "northward_sea_water_velocity": "v",
-        "surface_northward_sea_water_velocity": "v_surface",
         "northward_wind": "vwind_speed",
         "upward_sea_water_velocity": "ww",
         "sea_floor_depth": "h",
@@ -128,24 +126,26 @@ class FVCOM(XSGBaseModel):
             self.ds, face_node_connectivity="nv"
         )
 
-    def filter_variables(self, variable_list=None, is3d=False):
+    def filter_variables(self, variable_list=None, get3d=False):
+        # variable list default is based on surface u/v variable names
         if variable_list is None:
-            if not is3d:
-                variable_list = [
-                    "surface_eastward_sea_water_velocity",
-                    "surface_northward_sea_water_velocity",
-                ]
-            else:
-                variable_list = ["eastward_sea_water_velocity", "northward_sea_water_velocity"]
+            variable_list = [
+                    "eastward_sea_water_velocity",
+                    "northward_sea_water_velocity"]
+
+        if get3d:
+            variable_list.extend(["sea_surface_elevation",
+                                  "sea_floor_depth"])
+
         vars2include = [self.standard_names[v] for v in variable_list]
 
-        if is3d:
-            vars2include.extend(["siglay", "siglev", 'sea_floor_depth'])
+        # xarray subset grid should be smart enough to include these but its not
+        if get3d:
+            vars2include.extend(["siglay", "siglev"])
 
         self.ds = self.ds.xsg.subset_vars(vars2include)
 
     def select_surface(self):
-        #TODO - figure out how to do this robustly
         self.ds = self.ds.xsg.subset_vertical_level(level=0, method='nearest')
         #self.ds = self.ds.xsg.subset_vertical_level(0)
         #self.ds = self.ds.isel(siglay=0)
@@ -167,13 +167,10 @@ class ROMS(XSGBaseModel):
     drop_variables = None
     standard_names = {
         "eastward_sea_water_velocity": "u",
-        "surface_eastward_sea_water_velocity": "u_sur",
         "eastward_wind": "uwind_speed",
         "northward_sea_water_velocity": "v",
-        "surface_northward_sea_water_velocity": "v_sur",
         "northward_wind": "vwind_speed",
         "upward_sea_water_velocity": "w",
-        "angle": "angle",
         "sea_floor_depth": "h",
         "sea_surface_elevation": "zeta",
         "sea_water_temperature": "temp",
@@ -184,22 +181,24 @@ class ROMS(XSGBaseModel):
     access = None
     location = None
 
-    def filter_variables(self, variable_list=None, is3d=False):
+    def filter_variables(self, variable_list=None, get3d=False):
         # variable list default is based on surface u/v variable names
         if variable_list is None:
-            if not is3d:
-                variable_list = [
-                    "surface_eastward_sea_water_velocity",
-                    "surface_northward_sea_water_velocity",
+            variable_list = [
+                    "eastward_sea_water_velocity",
+                    "northward_sea_water_velocity",
                 ]
-            else:
-                variable_list = ["eastward_sea_water_velocity", "northward_sea_water_velocity"]
-        # need to always add all grid vars including masks -- then add optional vars from there.
 
+        if get3d:
+            variable_list.extend(["sea_surface_elevation",
+                                  "sea_floor_depth"])
+
+        # xarray subset grid should be smart enough to include these but its not
         vars2include = [self.standard_names[v] for v in variable_list]
         vars2include.extend(["angle", "mask_rho", "mask_psi", "mask_u", "mask_v"])
-        if is3d:
-            vars2include.extend(["Cs_r", "Cs_w", "hc", "Vtransform"])  # add zeta, h etc.
+        if get3d:
+            vars2include.extend(["Cs_r", "Cs_w", "hc", "Vtransform"])
+        print(vars2include)
         self.ds = self.ds.xsg.subset_vars(vars2include)
 
     def select_surface(self):

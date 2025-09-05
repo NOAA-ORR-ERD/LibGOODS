@@ -99,7 +99,7 @@ class curv(base.BaseModel):
         ofn="test.nc",
         t_index=None,
         d_index=0,
-        is3d=False,
+        get3d=False,
         grid_only=False,
         dl=False,
     ):

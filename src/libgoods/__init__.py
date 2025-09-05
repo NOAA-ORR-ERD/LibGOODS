@@ -100,7 +100,7 @@ class NonIntersectingTimeIntervalError(ValueError):
 
 class ModelAvailabilityError(ValueError):
     """
-    provided time bounds do not overlap with model time availability
+    generic error in model access
     """
 
 

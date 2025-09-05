@@ -18,7 +18,7 @@ class NCOM(BaseModel):
     access = "opendap"
     location = None
 
-    def filter_variables(self, variable_list=None, is3d=False):
+    def filter_variables(self, variable_list=None, get3d=False):
         # variable list default is based on surface u/v variable names
         if variable_list is None:
             variable_list = ["eastward_sea_water_velocity", "northward_sea_water_velocity"]

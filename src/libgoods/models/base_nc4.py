@@ -38,6 +38,6 @@ class NC4BaseModel(BaseModel):
 
     def write_nc(self, ofn="test.nc", close_ds=True):
         self.model.update(self.location)
-        self.model.write_nc(self.standard_names, ofn, t_index=self.tindex, is3d=self.get3d)
+        self.model.write_nc(self.standard_names, ofn, t_index=self.tindex, get3d=self.get3d)
         if close_ds:
             self.model.Dataset.close()
