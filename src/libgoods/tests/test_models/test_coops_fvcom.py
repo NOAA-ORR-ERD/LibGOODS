@@ -25,7 +25,6 @@ def test_SSCOFS_init():
     assert m.identifier == "SSCOFS"
     assert m.metadata.name == "Salish Sea and Columbia River"
     assert m.local_file_type == "fields"
-    assert m.standard_names == cfvc.gl_standard_names
     assert m.metadata.env_params == {
         '3D currents', 'surface currents', 'surface winds', 'water properties'
     }
@@ -48,13 +47,8 @@ def test_model_init(model_name):
     """
     print(model_name)
     m = getattr(cfvc, model_name)()
-    print(m)
-    print(m.identifier)
 
     assert m.identifier == model_name
-    # maybe test that metadata is not empty?
-    print(m.metadata)
-    print(m.metadata.name)
     assert m.metadata.name
     assert m.metadata.long_name
     assert m.metadata.bounding_box

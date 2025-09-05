@@ -26,11 +26,13 @@ class NC4BaseModel(BaseModel):
         #       using same convention (0-->360 vs -180-180)
         self.model.subset(bbox)
 
-    def filter_variables(self, variable_list=None):
+    def filter_variables(self, variable_list=None, get3d=False):
         if variable_list is None:
             variable_list = ["eastward_sea_water_velocity", "northward_sea_water_velocity"]
-        dims_list = ["longitude", "latitude", "depth", "time"]
+        dims_list = ["longitude", "latitude", "time"]
         keep_list = variable_list + dims_list
+        if get3d:
+            keep_list.append('depth')
         self.standard_names = {key: value for key, value in self.standard_names.items() if key in keep_list}
 
     def make_xr_dataset(self):

@@ -185,6 +185,7 @@ def get_model_subset(
             pass
 
     var_list = standard_names.get_standard_names(environmental_parameters)
+
     model_obj.filter_variables(var_list, get3d=get3d)
 
     if not hasattr(model_obj,'ds'):
