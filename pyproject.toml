@@ -42,10 +42,10 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 # [project.optional-dependencies]
 # pdf = ["ReportLab>=1.2", "RXP"]
 
-# we should have some here!
-# [project.scripts]
+[project.scripts]
 #     # does this work?? -- left over from model_catalogs
 #     fetch-model = "libgoods.cli:main"
+shift_bna = "libgoods.scripting.shift_bna:main"
 
 [tools.setuptools]
 include-package-data = true

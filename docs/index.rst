@@ -16,7 +16,6 @@ Installation
    :hidden:
    :caption: Documentation
 
-   subsetting
    whats_new
    api
    GitHub repository <https://github.com/NOAA-ORR-ERD/LibGOODS>

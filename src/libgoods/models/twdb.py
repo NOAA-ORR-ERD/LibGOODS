@@ -22,7 +22,7 @@ class BaseTWDB:
     html_info = r'The <a href="http://www.twdb.texas.gov/index.asp" target="_blank"> Texas Water Development Board (TWDB)</a>, in partnership with the <a href="http://www.glo.texas.gov/" target="_blank"> Texas General Land Office (TGLO) </a> Oil Spill Prevention and Response effort, maintains <a href="http://www.twdb.texas.gov/surfacewater/bays/oil_spill/index.asp" target="_blank"> near real-time and forecast simulations of water circulation in the major bays </a> for use in the event that an oil spill occurs within Texas bays.'
 
     def __init__(self):
-        # Fixme: this prob ably shouldn't do this on init -- but rather when asked to shcek, or ?
+        # Fixme: this probably shouldn't do this on init -- but rather when asked to check, or ?
         self.urls = {}
         r = requests.get(base_url, timeout=1)
         if not r.ok:
@@ -30,8 +30,11 @@ class BaseTWDB:
         else:
             html_text = r.text
             for model in models:
-                fname = re.search(model+r'.\d{6}.\d{2}.zip',html_text).group()
-                self.urls[model] = base_url + fname
+                if 'error' in html_text or 'Not Found' in html_text:
+                    self.urls[model] = 'URL not found'
+                else:
+                    fname = re.search(model+r'.\d{6}.\d{2}.zip',html_text).group()
+                    self.urls[model] = base_url + fname
 
     def open_ds(self):
         print('Not implemented yet - model files are downloaded via http by calling write_nc')

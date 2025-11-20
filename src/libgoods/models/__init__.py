@@ -7,6 +7,8 @@ from .tamu import TAMU
 from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay 
 from .ncom_regional import AmSeas, Alaska, USEast
 from .wfs import WFCOM, TBCOM
+from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
+from .hf_radar import HFRadar
 
 ALL_MODELS = {"NGOFS2": NGOFS2,
               "LMHOFS": LMHOFS,
@@ -40,7 +42,13 @@ ALL_MODELS = {"NGOFS2": NGOFS2,
               'NCOM American Seas': AmSeas,
               'WFCOM': WFCOM,
               'TBCOM': TBCOM,
-            }
+              'NECOFS': NECOFS,
+              'MassCoastal': MassCoastal,
+              'BostonHarbor': BostonHarbor,
+              'Hampton': Hampton,
+              'Scituate': Scituate,
+#              'HFRadar': HFRadar -- different API
+              }
 
 
 def get_models():
@@ -53,7 +61,7 @@ def get_models():
     
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        catalog.append([m.name,key])
+        catalog.append([m.name, key])
         
     return catalog
 
