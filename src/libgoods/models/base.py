@@ -4,7 +4,7 @@ from libgoods import standard_names
 
 class BaseModel:
     """
-    Base class for all models that can be accessed/subset using xarray_subset_grid
+    Base class for all models
     """
     metadata = Metadata.from_yaml(YAML_DIR / 'example_metadata.yaml')
     metadata.identifier = "BASE_MODEL"

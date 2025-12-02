@@ -7,6 +7,9 @@ from .base import BaseModel
 
 
 class XSGBaseModel(BaseModel):
+    '''
+    Base class for all models that can be accessed/subset using xarray_subset_grid
+    '''
     def open_ds_tds(self, url):
         ds = xr.open_dataset(
             url,
@@ -70,10 +73,12 @@ class XSGBaseModel(BaseModel):
         print(f"{self.ds.nbytes / 1e9:.5} GB")
 
     def when(self):
-        t = self.ds[self.tvar]
-        print("Aggregation start/end times:")
-        print(t.values[0])
-        print(t.values[-1])
+        try:
+            print(self.actual_start)
+            print(self.actual_end)
+        except AttributeError:
+            print('Dataset not opened -- call open_ds')
+
 
     def subset_time(self, start_time, end_time):
         # TODO: make this smarter to use > start and/or < end etc (one end is None)

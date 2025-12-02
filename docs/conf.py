@@ -49,12 +49,12 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "nbsphinx",
-    "recommonmark",
+#    "recommonmark",
     "sphinx.ext.mathjax",
     "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
-    "numpydoc",
+#    "numpydoc",
     "nbsphinx",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
@@ -76,7 +76,7 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 # html_theme = "pangeo"
-html_theme = "furo"
+html_theme = "sphinx_rtd_theme"
 
 # furo variables
 html_title = "LibGOODS documentation"

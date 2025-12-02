@@ -71,13 +71,7 @@ libgoods = [#"yaml_files/*.yaml",
 
 [tool.ruff]
 builtins = ["ellipsis"]
-# these are all deprecated??
-extend-exclude = ["src/libgoods/model_em.py",
-                  "src/libgoods/file_processing/*.py",
-                  "src/libgoods/coops_ofs.py",
-                  # OK not to lint these
-                  "example_scripts",
-                  ]
+# extend-exclude = ["xarray_subset_grid/_version.py"]
 target-version = "py310"
 # Use a longer line length.
 line-length = 100

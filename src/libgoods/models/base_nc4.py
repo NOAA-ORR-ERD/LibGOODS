@@ -5,7 +5,10 @@ from .base import BaseModel
 
 
 class NC4BaseModel(BaseModel):
-
+    '''
+    Base class for all models that need to be accessed/subset using netCDF4 directly
+    Only a rectangular grid model at present -- could be expanded
+    '''
     def open_ds(self):
 
         self.model = rect_model.rect()

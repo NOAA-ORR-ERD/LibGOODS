@@ -17,7 +17,7 @@ from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanA
 from .wfs import TBCOM, WFCOM
 from .espc import ESPC
 
-# fixme: should this be an instance or teh model class??
+# fixme: should this be an instance or the model class??
 #        it's currently the class, and get_models instantiates them,
 #        but I think maybe it should be the instance already ??
 
@@ -28,6 +28,7 @@ ALL_MODELS = {mod.metadata.identifier: mod
               if type(mod) is type
                   and issubclass(mod, BaseModel)
               }
+              
 del ALL_MODELS[BaseModel.metadata.identifier]
 
 def get_models():
@@ -43,7 +44,7 @@ def get_models():
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
         catalog.append([m.metadata.name, key])
-
+        
     return catalog
 
 
