@@ -47,6 +47,7 @@ def list_models(model_ids=None,
     :returns: list of metadata for models that satisfy the criteria
 
     """
+
     all_metas = models.get_model_metadata()
     retval = utilities.filter_models(
         all_metas,
@@ -80,6 +81,7 @@ def get_model(model_id, start=None, end=None):
     """
 
     archive_dir = config.archive_dir
+
 
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
         model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
@@ -177,16 +179,15 @@ def get_model_subset(
         get3d = False
         model_obj.get3d = False
 
+    var_list = standard_names.get_standard_names(environmental_parameters)
+    model_obj.filter_variables(var_list, get3d=get3d)
+
     model_obj.subset_grid(bounds)
     if not get3d:
         try:
             model_obj.select_surface()
         except AttributeError: #may be surface only output
             pass
-
-    var_list = standard_names.get_standard_names(environmental_parameters)
-
-    model_obj.filter_variables(var_list, get3d=get3d)
 
     if not hasattr(model_obj,'ds'):
         model_obj.make_xr_dataset()
@@ -198,6 +199,7 @@ def get_model_output(model_obj, output_pth):
     """
     Get the model output based on the subset information
     """
+
     output_path = model_obj.write_nc(output_pth)
 
     return output_path

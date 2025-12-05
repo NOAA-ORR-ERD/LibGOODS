@@ -203,8 +203,13 @@ class ROMS(XSGBaseModel):
         vars2include.extend(["angle", "mask_rho", "mask_psi", "mask_u", "mask_v"])
         if get3d:
             vars2include.extend(["Cs_r", "Cs_w", "hc", "Vtransform"])
-        print(vars2include)
-        self.ds = self.ds.xsg.subset_vars(vars2include)
+        try:
+            self.ds = self.ds.xsg.subset_vars(vars2include)
+        except KeyError:
+            # FIXME: for surface only OFS models xsg is throwing an error on not finding "s_w"
+            # this appears to get stripped off when the grid is subset
+            # I changed the order which seems to fix it for now
+            pass
 
     def select_surface(self):
         self.ds = self.ds.xsg.subset_vertical_level(level=0, method='nearest')
