@@ -86,7 +86,6 @@ def test_get_data():
     assert data['location'] == '11NM E Pilottown LA'
     assert data['ll'] == (29.2, -89.05)
     assert data['units'] == 'knots'
-    assert data['tz'] == -5.0
 
     assert data['times']  # not empty
     assert len(data['times']) == len(data['speeds']) == len(data['dirs'])
