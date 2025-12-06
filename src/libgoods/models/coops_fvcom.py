@@ -33,10 +33,10 @@ class COOPS_FVCOM(FVCOM):
             self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)
             if self.local_file_type == '2ds':
                 self.is3d = False
-                self.standard_names = ROMS.standard_names | {"eastward_sea_water_velocity": "u_surface",
+                self.standard_names = FVCOM.standard_names | {"eastward_sea_water_velocity": "u_surface",
                                                              "northward_sea_water_velocity": "v_surface",
-                                                             "sea_water_temperature": "temp_sur",
-                                                             "sea_water_practical_salinity": "salt_sur"
+                                                             "sea_water_temperature": "temp_surface",
+                                                             "sea_water_practical_salinity": "salt_surface"
                                                             }
 
 class NGOFS2(COOPS_FVCOM):
