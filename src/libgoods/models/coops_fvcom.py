@@ -24,7 +24,6 @@ class COOPS_FVCOM(FVCOM):
 
         elif access == "local":
             self.access = "local"
-            # local_dir = "/Volumes/Fury 2/s3"
 
             self.location = coops_ofs.get_local_flist(
                 self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end
@@ -34,10 +33,10 @@ class COOPS_FVCOM(FVCOM):
             if self.local_file_type == '2ds':
                 self.is3d = False
                 self.standard_names = FVCOM.standard_names | {"eastward_sea_water_velocity": "u_surface",
-                                                             "northward_sea_water_velocity": "v_surface",
-                                                             "sea_water_temperature": "temp_surface",
-                                                             "sea_water_practical_salinity": "salt_surface"
-                                                            }
+                                                              "northward_sea_water_velocity": "v_surface",
+                                                              "sea_water_temperature": "temp_surface",
+                                                              "sea_water_practical_salinity": "salt_surface"
+                                                             }
 
 class NGOFS2(COOPS_FVCOM):
     """

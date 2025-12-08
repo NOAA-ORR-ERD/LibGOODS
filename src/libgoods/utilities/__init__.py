@@ -8,6 +8,8 @@ import warnings
 import numpy as np
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
+from libgoods.standard_names import EP_map
+
 # TO DO: move these to metadata where wanted for testing
 def get_example_bbox(model_id):
     bboxes = {
@@ -264,7 +266,7 @@ def _filter_by_env_params(mdl_meta, ev_p):
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
         # assume singular string
         # Huh? where is ENVIRONMENTAL_PARAMETERS supposed to be from?
-        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():  # noqa
+        if ev_p not in EP_map.keys():  # noqa
             raise KeyError(f"{ev_p} is not a valid environmental parameter")
         return ev_p in mdl_meta.env_params
     else:
@@ -272,18 +274,18 @@ def _filter_by_env_params(mdl_meta, ev_p):
         return all(param in mdl_meta.env_params for param in ev_p)
 
 
-def _filter_by_bb_intersection(mdl_meta, poly_bounds):
+def _filter_by_bb_intersection(mdl_meta, subset_bounds):
     """
     :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon (map) boundary.
+    :param subset_bounds: shapely Polygon (map) boundary.
            Coords must be in (-180, -90), (180, 90) range
     """
     bb = np.array(mdl_meta.bounding_box)
     if np.any(bb > 180):
-        bb[0] -= 180
-        bb[2] -= 180
+        bb = convert_longitude(bb)
+
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
-    return bb_poly.intersects(poly_bounds)
+    return bb_poly.intersects(subset_bounds)
 
 
 def make_polygon_finer(poly, threshold=30.0):
@@ -313,11 +315,11 @@ def make_polygon_finer(poly, threshold=30.0):
     return poly2
 
 
-def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
+def subset_intersects_model_boundary(model_bounds, subset_bounds, xDateline=None):
     """
     :param model_bounds: model boundary from metadata - can be in any (allowed)
                          longitude coords.
-    :param poly_bounds:  list of coords [(-180, 10), (-150, 10), (-150, 0), (-180, 0)]
+    :param subset_bounds:  list of coords [(-180, 10), (-150, 10), (-150, 0), (-180, 0)]
            Coords must be in (-180 -- 180) longitude form
 
     :param xDateline=None: Whether the poly bounds cross the dateline.
@@ -330,21 +332,19 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     #       and don't check the longitude at all.
     # maybe just check max and min lat of the subset poly.
     # OR -- replace longitude of model bounds with -360 and 360
-    poly_bounds = np.array(poly_bounds)
+    subset_bounds = np.array(subset_bounds)
     # "thicken" the model  boundary to help with world wrapping issues
     # this *might* help, but does not solve the problem.
     # model_bounds = make_polygon_finer(model_bounds, threshold=30.0)  # np.array(model_bounds)
     model_bounds = np.array(model_bounds)
 
-    # print(poly_bounds)
-    # print(model_bounds)
 
-    if np.any(poly_bounds[:, 0] > 180) or np.any(poly_bounds[:, 0] < -180):
+    if np.any(subset_bounds[:, 0] > 180) or np.any(subset_bounds[:, 0] < -180):
         warnings.warn(
-            "In subset_intersects_model_boundary: poly_bounds should be in -180--180 coordinates"
+            "In subset_intersects_model_boundary: subset_bounds should be in -180--180 coordinates"
         )
 
-    if np.any(model_bounds[:, 0] > 360) or np.any(poly_bounds[:, 0] < -180):
+    if np.any(model_bounds[:, 0] > 360) or np.any(subset_bounds[:, 0] < -180):
         warnings.warn(
             "In subset_intersects_model_boundary: "
             "model_bounds should be in -180--180 or 0--360 coordinates"
@@ -352,15 +352,15 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
 
     if xDateline is None:
         # see if it's bigger than 180 degrees in -180 -- 180 space.
-        if (poly_bounds[:, 0].max() - poly_bounds[:, 0].min()) >= 180:
+        if (subset_bounds[:, 0].max() - subset_bounds[:, 0].min()) >= 180:
             xDateline = True
         else:
             xDateline = False
 
     if xDateline:  # use 0--360 coords
         model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "0--360", normalize=False)
-        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "0--360", normalize=False)
-    elif poly_bounds[:, 0].min() < 0:  # in western hemisphere: use -180 -- 180 coords
+        subset_bounds[:, 0] = convert_longitude(subset_bounds[:, 0], "0--360", normalize=False)
+    elif subset_bounds[:, 0].min() < 0:  # in western hemisphere: use -180 -- 180 coords
         if (
             model_bounds[:, 0].min() >= 0
             and (model_bounds[:, 0].max() - model_bounds[:, 0].min()) > 300
@@ -370,13 +370,13 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
         else:
             model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "-180--180", normalize=False)
         # poly should already be in -180 == 180, but won't hurt
-        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "-180--180", normalize=False)
+        subset_bounds[:, 0] = convert_longitude(subset_bounds[:, 0], "-180--180", normalize=False)
     # else:  # no need to convert.
 
 
-    poly_bounds_poly = Polygon(poly_bounds)
+    subset_bounds_poly = Polygon(subset_bounds)
     model_bounds_poly = Polygon(model_bounds)
-    return model_bounds_poly.intersects(poly_bounds_poly)
+    return model_bounds_poly.intersects(subset_bounds_poly)
 
 
 def filter_models(models_metadatas, map_bounds=None, model_ids=None, env_params=None):

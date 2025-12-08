@@ -28,6 +28,8 @@ class HIIG(PacIOOS):
         + "/dodsC/hioos/roms_native/hiig/ROMS_Hawaii_Regional_Ocean_Model_Native_Grid_best.ncd"
     )
     example_bbox = (-155.65, 19.2, -154, 20, 56)
+    metadata.bounding_box = (-164.419, 16.797, -152.286, 24.194)
+
 
 
 class HIOG(PacIOOS):
