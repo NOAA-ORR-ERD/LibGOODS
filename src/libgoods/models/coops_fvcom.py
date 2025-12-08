@@ -24,7 +24,6 @@ class COOPS_FVCOM(FVCOM):
 
         elif access == "local":
             self.access = "local"
-            # local_dir = "/Volumes/Fury 2/s3"
 
             self.location = coops_ofs.get_local_flist(
                 self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end

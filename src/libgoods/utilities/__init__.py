@@ -280,8 +280,8 @@ def _filter_by_bb_intersection(mdl_meta, poly_bounds):
     """
     bb = np.array(mdl_meta.bounding_box)
     if np.any(bb > 180):
-        bb[0] -= 180
-        bb[2] -= 180
+        bb = convert_longitude(bb)
+
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
     return bb_poly.intersects(poly_bounds)
 
