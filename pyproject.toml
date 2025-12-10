@@ -54,11 +54,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-libgoods = [#"yaml_files/*.yaml",
-            #"yaml_files/boundaries/*.yaml",
-            # "shoreline_data/**/*", # don't want them all
-            # still including them all ?!?!!?
-            "shoreline_data/nos_shoreline/*",
+libgoods = ["shoreline_data/nos_shoreline/*",
             "shoreline_data/gshhg/**/*",
             "models/metadata/*.yaml",
             "tests/test_utilities/lake_erie_islands.bna",

@@ -13,7 +13,7 @@ Shorelines
 
 etc...
 
-Not much here, but for configuratiuon, you can access it like so: ::
+Not much here, but for configuration, you can access it like so: ::
 
     import libgoods
 
@@ -47,7 +47,6 @@ class Config:
 
     archive_dir: Path = None
     shoreline_dir: Path = None
-
 
     def __setattr__(self, prop, val):
         """
