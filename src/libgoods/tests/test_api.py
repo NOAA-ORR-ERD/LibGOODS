@@ -38,7 +38,8 @@ def test_get_model_info_no_archive():
 
 
 def test_validate_subset():
-    test_bounds =  [-180, 0, -150, 10] #out of bounds except for global model
+    # should be a four pointer
+    test_bounds =  [(-180, 10), (-150, 10), (-150, 0), (-180, 0)] # out of bounds except for global model
     start = datetime.datetime.today()
     end = start + datetime.timedelta(days=1)
     model_id = 'TBOFS'
@@ -56,7 +57,8 @@ def test_get_model_subset():
     model_id = 'ESPC'
     start = datetime.datetime.today()
     end = start + datetime.timedelta(days=0.5)
-    bounds = [-171, 0, -170, 1]
+    # should be a four pointer
+    bounds = [(-171, 1), (-170, 1), (-170, 0), (-171, 0)]
     try:
         ds = api.get_model_subset(model_id, start, end, bounds)
     except:

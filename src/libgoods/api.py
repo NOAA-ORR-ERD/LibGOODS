@@ -120,7 +120,6 @@ def validate_subset(model_id, start, end, subset_bounds):
     """
 
     # polybounds = utilities.bbox2polygon(bounds)
-
     model_obj = get_model(model_id)
 
     # FIXME: we should probably special-case the global models:

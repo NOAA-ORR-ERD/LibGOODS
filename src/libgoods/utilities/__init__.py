@@ -373,7 +373,6 @@ def subset_intersects_model_boundary(model_bounds, subset_bounds, xDateline=None
         subset_bounds[:, 0] = convert_longitude(subset_bounds[:, 0], "-180--180", normalize=False)
     # else:  # no need to convert.
 
-
     subset_bounds_poly = Polygon(subset_bounds)
     model_bounds_poly = Polygon(model_bounds)
     return model_bounds_poly.intersects(subset_bounds_poly)
