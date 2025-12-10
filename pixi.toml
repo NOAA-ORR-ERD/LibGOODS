@@ -1,0 +1,22 @@
+[workspace]
+authors = ["Chris Barker <Chris.Barker@noaa.gov>"]
+channels = ["conda-forge"]
+name = "libgoods"
+platforms = ["osx-64"]
+# version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.10,<3.14"
+xarray-subset-grid = ">=0.1.0"
+netCDF4 = "*"
+numpy = "*"
+requests = "*"
+shapely = "*"
+s3fs = "*"
+pandas = "*"
+yaml = "*"
+siphon = "*"
+fiona = "*"
+cfgrib = "*"

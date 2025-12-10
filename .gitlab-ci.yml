@@ -56,13 +56,11 @@ test_libgoods:
   script:
     - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
       --file conda_requirements.txt
-    - conda install git  # need git to install xarray_subset_grid
-    # need xarray_subset_grid -- not released yet
-    - conda install xarray_subset_grid
 
     - pip install ./
 
     - pytest --pyargs libgoods
+
   rules:
     - if: $SCHEDULED == "true"
       when: never
