@@ -65,11 +65,22 @@ def test_polygon2bbox_bad(bounds):
         bbox = utilities.polygon2bbox(bounds)  # noqa
 
 
-def test_bbox2polygon():
+def test_bbox2polygon_flat():
     bbox = (-88, 23, -87, 24)
     bounds = utilities.bbox2polygon(bbox)
 
     assert bounds == [(-88, 24), (-87, 24), (-87, 23), (-88, 23)]
+
+def test_bbox2polygon_two_point():
+    bbox = ((-88, 23), (-87, 24))
+    bounds = utilities.bbox2polygon(bbox)
+
+    assert bounds == [(-88, 24), (-87, 24), (-87, 23), (-88, 23)]
+
+def test_bbox2polygon_bad():
+    bbox = (-88, 23, -87, 24, 45)
+    with pytest.raises(ValueError):
+        bounds = utilities.bbox2polygon(bbox) #noqa: F841
 
 
 def test_correct_bbox_for_dateline_not_cross():
