@@ -2,6 +2,7 @@
 Test the Dummy currents
 
 """
+#noqa
 
 import pytest
 
