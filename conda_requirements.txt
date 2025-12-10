@@ -1,4 +1,4 @@
-python>=3.10,<3.14
+python>=3.10,<3.15
 xarray-subset-grid
 netCDF4
 numpy
@@ -6,7 +6,7 @@ requests
 shapely
 s3fs
 pandas
-yaml
+pyyaml
 siphon
 fiona
 cfgrib

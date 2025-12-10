@@ -31,7 +31,7 @@ dependencies = [
     "shapely",
     "s3fs",
     "pandas",
-    "yaml",
+    "pyaml",
     "siphon",
     "fiona",
     "cfgrib",
