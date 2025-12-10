@@ -1,15 +1,17 @@
 """
 assorted utilities useful for libgoods
 """
+
 import datetime
 import warnings
 
 import numpy as np
-from shapely.geometry import MultiPoint, Polygon
+from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
+from libgoods.standard_names import EP_map
 
+# TO DO: move these to metadata where wanted for testing
 def get_example_bbox(model_id):
-
     bboxes = {
         "CBOFS": (-76.5, 36.75, -75.25, 37.75),
         "CBOFS_RGRID": (-76.5, 36.75, -75.25, 37.75),
@@ -41,7 +43,7 @@ def get_example_bbox(model_id):
         "NYOFS": (-74.1, 40.49, -73.95, 40.61),
         "SFBOFS": (-122.55, 37.75, -122.4, 37.9),
         "SFBOFS_RGRID": (-122.55, 37.75, -122.4, 37.9),
-        "SSCOFS": (-125.70,47.71,-123.56,48.77),
+        "SSCOFS": (-125.70, 47.71, -123.56, 48.77),
         "TBOFS": (-82.9, 27.3, -82.6, 27.7),
         "TBOFS_RGRID": (-82.9, 27.3, -82.6, 27.7),
         "WCOFS": (-122.0, 25.0, -115.0, 35.0),
@@ -52,7 +54,7 @@ def get_example_bbox(model_id):
     return bboxes[model_id]
 
 
-def convert_longitude(lon, coord_system='-180--180', normalize=True):
+def convert_longitude(lon, coord_system="-180--180", normalize=True):
     """
     Convert longitude values to a given coordinate system.
 
@@ -116,11 +118,9 @@ def check_valid_longitude(lon, system="all"):
     """
     COORDSYSTEMS = {"all"}
     if system not in {"all"}:
-        raise ValueError(
-            f"Invalid coordinate system. Options are: {COORDSYSTEMS}")
+        raise ValueError(f"Invalid coordinate system. Options are: {COORDSYSTEMS}")
     if not (-180.0 <= lon <= 360.0):
-        raise ValueError(
-            f"longitude cannot be larger than 360 or less than -180. Got{lon}")
+        raise ValueError(f"longitude cannot be larger than 360 or less than -180. Got{lon}")
 
     return True
 
@@ -163,7 +163,7 @@ def check_valid_time_intersection(interval_1, interval_2):
         raise ValueError("Start is not before or equal to end for interval 1")
     if not check_valid_interval(interval_2):
         raise ValueError("Start is not before or equal to end for interval 2")
-    return (interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0])
+    return interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0]
 
 
 def polygon2bbox(bounds):
@@ -266,27 +266,26 @@ def _filter_by_env_params(mdl_meta, ev_p):
     if not (isinstance(ev_p, list) or isinstance(ev_p, tuple)):
         # assume singular string
         # Huh? where is ENVIRONMENTAL_PARAMETERS supposed to be from?
-        if ev_p not in ENVIRONMENTAL_PARAMETERS.keys():
-            raise KeyError(
-                f"{ev_p} is not a valid environmental parameter")
+        if ev_p not in EP_map.keys():  # noqa
+            raise KeyError(f"{ev_p} is not a valid environmental parameter")
         return ev_p in mdl_meta.env_params
     else:
         # assume multiple filter parameters eg ['surface currents', 'surface winds']
         return all(param in mdl_meta.env_params for param in ev_p)
 
 
-def _filter_by_bb_intersection(mdl_meta, poly_bounds):
+def _filter_by_bb_intersection(mdl_meta, subset_bounds):
     """
     :param mdl_meta: model Metadata object
-    :param poly_bounds: shapely Polygon (map) boundary.
+    :param subset_bounds: shapely Polygon (map) boundary.
            Coords must be in (-180, -90), (180, 90) range
     """
     bb = np.array(mdl_meta.bounding_box)
     if np.any(bb > 180):
-        bb[0] -= 180
-        bb[2] -= 180
+        bb = convert_longitude(bb)
+
     bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
-    return bb_poly.intersects(poly_bounds)
+    return bb_poly.intersects(subset_bounds)
 
 
 def make_polygon_finer(poly, threshold=30.0):
@@ -316,11 +315,11 @@ def make_polygon_finer(poly, threshold=30.0):
     return poly2
 
 
-def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
+def subset_intersects_model_boundary(model_bounds, subset_bounds, xDateline=None):
     """
     :param model_bounds: model boundary from metadata - can be in any (allowed)
                          longitude coords.
-    :param poly_bounds: shapely Polygon (map) boundary.
+    :param subset_bounds:  list of coords [(-180, 10), (-150, 10), (-150, 0), (-180, 0)]
            Coords must be in (-180 -- 180) longitude form
 
     :param xDateline=None: Whether the poly bounds cross the dateline.
@@ -333,90 +332,74 @@ def subset_intersects_model_boundary(model_bounds, poly_bounds, xDateline=None):
     #       and don't check the longitude at all.
     # maybe just check max and min lat of the subset poly.
     # OR -- replace longitude of model bounds with -360 and 360
-    poly_bounds = np.array(poly_bounds)
+    subset_bounds = np.array(subset_bounds)
     # "thicken" the model  boundary to help with world wrapping issues
     # this *might* help, but does not solve the problem.
     # model_bounds = make_polygon_finer(model_bounds, threshold=30.0)  # np.array(model_bounds)
     model_bounds = np.array(model_bounds)
 
-    # print(poly_bounds)
-    # print(model_bounds)
 
-    if np.any(poly_bounds[:,0] > 180) or np.any(poly_bounds[:,0] < -180):
-        warnings.warn("In subset_intersects_model_boundary: "
-                      "poly_bounds should be in -180--180 coordinates")
+    if np.any(subset_bounds[:, 0] > 180) or np.any(subset_bounds[:, 0] < -180):
+        warnings.warn(
+            "In subset_intersects_model_boundary: subset_bounds should be in -180--180 coordinates"
+        )
 
-    if np.any(model_bounds[:,0] > 360) or np.any(poly_bounds[:,0] < -180):
-        warnings.warn("In subset_intersects_model_boundary: "
-                      "model_bounds should be in -180--180 or 0--360 coordinates")
+    if np.any(model_bounds[:, 0] > 360) or np.any(subset_bounds[:, 0] < -180):
+        warnings.warn(
+            "In subset_intersects_model_boundary: "
+            "model_bounds should be in -180--180 or 0--360 coordinates"
+        )
 
     if xDateline is None:
         # see if it's bigger than 180 degrees in -180 -- 180 space.
-        if (poly_bounds[:,0].max() - poly_bounds[:,0].min()) >= 180:
+        if (subset_bounds[:, 0].max() - subset_bounds[:, 0].min()) >= 180:
             xDateline = True
         else:
             xDateline = False
 
     if xDateline:  # use 0--360 coords
         model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "0--360", normalize=False)
-        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "0--360", normalize=False)
-    elif poly_bounds[:, 0].min() < 0:  # in western hemisphere: use -180 -- 180 coords
-        if (model_bounds[:, 0].min() >= 0
+        subset_bounds[:, 0] = convert_longitude(subset_bounds[:, 0], "0--360", normalize=False)
+    elif subset_bounds[:, 0].min() < 0:  # in western hemisphere: use -180 -- 180 coords
+        if (
+            model_bounds[:, 0].min() >= 0
             and (model_bounds[:, 0].max() - model_bounds[:, 0].min()) > 300
-            ):  # model bounds in 0-360
+        ):  # model bounds in 0-360
             # only really works for 0-360 and wrapped around the earth.
             model_bounds[:, 0] -= 180
         else:
             model_bounds[:, 0] = convert_longitude(model_bounds[:, 0], "-180--180", normalize=False)
         # poly should already be in -180 == 180, but won't hurt
-        poly_bounds[:, 0] = convert_longitude(poly_bounds[:, 0], "-180--180", normalize=False)
+        subset_bounds[:, 0] = convert_longitude(subset_bounds[:, 0], "-180--180", normalize=False)
     # else:  # no need to convert.
-    print(poly_bounds)
-    print(model_bounds)
 
-    poly_bounds_poly = Polygon(poly_bounds)
+
+    subset_bounds_poly = Polygon(subset_bounds)
     model_bounds_poly = Polygon(model_bounds)
-    return model_bounds_poly.intersects(poly_bounds_poly)
+    return model_bounds_poly.intersects(subset_bounds_poly)
 
 
-def filter_models(models_metadatas,
-                  map_bounds=None,
-                  model_ids_sources=None,
-                  env_params=None):
+def filter_models(models_metadatas, map_bounds=None, model_ids=None, env_params=None):
     """
     Filters a provided list of model metadata via three criteria:
     1. Intersects with provided polygon boundary
-    2. Model ids and source locations
+    2. Model ids
     3. Present environmental parameters
 
     :param models_metadatas: list of model Metadata objects
     :param map_bounds: list of tuples (coordinates), or shapely Polygon, or None
-    :param model_ids_sources: dict with keys as names of models and lists of sources
+    :param model_ids_sources: list of ids of models
     :param env_params: string e.g. 'surface_currents' or list of strings
                        e.g. ['surface_currents', '3D_temperature']
                        see libgoods.model.ENVIRONMENTAL_PARAMETERS for valid query strings
     """
     retlist = models_metadatas
-    if model_ids_sources is not None:
-        retlist = [
-            m for m in retlist if m.identifier in model_ids_sources.keys()
-        ]
-
-        # we might want to make the sorting on source optional so we can return all w/o specifying
-        for ii, m in enumerate(retlist):
-            sources = m.sources
-            keep_source_list = []
-            for source in sources:
-                if source.name in model_ids_sources[m.identifier]:
-                    keep_source_list.append(source)
-            retlist[ii].sources = keep_source_list
+    if model_ids is not None:
+        retlist = [m for m in retlist if m.identifier in model_ids]
 
     if map_bounds is not None:
-        map_bounds = (Polygon(map_bounds)
-                      if not isinstance(map_bounds, Polygon) else map_bounds)
-        retlist = [
-            m for m in retlist if _filter_by_bb_intersection(m, map_bounds)
-        ]
+        map_bounds = Polygon(map_bounds) if not isinstance(map_bounds, Polygon) else map_bounds
+        retlist = [m for m in retlist if _filter_by_bb_intersection(m, map_bounds)]
 
     if env_params is not None:
         retlist = [m for m in retlist if _filter_by_env_params(m, env_params)]
@@ -466,6 +449,7 @@ def round_dt_to_minutes(dt):
     dt += datetime.timedelta(seconds=30)
     return dt.replace(microsecond=0).replace(second=0)
 
+
 def round_dt_to_hours(dt):
     """
     Round a datetime object to the nearest hour
@@ -485,5 +469,25 @@ def round_dt_to_hours(dt):
     dt += datetime.timedelta(minutes=30)
     return dt.replace(microsecond=0).replace(second=0).replace(minute=0)
 
+def thin_and_write_bnd(blon, blat, bnd_res=10):
 
+    #Thin boundary as required (10 km spacing is default)
+    tblon = [blon[0],]; tblat = [blat[0],];
 
+    for ii in range(1,len(blon)):
+            dx = (blon[ii] - tblon[-1]) * 111.325 * np.cos(blat[ii]*np.pi/180)
+            dy = (blat[ii] - tblat[-1]) * 111.325
+            d = np.sqrt(dx**2 + dy**2)
+            if d > bnd_res:
+                tblon.append(blon[ii])
+                tblat.append(blat[ii])
+
+    ll = np.column_stack((tblon,tblat))
+    poly = Polygon(ll)
+
+    # convert to GeoJSON format
+    geojson = mapping(poly)
+    geojson['coordinates'] = np.round(np.array(geojson['coordinates']),4)
+
+    with open('bry.txt','w') as f:
+        f.write(shape(geojson).wkt)

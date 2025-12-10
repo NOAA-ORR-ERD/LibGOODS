@@ -1,0 +1,16 @@
+identifier: GFS_1_2DEG
+name: Global Winds (GFS-1/2 degree)
+long_name: NOAA/NCEP Global Forecast System (GFS), 1/2 degree horizontal resolution
+html_desc: The <a href="https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php" 
+            target="_blank">Global Forecast System</a> is NOAA/NCEP's weather forecat model that provides 
+            global atmospheric predictions at 13 km resolution. The model output is available through the 
+            <a href="https://ncar.ucar.edu/" target="_blank">University Corporation for Atmospheric 
+            Research (UCAR)</a> data server at a variety of resolutions. WebGNOME accesses the 1/2
+            degree resolution output.
+regional: false
+bounding_box:
+- 0.0
+- -90.0
+- 359.75
+- 90.0
+bounding_poly: POLYGON ((0 90, 0 -90, 359.75 -90, 359.75 90, 0 90))

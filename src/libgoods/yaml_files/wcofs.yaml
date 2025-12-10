@@ -52,7 +52,7 @@ sources:
         sea_water_practical_salinity: salt
         time: time
         upward_sea_water_velocity: w
-        
+
   coops-forecast-noagg:
     description: Unaggregated 3D West Coast model in ROMS from 30 days ago with 72 hour forecast.
     args:

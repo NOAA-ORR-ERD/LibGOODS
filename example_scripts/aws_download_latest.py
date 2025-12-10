@@ -13,10 +13,10 @@ scripting.initialize_console_log('info')  # debug gets a LOT from the AWS stuff
 
 
 models_to_download = [#'WCOFS',
-             # 'SSCOFS',
+              'SSCOFS',
              # 'NGOFS2',
 #             'CBOFS',
-             'TBOFS',
+             #'TBOFS',
              # 'DBOFS',
              # 'GOMOFS',
              # 'CIOFS',
@@ -31,9 +31,7 @@ OFS_OUTPUT_DIR = Path("OFS_results")
 
 for model in models_to_download:
 
-    model_info = coops_ofs.OFS_INFO[model]
-
-    out_dir = OFS_OUTPUT_DIR / model_info.identifier
+    out_dir = OFS_OUTPUT_DIR / model
     temp_dir = out_dir / "tmp"
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -51,12 +49,12 @@ for model in models_to_download:
     end = start + datetime.timedelta(days=10)  # longest COOPS forecast is 120 hrs
 
     try:
-        fnames = coops_ofs.get_aws_flist(model_info, start, end)
+        fnames = coops_ofs.get_aws_flist(model, start, end)
     except KeyError:
         print('2d files not available, downloading 3d')
-        fnames = coops_ofs.get_aws_flist(model_info, start, end, file_type='fields')
+        fnames = coops_ofs.get_aws_flist(model, start, end, file_type='fields')
 
-    filepaths = coops_ofs.download_from_aws(model_info, fnames, out_dir=out_dir, temp_dir=temp_dir)
+    filepaths = coops_ofs.download_from_aws(model, fnames, out_dir=out_dir, temp_dir=temp_dir)
 
     # clean up old files and move new files once a new forecast is downloaded
     new_fc_list = [f for f in filepaths if re.search(regex, f)]

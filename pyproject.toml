@@ -10,13 +10,13 @@ authors = [
 ]
 description = "Package for retrieving environmental data for GNOME"
 requires-python = ">=3.10"
-license = {text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"}
+license = "CC0-1.0"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     "Topic :: Utilities",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Meteorology/Oceanography",
@@ -54,11 +54,27 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
+<<<<<<< HEAD
 libgoods = ["yaml_files/*.yaml",
             "yaml_files/boundaries/*.yaml",
             "shoreline_data/**/*",
             "tests/test_utilities/data_files/*"
+=======
+libgoods = [#"yaml_files/*.yaml",
+            #"yaml_files/boundaries/*.yaml",
+            # "shoreline_data/**/*", # don't want them all
+            # still including them all ?!?!!?
+            "shoreline_data/nos_shoreline/*",
+            "shoreline_data/gshhg/**/*",
+            "models/metadata/*.yaml",
+            "tests/test_utilities/lake_erie_islands.bna",
+>>>>>>> 6876e8af73f8012ee75c939a3ceb8d9a1b289ba8
             ]
+# I could not get exclude to work ?????
+# [tool.setuptools.exclude-package-data]
+# # these are really big -- excluding them until they are used.
+# libgoods = ["shoreline_data/OpenStreetMap/land-polygons-complete-4326/*",
+#             "shoreline_data/AK_CUSP/*"]
 
 [tool.ruff]
 builtins = ["ellipsis"]
@@ -83,3 +99,15 @@ select = [
 extend-safe-fixes = [
   "TID252", # absolute imports
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# examples
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+# "__init__.py" = ["E402"]
+# "path/to/file.py" = ["E402"]
+"src/libgoods/utilities/haz_files.py" = ["UP031"]
+"src/libgoods/models/__init__.py" = ["F401"]
+"src/libgoods/NWS_point.py" = ["UP031"]
+"docs/conf.py" = ["I001"]
+
+

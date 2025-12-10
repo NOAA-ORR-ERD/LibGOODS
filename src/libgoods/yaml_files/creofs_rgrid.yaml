@@ -52,7 +52,7 @@ sources:
         time: time
         longitude: Longitude
         latitude: Latitude
-        
+
   coops-forecast-noagg:
     description: Unaggregated Columbia River model in SELFE, interpolated to regular grid, from 1 day ago with 48 hour forecast.
     args:

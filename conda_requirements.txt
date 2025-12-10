@@ -1,6 +1,6 @@
 python>=3.10,<3.14
-extract_model
-netCDF4  
+xarray-subset-grid
+netCDF4
 numpy
 requests
 shapely
@@ -9,4 +9,5 @@ pandas
 yaml
 siphon
 fiona
-xarray-subset-grid>=0.1.0
+cfgrib
+

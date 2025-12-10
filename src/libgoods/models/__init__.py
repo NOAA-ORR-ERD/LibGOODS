@@ -1,69 +1,68 @@
+from pathlib import Path
 
-from .coops_fvcom import NGOFS2, LMHOFS, LEOFS, LOOFS, LSOFS, SSCOFS
-from .coops_roms import DBOFS, WCOFS, CBOFS, TBOFS, CIOFS, GOMOFS
+YAML_DIR = Path(__file__).parent / "metadata"
+
+# do we need them in the whole namespace?
+
+from .base import BaseModel
+from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS
+from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO
-from .pacific_islands import HIIG, HIOG, HIOMSG, HIOMSAG, HIOEKG, MARI, MARIG, SAMOA
-from .tamu import TAMU
-from .twdb import SabineLake, GalvestonBay, MatagordaBay, CorpusChristiBay, SanAntonioBay 
-from .ncom_regional import AmSeas, Alaska, USEast
-from .wfs import WFCOM, TBCOM
-from .necofs import NECOFS, MassCoastal, BostonHarbor, Hampton, Scituate
 from .hf_radar import HFRadar
+from .ncom_regional import Alaska, AmSeas, USEast
+from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
+from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, WPAC, MARIG, SAMOA
+from .tamu import TAMU
+from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
+from .wfs import TBCOM, WFCOM
+from .espc import ESPC
 
-ALL_MODELS = {"NGOFS2": NGOFS2,
-              "LMHOFS": LMHOFS,
-              "LEOFS": LEOFS,
-              "LOOFS": LOOFS,
-              "LSOFS": LSOFS,
-              "SSCOFS": SSCOFS,
-              "DBOFS": DBOFS,
-              "WCOFS": WCOFS,
-              "CBOFS": CBOFS,
-              "TBOFS": TBOFS,
-              "CIOFS": CIOFS,
-              "GOMOFS": GOMOFS,
-              "DOPPIO": DOPPIO,
-              "HIIG": HIIG,
-              "HIOG": HIOG,
-              "HIOMSG": HIOMSG,
-              "HIOMSAG": HIOMSAG,
-              "HIOEKG": HIOEKG,
-              "MARI": MARI,
-              "MARIG": MARIG,
-              "SAMOA": SAMOA,
-              "TAMU": TAMU,
-              "SabineLake": SabineLake,
-              "MatagordaBay": MatagordaBay,
-              "SanAntonioBay": SanAntonioBay,
-              "CorpusChristiBay": CorpusChristiBay,
-              "GalvestonBay": GalvestonBay,
-              'NCOM US East Coast': USEast,
-              'NCOM Alaska': Alaska,
-              'NCOM American Seas': AmSeas,
-              'WFCOM': WFCOM,
-              'TBCOM': TBCOM,
-              'NECOFS': NECOFS,
-              'MassCoastal': MassCoastal,
-              'BostonHarbor': BostonHarbor,
-              'Hampton': Hampton,
-              'Scituate': Scituate,
-#              'HFRadar': HFRadar -- different API
+# fixme: should this be an instance or the model class??
+#        it's currently the class, and get_models instantiates them,
+#        but I think maybe it should be the instance already ??
+
+# getting clever to build the list of all models
+# it's imported, it should be auto-added.
+ALL_MODELS = {mod.metadata.identifier: mod
+              for mod in vars().values()
+              if type(mod) is type
+                  and issubclass(mod, BaseModel)
               }
-
+              
+del ALL_MODELS[BaseModel.metadata.identifier]
 
 def get_models():
     """
-    To Do: add filtering, selection, etc?
+    Get the model objects for all the models
 
-    get the model objects for all models
+    :returns: a list of (model name, model_id) pairs
+
+    fixme: what is this used for?
     """
     catalog = []
-    
+
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        catalog.append([m.name, key])
+        catalog.append([m.metadata.name, key])
         
     return catalog
+
+
+def get_model_metadata(model_ids=None,):
+    """
+    Returns the metadata for all the models available
+
+    :param model_ids=None: Sequence of ids of the models you want.
+                           If None -- all available with be returned
+
+    :returns: list of Metadata objects
+    """
+
+
+    metas = [mod().metadata for mod in ALL_MODELS.values()]
+    if model_ids is not None:
+        metas = [mod for mod in metas if mod.identifier in model_ids]
+    return (metas)
 
 
 def open_all():
@@ -78,8 +77,8 @@ def open_all():
         print(m.name)
         try:
             m.open_ds()
-            cat.append([m.name,'GOOD'])
+            cat.append([m.name, "GOOD"])
         except Exception as e:
-            cat.append([m.name,e])
+            cat.append([m.name, e])
 
     return cat

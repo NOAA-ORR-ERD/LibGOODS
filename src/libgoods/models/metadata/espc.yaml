@@ -1,0 +1,17 @@
+identifier: ESPC
+name: Navy Earth System Prediction Capability
+long_name: Global Navy Earth System Prediction Capability
+html_desc: The global Navy Earth System Prediction Capability (Navy-ESPC) is a coupled atmosphere-ocean-sea 
+            ice prediction system developed at the <a href="https://www.nrl.navy.mil/" target="_blank">Naval 
+            Research Laboratory (NRL)</a> for operational forecasting.
+            ESPC Version 1 is run operationally by the
+            <a href="https://www.metoc.navy.mil/fnmoc/fnmoc.html" target="_blank">
+            Fleet Numerical Meteorology and Oceanography Center (FNMOC)</a> and accessed through
+            <a href="https://hycom.org" target="_blank"> HYCOM.org</a> at 1/12 degree resolution.
+regional: false
+bounding_box:
+- 0.0
+- -80.0
+- 359.9200439453125
+- 90.0
+bounding_poly: POLYGON ((0 -80, 0 90, 359.9200439453125 90, 359.9200439453125 -80, 0 -80))

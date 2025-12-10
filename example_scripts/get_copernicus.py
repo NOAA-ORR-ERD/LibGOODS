@@ -3,7 +3,7 @@ import copernicusmarine
 
 #ME amacfadyen wIkyonos1
 
-start_time = datetime.datetime.now() 
+start_time = datetime.datetime.now()
 
 lon_min = 33.22
 lon_max = 51.44

@@ -17,5 +17,6 @@ Installation
    :caption: Documentation
 
    whats_new
+   UsingAPI
    api
    GitHub repository <https://github.com/NOAA-ORR-ERD/LibGOODS>

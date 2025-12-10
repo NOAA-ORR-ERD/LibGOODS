@@ -4,31 +4,35 @@ Core API for accessing model results
 These are the functions that the WebGNOME client will call
 
 """
-
+import datetime
+from pathlib import Path
 from . import (
     ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
-    metadata,
+    NWS_point,
+    models,
+    standard_names,
+    shoreline,
     utilities,
+    config,
 )
-from . import model_nc4 as model
-from . import NWS_point, shoreline
-from .standard_names import get_standard_names
+
+from .models import metadata
 
 
-def list_models(model_ids_sources=None,
+def list_models(model_ids=None,
                 map_bounds=None,
                 env_params=None,
-                as_pyson=False):
+                as_pyson=True
+                ):
     """
     Return metadata for all available models
-    This is the static information about the models (in yaml file). It will not include
+    This is the static information about the models (typically in a yaml file). It will not include
     actual start/end time based on querying the server
 
-    :param model_ids_sources=None: Optional dict of particular models names (keys) and
-                                   sources (list). If None all available models will be
-                                   returned.
+    :param model_ids_sources=None: Optional list of models identifiers. If None all available
+                                models will be returned.
 
     :param map_bounds=None: Bounds within which the models must overlap, if None, the
                             whole world.
@@ -40,16 +44,17 @@ def list_models(model_ids_sources=None,
                             for env_params is in standard_names and includes
                             "surface currents" etc.
 
-    :param as_pyson=False: If True, result is JSON-compatible dict.
+    :param as_pyson=True: If True, result is JSON-compatible dict.
                            If false, Metadata objects.
 
     :returns: list of metadata for models that satisfy the criteria
 
     """
-    all_metas = metadata.get_all_metadata()
+
+    all_metas = models.get_model_metadata()
     retval = utilities.filter_models(
-        all_metas.values(),
-        model_ids_sources=model_ids_sources,
+        all_metas,
+        model_ids=model_ids,
         map_bounds=map_bounds,
         env_params=env_params,
     )
@@ -60,38 +65,52 @@ def list_models(model_ids_sources=None,
     return retval
 
 
-def get_model_info(model_id, model_source):
+def get_model(model_id, start=None, end=None):
     """
-    Return metadata about a particular model from a particular source. This will
-    query the server to add the actual time bounds to the metadata
+    Return model object for a particular model.
+    This will instantiate the model object to add the current
+    time bounds.
 
-    :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
+    :param model_id: the name (unique ID) of the model as in `api.list_models()`
+    :param start: datetime (optional) used to restrict model output (see note)
+    param end: datetime (optional) used to restrict model output time series (see note)
 
-    :returns: libgoods.metadata.Metadata object with metadata of the model and source.
+    NOTE: the start/end time is more typically for the local archive where files are
+    unaggregated and a MFDataset object is created from a filelist. For aggregated
+    model output (e.g. on TDS or zarr) subsetting in time is typically done after
+    opening the dataset
+
+    :returns: model obj with metadata of the model converted to dict
     """
-    meta = metadata.get_metadata_for_model(model_id, model_source)
 
-    tvar_name = meta['sources'][0]['standard_names']['time']
-    meta['urlpath'] = meta['sources'][0]['args']['urlpath']
-    try:
-        stime, etime = model.get_time_bounds(meta['urlpath'], tvar_name)
-    except:
-        raise ModelAvailabilityError('Unable to retrieve data from server. Please check availability or try again later.')
-
-    meta['actual_start'] = stime
-    meta['actual_end'] = etime
-
-    return meta
+    archive_dir = config.archive_dir
 
 
-def validate_subset(model_id, model_source, start, end, bounds):
+    if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
+        model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
+        if start is not None:
+             model_obj.open_ds()
+    else:
+        model_obj = models.ALL_MODELS[model_id]()
+        model_obj.open_ds() #try/except here?
+        if start is not None:
+            model_obj.subset_time(start, end) #update actual start/end?
+
+    meta = model_obj.metadata
+    meta.actual_start = model_obj.actual_start.isoformat()
+    meta.actual_end = model_obj.actual_end.isoformat()
+
+    model_obj.metadata = meta.as_pyson()
+
+    return model_obj
+
+
+def validate_subset(model_id, start, end, bounds):
     """
     Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
     :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
@@ -103,35 +122,35 @@ def validate_subset(model_id, model_source, start, end, bounds):
 
     polybounds = utilities.bbox2polygon(bounds)
 
-    meta = get_model_info(model_id, model_source)
+    model_obj = get_model(model_id)
+
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
-    if not utilities.subset_intersects_model_boundary(meta['bounding_poly'],
-                                                      polybounds):
+    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"], polybounds):
         # no overlap in at least one dimension
-        raise NonIntersectingSubsetError('Subset does not intersect model boundary')
+        raise NonIntersectingSubsetError("Subset does not intersect model boundary")
 
-    if not utilities.check_valid_time_intersection((start, end),
-                                                   (meta['actual_start'],
-                                                    meta['actual_end'])):
-        raise NonIntersectingTimeIntervalError('Subset does not intersect model time bounds')
+    if not utilities.check_valid_time_intersection(
+        (start, end), (model_obj.metadata["actual_start"], model_obj.metadata["actual_end"])
+    ):
+        raise NonIntersectingTimeIntervalError("Subset does not intersect model time bounds")
 
     return True
 
 
-def get_model_subset(model_id,
-                     model_source,
-                     start,
-                     end,
-                     bounds,
-                     surface_only=True,
-                     cross_dateline=False,
-                     environmental_parameters=["surface currents"]):
+def get_model_subset(
+    model_id,
+    start,
+    end,
+    bounds,
+    #surface_only=True,
+    cross_dateline=False,
+    environmental_parameters=["surface currents"],
+    ):
     """
     Determine the indices for the desired subset (in space and time)
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
-    :param model_source: the source the model output is being requested from
     :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
@@ -139,69 +158,77 @@ def get_model_subset(model_id,
     :param bounds: spatial bounds to subset -- (west, south, east, north)
     :param surface_only: boolean to select only surface values
     :param cross_dateline: boolean to specify dateline cross TODO: check implementation
-    :param environmental_parameters: which variables to include, e.g.,
-                                     "surface currents" - see standard_names for mapping
+    :param environmental_parameters: which variables to include - can be a subset of
+    ["surface currents", "surface winds", "3D currents", "water properties", "ice"]
+    If 3D currents are selected, water properties will be 3D
+
     """
     # polybounds = utilities.bbox2polygon(bounds)
-    if '3D currents' in environmental_parameters:
-        surface_only = False
+
+    if type(start) is not datetime.datetime:
+        start = datetime.datetime.fromisoformat(start)
+    if type(end) is not datetime.datetime:
+        end = datetime.datetime.fromisoformat(end)
+
+    model_obj = get_model(model_id, start=start, end=end)
+
+    if "3D currents" in environmental_parameters:
+        if model_obj.is3d:
+            get3d = True
+            model_obj.get3d = True  # this is used by nc4 based subclasses in writing step
+        else:
+            raise ModelAvailabilityError('3D output not available')
     else:
-        surface_only = True
+        get3d = False
+        model_obj.get3d = False
 
-    meta = get_model_info(model_id, model_source)
+    var_list = standard_names.get_standard_names(environmental_parameters)
+    model_obj.filter_variables(var_list, get3d=get3d)
 
-    # build url list if unaggregated
-    if 'noagg' in model_source:
-        pass
+    model_obj.subset_grid(bounds)
+    if not get3d:
+        try:
+            model_obj.select_surface()
+        except AttributeError: #may be surface only output
+            pass
 
-    else:
-        urlpath = meta['urlpath']
+    if not hasattr(model_obj,'ds'):
+        model_obj.make_xr_dataset()
 
-    # these are what we want to include
-    snames_list = get_standard_names(environmental_parameters)
-    snames_dict = meta['sources'][0]['standard_names']
-    var_dict = {x: snames_dict[x] for x in snames_list if x in snames_dict}
-    ds = model.get_model_subset(urlpath,
-                                start,
-                                end,
-                                list(bounds),
-                                surface_only=surface_only,
-                                cross_dateline=cross_dateline,
-                                var_dict=var_dict,
-                                grid=meta['grid_type'])
-
-    ds.cross_dateline = cross_dateline
-
-    return ds
+    return model_obj
 
 
-def get_model_output(xds, output_pth):
+def get_model_output(model_obj, output_pth):
     """
     Get the model output based on the subset information
     """
-    output_path = model.write_model_output(xds, output_pth, dl = xds.cross_dateline )
+
+    output_path = model_obj.write_nc(output_pth)
 
     return output_path
 
 
 def NWS_point_wind(lon, lat):
-    data = NWS_point.get_data(lon,lat)
-    if 'err' in data.keys():
-        raise ValueError(data['err'])
+    data = NWS_point.get_data(lon, lat)
+    if "err" in data.keys():
+        raise ValueError(data["err"])
     else:
         json_data = NWS_point.format_JSON(data)
     return json_data
 
 
-def get_map(bounds,
-            data_source='gshhs',
-            ofn='coast.bna',
-            resolution='h',
-            cross_dateline=False,
-            max_filesize=1e6):
+def get_map(
+    bounds,
+    data_source="gshhs",
+    ofn="coast.bna",
+    resolution="h",
+    cross_dateline=False,
+    max_filesize=1e6,
+):
     """
-    This is for compatibility with current implementation in API which was expecting a file delivered from a URL
-    Also need to think about how to test for max filesize differently since now its being written directly to server
+    This is for compatibility with current implementation in API which was expecting a file
+    delivered from a URL Also need to think about how to test for max filesize differently since
+    now its being written directly to server
     """
 
     shoreline.get_map(bounds, data_source, ofn, resolution, cross_dateline, max_filesize)
