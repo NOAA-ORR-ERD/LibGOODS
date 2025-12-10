@@ -58,8 +58,7 @@ test_libgoods:
       --file conda_requirements.txt
     - conda install git  # need git to install xarray_subset_grid
     # need xarray_subset_grid -- not released yet
-    - pip install
-      xarray_subset_grid@git+https://github.com/asascience-open/xarray-subset-grid.git
+    - conda install xarray_subset_grid
 
     - pip install ./
 
