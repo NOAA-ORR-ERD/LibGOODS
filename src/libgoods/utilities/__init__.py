@@ -9,6 +9,8 @@ import numpy as np
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
 from libgoods.standard_names import EP_map
+from libgoods import NonIntersectingTimeIntervalError
+
 
 # TO DO: move these to metadata where wanted for testing
 def get_example_bbox(model_id):
@@ -140,9 +142,11 @@ def check_valid_box(bbox, system="all"):
 
 
 def check_valid_interval(interval):
+    # fixme -- this checks the length after it indexes
+    #       it will raise with length-1 -- is that what we want?
     return (interval[0] <= interval[1]) and len(interval) == 2
 
-
+#Fixme -- I think this should be in the Model base class
 def check_valid_time_intersection(interval_1, interval_2):
     """
     Checks a time interval against another time interval
@@ -160,9 +164,11 @@ def check_valid_time_intersection(interval_1, interval_2):
         interval_2 = [datetime.datetime.fromisoformat(x) for x in interval_2]
 
     if not check_valid_interval(interval_1):
-        raise ValueError("Start is not before or equal to end for interval 1")
+        raise NonIntersectingTimeIntervalError("Start is not before or equal to end for interval 1")
+        # raise ValueError("Start is not before or equal to end for interval 1")
     if not check_valid_interval(interval_2):
-        raise ValueError("Start is not before or equal to end for interval 2")
+        raise NonIntersectingTimeIntervalError("Start is not before or equal to end for interval 2")
+        # raise ValueError("Start is not before or equal to end for interval 2")
     return interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0]
 
 
@@ -471,7 +477,7 @@ def round_dt_to_hours(dt):
 def thin_and_write_bnd(blon, blat, bnd_res=10):
 
     #Thin boundary as required (10 km spacing is default)
-    tblon = [blon[0],]; tblat = [blat[0],];
+    tblon = [blon[0],]; tblat = [blat[0],]
 
     for ii in range(1,len(blon)):
             dx = (blon[ii] - tblon[-1]) * 111.325 * np.cos(blat[ii]*np.pi/180)
