@@ -85,7 +85,6 @@ def get_model(model_id, start=None, end=None):
 
     archive_dir = config.archive_dir
 
-
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
         model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
         if start is not None:
@@ -105,7 +104,7 @@ def get_model(model_id, start=None, end=None):
     return model_obj
 
 
-def validate_subset(model_id, start, end, bounds):
+def validate_subset(model_id, start, end, subset_bounds):
     """
     Test the desired subset (in space and time) by ensuring that there is
     overlap with the time bounds and grid bounds of the selected model
@@ -115,18 +114,18 @@ def validate_subset(model_id, start, end, bounds):
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
-    :param bounds: spatial bounds to subset -- (west, south, east, north)
+    :param subset_bounds: spatial bounds to subset, list of 4 points --  ((w,s), (w,n), (e,n), (e,s))
 
     :returns: True if the subset is valid, otherwise False
     """
 
-    polybounds = utilities.bbox2polygon(bounds)
+    # polybounds = utilities.bbox2polygon(bounds)
 
     model_obj = get_model(model_id)
 
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
-    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"], polybounds):
+    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"], subset_bounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError("Subset does not intersect model boundary")
 
@@ -143,7 +142,6 @@ def get_model_subset(
     start,
     end,
     bounds,
-    #surface_only=True,
     cross_dateline=False,
     environmental_parameters=["surface currents"],
     ):
@@ -155,7 +153,7 @@ def get_model_subset(
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
-    :param bounds: spatial bounds to subset -- (west, south, east, north)
+    :param bounds: spatial bounds to subset --  ((w,s), (w,n), (e,n), (e,s))
     :param surface_only: boolean to select only surface values
     :param cross_dateline: boolean to specify dateline cross TODO: check implementation
     :param environmental_parameters: which variables to include - can be a subset of
@@ -163,7 +161,8 @@ def get_model_subset(
     If 3D currents are selected, water properties will be 3D
 
     """
-    # polybounds = utilities.bbox2polygon(bounds)
+    # we use subset_bbox in xarray_subset_grid so I think we need to flatten (there is a subset_polygon but I haven't tested)
+    bounds = utilities.flatten_bbox((bounds[0],bounds[2]))
 
     if type(start) is not datetime.datetime:
         start = datetime.datetime.fromisoformat(start)
@@ -230,6 +229,7 @@ def get_map(
     delivered from a URL Also need to think about how to test for max filesize differently since
     now its being written directly to server
     """
+    bounds = utilities.flatten_bbox((bounds[0],bounds[2]))
 
     shoreline.get_map(bounds, data_source, ofn, resolution, cross_dateline, max_filesize)
     filename = ofn
