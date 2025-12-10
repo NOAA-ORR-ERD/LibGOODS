@@ -33,6 +33,9 @@ def list_models(model_ids_sources=None,
     :param map_bounds=None: Bounds within which the models must overlap, if None, the
                             whole world.
 
+    :type map_bounds: polygon - list of (lon, lat) points. If two points,
+                      it's taken as a bounding rect.
+
     :param env_params=None: Only provide models that have the given parameters. The mapping
                             for env_params is in standard_names and includes
                             "surface currents" etc.
