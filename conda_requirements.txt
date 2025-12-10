@@ -10,4 +10,5 @@ pyyaml
 siphon
 fiona
 cfgrib
+zarr<3
 

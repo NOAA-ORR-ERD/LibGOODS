@@ -54,8 +54,10 @@ test_libgoods:
   allow_failure: false
   image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
   script:
-    - conda install -y python=$PYTHON_VER --file conda_requirements_test.txt
+    - conda install -y python=$PYTHON_VER
+      pip
       --file conda_requirements.txt
+      --file conda_requirements_test.txt
 
     - pip install ./
 
