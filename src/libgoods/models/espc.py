@@ -1,7 +1,6 @@
-from .base_nc4 import NC4BaseModel
-
-from .metadata import Metadata
 from . import YAML_DIR
+from .base_nc4 import NC4BaseModel
+from .metadata import Metadata
 
 
 class ESPC(NC4BaseModel):

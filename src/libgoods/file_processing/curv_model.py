@@ -3,6 +3,7 @@ A class for dealing with curvilinear grid model output and converting to GNOME f
 By passing in a var_map dict the
 variable names can be customized for different models or datasets
 """
+# ruff: noqa
 
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401

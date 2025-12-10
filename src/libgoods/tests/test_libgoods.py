@@ -7,9 +7,8 @@ e.g. the stuff in __init__
 
 from pathlib import Path
 
-from libgoods import Config, UnsetConfigError
+from libgoods import Config
 
-import pytest
 
 def test_config_path():
     """

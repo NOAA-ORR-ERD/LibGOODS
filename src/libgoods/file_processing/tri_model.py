@@ -5,6 +5,9 @@ By passing in a var_map dict the
 variable names can be customized for different models or datasets
 NOTE -- this writes the old GNOME trigrid format and should be updated
 """
+
+# ruff: noqa
+
 import numpy as np
 from netCDF4 import Dataset, num2date
 
@@ -499,15 +502,17 @@ class tri(base.BaseModel):
         print('Total number of eles: ', self.data['nbe'].shape[1])
         print('Total number of nodes: ', self.data['lon'].shape[0])
 
-        #returns lists of eles and nodes, plus truncated and edited topology arrays (nbe, nv)
+        # returns lists of eles and nodes, plus truncated and edited topology arrays (nbe, nv)
         subset_lat = np.nonzero(np.logical_and(self.data['lat']>=sl,self.data['lat']<=nl))[0]
         subset_lon = np.nonzero(np.logical_and(self.data['lon']>=wl,self.data['lon']<=el))[0]
-        self.nodes_in_ss = np.intersect1d(subset_lat,subset_lon) + 1 #node numbering starts at 1 (subtract one for indexing lon/lat)
+        # node numbering starts at 1 (subtract one for indexing lon/lat)
+        self.nodes_in_ss = np.intersect1d(subset_lat,subset_lon) + 1
 
         self.eles_in_ss = []
-        nv_ss = []; nbe_ss = []
+        nv_ss = []
+        nbe_ss = []
 
-        #determine which nodes are in subset boundary and elements with all nodes in ss
+        # determine which nodes are in subset boundary and elements with all nodes in ss
         print('Finding nodes and entire elements in ss')
         for ii, ele in enumerate(self.data['nv'].transpose()):
             #if all of the nodes are in subset domain keep -- otherwise get rid of it
@@ -560,7 +565,7 @@ class tri(base.BaseModel):
         f = open(bndry_file)
         nodes = []
         for line in f:
-            node1,node2,bnumber,flag = (int(l) for l in line.split())
+            node1,node2,bnumber,flag = (int(l) for l in line.split()) #noqa: E741
             node1_id = np.where(self.nodes_in_ss == node1)[0]
             node2_id = np.where(self.nodes_in_ss == node2)[0]
             if len(node1_id) > 0 and len(node2_id) > 0 and flag == 0:

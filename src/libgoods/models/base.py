@@ -1,6 +1,8 @@
+from libgoods import standard_names
+
 from . import YAML_DIR
 from .metadata import Metadata
-from libgoods import standard_names
+
 
 class BaseModel:
     """

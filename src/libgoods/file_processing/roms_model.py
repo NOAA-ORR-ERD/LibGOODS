@@ -2,6 +2,7 @@
 A class for loading variables from ROMS model output on specified domain subsets that are
 needed for GNOME
 """
+# ruff: noqa
 
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401

@@ -1,8 +1,9 @@
 import fsspec
 import numpy as np
+import pandas as pd
 import xarray as xr
 import xarray_subset_grid
-import pandas as pd
+
 from .base import BaseModel
 
 

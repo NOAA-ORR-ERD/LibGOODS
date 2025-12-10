@@ -2,8 +2,11 @@ import re
 import tempfile
 import urllib
 import zipfile
+
 import requests
+
 from .metadata import Metadata
+
 """
 These are provided as zip files downloaded from a URL - we could add an api that allows subsetting
 similar to others but I'm not sure we need it as they are not very big and being replaced by

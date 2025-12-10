@@ -8,6 +8,7 @@ Currently only support BNA, but maybe others in the future?
 
 import numpy as np
 
+
 class GNOME_shoreline:
     """
     class to hold GNOME shoreline data

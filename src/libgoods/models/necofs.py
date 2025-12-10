@@ -1,6 +1,7 @@
 from .base_xsg import FVCOM
 from .metadata import Metadata
 
+
 class BaseNECOFS(FVCOM):
     access = "opendap"
     standard_names = FVCOM.standard_names.copy()

@@ -1,9 +1,10 @@
-import urllib
-from weathertools import metdata
+import datetime
 import os
+import urllib
+
 import numpy as np
 from netCDF4 import Dataset, num2date
-import datetime
+from weathertools import metdata
 
 
 def urldata2file(station, tfn):
@@ -11,7 +12,6 @@ def urldata2file(station, tfn):
     Navigate to url for input NDBC station and parse text
 
     """
-    # NDBC_url = 'http://www.ndbc.noaa.gov/data/5day2/' + station + '_5day.txt' #add check this exists
     NDBC_url = "http://www.ndbc.noaa.gov/data/realtime2/" + station + ".txt"
     f = urllib.urlopen(NDBC_url)
     firstline = f.readline()
@@ -165,7 +165,7 @@ def get_historical(stn_id, tfn):
             wspd_un = wspd_obj.units
         data.Units = {"WindDirection": wdir_obj.units, "WindSpeed": wspd_un}
 
-        l = len(wdir_obj)
+        l = len(wdir_obj) #noqa: E741
         wspd = wspd_obj[0 : l - 1].data
         wspd = (wspd > 98).choose(wspd, np.nan)
         wdir = wdir_obj[0 : l - 1].data
@@ -180,7 +180,8 @@ def get_historical(stn_id, tfn):
         ed = ts[valid[-1]].strftime("%b%Y")
 
         return " ", [sd, ed]
-    except:
+    # fixme: what exceptions are we looking for here?
+    except: #noqa: E722
         return "Error: Unable to access historical data for this station from " + server_url, [
             "",
             "",

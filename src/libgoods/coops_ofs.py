@@ -295,7 +295,10 @@ def get_aws_flist_all(model_id, file_type="2ds"):
                 nc_list.append(str(fpath))
                 print(f"Adding file: {fpath}")
 
-    nc_list_sorted = prune_files_to_daterange(nc_list, [], start=None, end=None, update_cycle=model_info.update_cycle)
+    nc_list_sorted = prune_files_to_daterange(nc_list, [],
+                                              start=None,
+                                              end=None,
+                                              update_cycle=model_info.update_cycle)
 
     return nc_list_sorted
 
@@ -375,9 +378,10 @@ def get_ioos_tds_agg_url(model_id):
     )
 
     try:
-        ds = Dataset(model_url)
+        ds = Dataset(model_url) # noqa:F841
         flist = model_url
-    except:
+    # fixme: what ecxeption(s) might we get here???
+    except:  # noqa:E722
         print("Aggregation not found on IOOS server")
         flist = None
 
@@ -395,7 +399,7 @@ def download_from_aws(model_id, fnames, out_dir="files", temp_dir=None):
     fnames : list of filenames (str)
 
     """
-    model_info = OFS_INFO[model_id]
+    # model_info = OFS_INFO[model_id]
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
@@ -493,9 +497,9 @@ def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
     pruned_dts = []
     dts = [file2dt(f.split("/")[-1], update_cycle) for f in nc_list]
 
-    buffer = datetime.timedelta(
-        hours=3
-    )  # ideally this buffer should be based on output timestep -- but 3 hours is the least resolution offered so this works
+    # ideally this buffer should be based on output timestep
+    # -- but 3 hours is the least resolution offered so this works
+    buffer = datetime.timedelta(hours=3)
 
     if start is None:
         start = min(dts)
@@ -528,7 +532,7 @@ def prune_files_to_daterange(nc_list, fc_list, start, end, update_cycle):
             pruned_fc_list = [x for y, x in sorted(zip(dts, pruned_fc_list))]
     except IndexError:
         print("No nowcast files available")
-        no_nowcasts = True
+        # no_nowcasts = True
         dts = [file2dt(f.split("/")[-1], update_cycle) for f in fc_list]
         sorted_fc_list = [x for y, x in sorted(zip(dts, fc_list))]
         cycle = regex.findall(sorted_fc_list[-1])[0][2:4]

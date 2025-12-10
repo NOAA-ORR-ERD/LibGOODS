@@ -78,7 +78,7 @@ class WPAC(PacIOOS):
     metadata.name = "Western North Pacific"
     location = (
         tds_url
-        + "/dodsC/pacioos/roms_native/wpac/ROMS_Western_North_Pacific_Regional_Ocean_Model_Native_Grid_best.ncd"
+        + "/dodsC/pacioos/roms_native/wpac/ROMS_Western_North_Pacific_Regional_Ocean_Model_Native_Grid_best.ncd" # noqa: E501
     )
 
 

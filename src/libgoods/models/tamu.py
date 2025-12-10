@@ -1,6 +1,6 @@
+from . import YAML_DIR
 from .base_xsg import ROMS
 from .metadata import Metadata
-from . import YAML_DIR
 
 # this archive URL may still be good?  https://gcoos5.geos.tamu.edu/thredds/dodsC/NcML/nowcast_agg.nc
 # has wind Uwind/Vwind

@@ -8,14 +8,14 @@ from .base import BaseModel
 from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS
 from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO
+from .espc import ESPC
 from .hf_radar import HFRadar
 from .ncom_regional import Alaska, AmSeas, USEast
 from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
-from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, WPAC, MARIG, SAMOA
+from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARIG, SAMOA, WPAC
 from .tamu import TAMU
 from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
-from .espc import ESPC
 
 # fixme: should this be an instance or the model class??
 #        it's currently the class, and get_models instantiates them,
@@ -28,7 +28,7 @@ ALL_MODELS = {mod.metadata.identifier: mod
               if type(mod) is type
                   and issubclass(mod, BaseModel)
               }
-              
+
 del ALL_MODELS[BaseModel.metadata.identifier]
 
 def get_models():
@@ -44,7 +44,7 @@ def get_models():
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
         catalog.append([m.metadata.name, key])
-        
+
     return catalog
 
 

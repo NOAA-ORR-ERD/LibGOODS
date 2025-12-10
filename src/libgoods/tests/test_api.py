@@ -7,7 +7,7 @@ import datetime
 import pytest
 
 from libgoods import (
-    ModelAvailabilityError,
+#    ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     api,
@@ -47,7 +47,8 @@ def test_get_model_info_no_archive():
 
 
 class Test_validate_subset:
-    bad_bounds =  [(-180, 10), (-150, 10), (-150, 0), (-180, 0)] # out of bounds except for global model
+    # out of bounds except for global model
+    bad_bounds =  [(-180, 10), (-150, 10), (-150, 0), (-180, 0)]
     good_bounds = [(-83.0, 28.0), (-83.0, 27.5), (-82.0, 27.5), (-82.0, 28.0)]
     start = datetime.datetime.today()
     model_id = 'TBOFS'
@@ -65,7 +66,6 @@ class Test_validate_subset:
 
     def test_bad_time(self):
         model_id = 'TBOFS'
-        test_bounds = [(-83.0, 28.0), (-83.0, 27.5), (-82.0, 27.5), (-82.0, 28.0)]
         start = self.start + datetime.timedelta(days=365)
         end = self.start + datetime.timedelta(days=1)
         with pytest.raises(NonIntersectingTimeIntervalError):
@@ -73,15 +73,19 @@ class Test_validate_subset:
 
 @pytest.mark.skip(reason="This causes it to hang -- ESPC model bad?")
 def test_get_model_subset():
+    """
+    THis really needs refactoring!
+    """
     #get a very small subset - nothing specific to check except it "works"
     model_id = 'ESPC'
     start = datetime.datetime.today()
     end = start + datetime.timedelta(days=0.5)
     bounds = [(-171, 1), (-170, 1), (-170, 0), (-171, 0)]
-    try:
-        ds = api.get_model_subset(model_id, start, end, bounds)
-    except:
-        raise ModelAvailabilityError('Creating subset failed - could be TDS issue but should verify')
+    model_obj = api.get_model_subset(model_id, start, end, bounds)
+
+    # We Really should test for something real
+    assert hasattr(model_obj,'ds')
+
 
 # Move this test to utilities? Its a crossover between api and utilities
 # I left it here for now since I got it working

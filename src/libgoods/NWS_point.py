@@ -107,7 +107,7 @@ def parse_nws_xml(xml_file):
         zone_desc = str(lat) + "_" + str(lon)
 
     time_data = data.find("time-layout")
-    time_zone = time_data.attrib["time-coordinate"]
+    # time_zone = time_data.attrib["time-coordinate"]
 
     start_times = time_data.findall("start-valid-time")
 

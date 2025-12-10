@@ -1,6 +1,8 @@
 import pandas as pd
 import xarray as xr
+
 from libgoods.file_processing import rect_model
+
 from .base import BaseModel
 
 
@@ -36,10 +38,13 @@ class NC4BaseModel(BaseModel):
         keep_list = variable_list + dims_list
         if get3d:
             keep_list.append('depth')
-        self.standard_names = {key: value for key, value in self.standard_names.items() if key in keep_list}
+        self.standard_names = {key: value for key, value
+                               in self.standard_names.items() if key in keep_list}
 
     def make_xr_dataset(self):
-        self.ds = xr.Dataset() # This is needed for the nbytes check in webgnomeapi - have to figure out what to do here.
+        # This is needed for the nbytes check in webgnomeapi
+        #  - have to figure out what to do here.
+        self.ds = xr.Dataset()
 
     def write_nc(self, ofn="test.nc", close_ds=True):
         self.model.update(self.location)

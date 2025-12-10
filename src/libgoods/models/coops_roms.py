@@ -1,8 +1,10 @@
+
 from libgoods import coops_ofs
-from pathlib import Path
+
 from . import YAML_DIR
 from .base_xsg import ROMS
 from .metadata import Metadata
+
 
 class COOPS_ROMS(ROMS):
     update_cycle = 6
@@ -33,17 +35,18 @@ class COOPS_ROMS(ROMS):
             self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)
             if self.local_file_type == '2ds':
                 self.is3d = False
-                self.standard_names = ROMS.standard_names | {"eastward_sea_water_velocity": "u_sur",
-                                                             "northward_sea_water_velocity": "v_sur",
-                                                             "sea_water_temperature": "temp_sur",
-                                                             "sea_water_practical_salinity": "salt_sur"
-                                                            }
-
+                self.standard_names = (ROMS.standard_names
+                                       | {"eastward_sea_water_velocity": "u_sur",
+                                          "northward_sea_water_velocity": "v_sur",
+                                          "sea_water_temperature": "temp_sur",
+                                          "sea_water_practical_salinity": "salt_sur"
+                                          })
 
 
 class GOMOFS(COOPS_ROMS):
     metadata = Metadata.from_yaml(YAML_DIR / "gomofs.yaml")
     local_file_type = "2ds"
+
 
 class CIOFS(COOPS_ROMS):
     metadata = Metadata.from_yaml(YAML_DIR / "ciofs.yaml")

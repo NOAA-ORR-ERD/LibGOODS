@@ -3,22 +3,24 @@ Core API for accessing model results
 
 These are the functions that the WebGNOME client will call
 
+NOTE: These really need to be refactored to not hit any servers.
+
+Mocking, local, cache, etc.
+
 """
 import datetime
-from pathlib import Path
+
 from . import (
     ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     NWS_point,
-    models,
-    standard_names,
-    shoreline,
-    utilities,
     config,
+    models,
+    shoreline,
+    standard_names,
+    utilities,
 )
-
-from .models import metadata
 
 
 def list_models(model_ids=None,
@@ -86,7 +88,10 @@ def get_model(model_id, start=None, end=None):
     archive_dir = config.archive_dir
 
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
-        model_obj = models.ALL_MODELS[model_id](access='local', start=start, end=end, archive_dir=archive_dir)
+        model_obj = models.ALL_MODELS[model_id](access='local',
+                                                start=start,
+                                                end=end,
+                                                archive_dir=archive_dir)
         if start is not None:
              model_obj.open_ds()
     else:
@@ -114,17 +119,22 @@ def validate_subset(model_id, start, end, subset_bounds):
                   or datetimes)
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
-    :param subset_bounds: spatial bounds to subset, list of 4 points --  ((w,s), (w,n), (e,n), (e,s))
+    :param subset_bounds: spatial bounds to subset, list of polygon points
+           if a bounding box: ((w,s), (w,n), (e,n), (e,s))
+           currently the bounding box of a polygon is used.
 
     :returns: True if the subset is valid, otherwise False
     """
 
     # polybounds = utilities.bbox2polygon(bounds)
+    subset_bounds = utilities.polygon2bbox(subset_bounds)
+    subset_bounds = utilities.bbox2polygon(subset_bounds)
     model_obj = get_model(model_id)
 
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
-    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"], subset_bounds):
+    if not utilities.subset_intersects_model_boundary(model_obj.metadata["bounding_poly"],
+                                                      subset_bounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError("Subset does not intersect model boundary")
 
@@ -145,23 +155,36 @@ def get_model_subset(
     environmental_parameters=["surface currents"],
     ):
     """
+    ## Fixme: there's a fair bit of logic here, does this belong in the API?
+
     Determine the indices for the desired subset (in space and time)
 
     :param model_id: the name (unique ID) of the model as defined in the yaml files
+
     :param start: start of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                   or datetimes)
+
     :param end: end of model output to include (strings in format %Y-%m-%dT%H:%M:%S
                 or datetimes)
-    :param bounds: spatial bounds to subset --  ((w,s), (w,n), (e,n), (e,s))
+
+    :param bounds: spatial bounds to subset: vertices of a polygon
+                   if a grid aligned box: ((w,s), (w,n), (e,n), (e,s)).
+                   Currently the bounding box of the polygon is used.
+
     :param surface_only: boolean to select only surface values
+
     :param cross_dateline: boolean to specify dateline cross TODO: check implementation
+
     :param environmental_parameters: which variables to include - can be a subset of
     ["surface currents", "surface winds", "3D currents", "water properties", "ice"]
     If 3D currents are selected, water properties will be 3D
 
+    :returns: What does this return??
     """
-    # we use subset_bbox in xarray_subset_grid so I think we need to flatten (there is a subset_polygon but I haven't tested)
-    bounds = utilities.flatten_bbox((bounds[0],bounds[2]))
+    # we use subset_bbox in xarray_subset_grid so I think we need to flatten
+    #    (there is a subset_polygon but I haven't tested)
+    bounds = utilities.polygon2bbox(bounds)
+    bounds = utilities.flatten_bbox(bounds)
 
     if type(start) is not datetime.datetime:
         start = datetime.datetime.fromisoformat(start)

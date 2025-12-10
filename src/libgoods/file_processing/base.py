@@ -1,12 +1,16 @@
 """
 Base model class
 """
+# ruff: noqa
 
 import datetime
+
 from netCDF4 import Dataset, MFDataset, num2date
+
 from libgoods import standard_names
 
-class BaseModel():
+
+class BaseModel:
     """
     Base model class
     """

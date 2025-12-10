@@ -8,8 +8,8 @@ import warnings
 import numpy as np
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
-from libgoods.standard_names import EP_map
 from libgoods import NonIntersectingTimeIntervalError
+from libgoods.standard_names import EP_map
 
 
 # TO DO: move these to metadata where wanted for testing
@@ -233,13 +233,20 @@ def correct_bbox_for_dateline(bbox, xDateline=None):
 
 def bbox2polygon(bbox):
     """
-    Converts (W, S, E, N) bounding box to a four point polygon:
+    Converts (W, S, E, N) or LL, UR bounding box a four point polygon:
     """
-
-    min_lon = bbox[0]
-    min_lat = bbox[1]
-    max_lon = bbox[2]
-    max_lat = bbox[3]
+    if len(bbox) == 4:
+        min_lon = bbox[0]
+        min_lat = bbox[1]
+        max_lon = bbox[2]
+        max_lat = bbox[3]
+    elif len(bbox) == 2:
+        min_lon = bbox[0][0]
+        min_lat = bbox[0][1]
+        max_lon = bbox[1][0]
+        max_lat = bbox[1][1]
+    else:
+        raise ValueError(f"This doesn't look like a bounding box" )
 
     return [
         (min_lon, max_lat),
@@ -476,8 +483,9 @@ def round_dt_to_hours(dt):
 
 def thin_and_write_bnd(blon, blat, bnd_res=10):
 
-    #Thin boundary as required (10 km spacing is default)
-    tblon = [blon[0],]; tblat = [blat[0],]
+    # Thin boundary as required (10 km spacing is default)
+    tblon = [blon[0],]
+    tblat = [blat[0],]
 
     for ii in range(1,len(blon)):
             dx = (blon[ii] - tblon[-1]) * 111.325 * np.cos(blat[ii]*np.pi/180)
