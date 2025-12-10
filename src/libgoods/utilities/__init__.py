@@ -246,7 +246,7 @@ def bbox2polygon(bbox):
         max_lon = bbox[1][0]
         max_lat = bbox[1][1]
     else:
-        raise ValueError(f"This doesn't look like a bounding box" )
+        raise ValueError(f"This doesn't look like a bounding box: {bbox}")
 
     return [
         (min_lon, max_lat),
