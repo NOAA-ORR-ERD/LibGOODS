@@ -54,21 +54,10 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-<<<<<<< HEAD
-libgoods = ["yaml_files/*.yaml",
-            "yaml_files/boundaries/*.yaml",
-            "shoreline_data/**/*",
-            "tests/test_utilities/data_files/*"
-=======
-libgoods = [#"yaml_files/*.yaml",
-            #"yaml_files/boundaries/*.yaml",
-            # "shoreline_data/**/*", # don't want them all
-            # still including them all ?!?!!?
-            "shoreline_data/nos_shoreline/*",
+libgoods = ["shoreline_data/nos_shoreline/*",
             "shoreline_data/gshhg/**/*",
             "models/metadata/*.yaml",
             "tests/test_utilities/lake_erie_islands.bna",
->>>>>>> 6876e8af73f8012ee75c939a3ceb8d9a1b289ba8
             ]
 # I could not get exclude to work ?????
 # [tool.setuptools.exclude-package-data]
