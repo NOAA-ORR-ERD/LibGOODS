@@ -23,24 +23,29 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+dependencies = [
+    "xarray-subset-grid>=0.1.0",
+    "netCDF4",
+    "numpy>=2.2",
+    "requests",
+    "shapely",
+    "s3fs",
+    "pandas",
+    "yaml",
+    "siphon",
+    "fiona",
+    "cfgrib",
+]
+
 [tool.setuptools.dynamic]
 version = {attr = "libgoods.__version__"}
 readme = {file = ["README.rst"]}
-
-# use conda -- so not here??
-# dependencies = [
-#     "requests",
-#     'importlib-metadata; python_version<"3.8"',
-# ]
 
 [project.urls]
 # Homepage = "https://example.com"
 # Documentation = "https://readthedocs.org"
 Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
-
-# [project.optional-dependencies]
-# pdf = ["ReportLab>=1.2", "RXP"]
 
 [project.scripts]
 #     # does this work?? -- left over from model_catalogs
@@ -57,7 +62,7 @@ where = ["src"]
 libgoods = ["shoreline_data/nos_shoreline/*",
             "shoreline_data/gshhg/**/*",
             "models/metadata/*.yaml",
-            "tests/test_utilities/lake_erie_islands.bna",
+            "tests/test_utilities/data_files/*",
             ]
 # I could not get exclude to work ?????
 # [tool.setuptools.exclude-package-data]

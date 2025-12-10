@@ -6,10 +6,7 @@ and checking GNOME shoreline files.
 Currently only support BNA, but maybe others in the future?
 """
 
-import os
-
 import numpy as np
-
 
 class GNOME_shoreline:
     """
@@ -72,7 +69,8 @@ class GNOME_shoreline:
         # elif num_points == 1:
         #     poly_type = "point"
         if num_points <= 2:
-            raise ValueError(f"polygon {name} does not have a valid number of points: {num_points}.")
+            raise ValueError(f"polygon {name} does not have a "
+                             f"valid number of points: {num_points}.")
 
         points = np.zeros((num_points, 2), dtype=np.float64)
         for i in range(num_points):
@@ -116,8 +114,6 @@ class GNOME_shoreline:
         self._init_lists()
 
         with open(filename, encoding='utf-8') as fd:
-            polys = []
-
             while True:
                 poly = self._get_next_bna_polygon(fd)
 
