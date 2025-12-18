@@ -16,24 +16,33 @@ def sync_model(MODEL, date=None, how_far_back=None):
     date = datetime.datetime.now() if date is None else date
 
     PATTERN="fields"
-    DATEPATTERN = date.strftime("%Y/%m/%d")
+    DATEPATTERN = date.strftime("%Y/%m/%d/")
     CAST=".n"
 
     FILE_PATH=f"{DATEPATTERN}*{PATTERN}{CAST}*"
 
     s3_url = f"s3://noaa-nos-ofs-pds/{MODEL}"
 
-    command = ["aws", "s3", "sync",
-               f"s3://noaa-nos-ofs-pds/{MODEL}",
-               f"{CACHE_DIR}{MODEL}",
-               "--no-sign-request",
-               "--size-only",
-               '--exclude', '"*"',
+    FILE_GLOB = f'*netcdf/{FILE_PATH}'
+    print("Using:", FILE_GLOB)
+    command = ['aws',
+               's3',
+               'sync',
+               f's3://noaa-nos-ofs-pds/{MODEL}',
+               f'{CACHE_DIR}/{MODEL}',
+               '--no-sign-request',
+               '--size-only',
+               '--exclude',
+               '"*"',
                '--include',
-               f'"*netcdf/{FILE_PATH}"',
+               f'"{FILE_GLOB}"',
                ]
-    print(command)
-    subprocess.run(command)
+
+    print("Running:", " ".join(command))
+    # I don't think you should have to join the args -- but this seems to work
+    subprocess.run(" ".join(command), shell=True)
+    # subprocess.run(command, shell=True)
+
 
 if __name__ == "__main__":
     sync_model('cbofs')
