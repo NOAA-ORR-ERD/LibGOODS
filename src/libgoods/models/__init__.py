@@ -16,6 +16,7 @@ from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARIG, SAMOA, 
 from .tamu import TAMU
 from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
+from .gfs import GFS
 
 # fixme: should this be an instance or the model class??
 #        it's currently the class, and get_models instantiates them,
@@ -37,7 +38,7 @@ def get_models():
 
     :returns: a list of (model name, model_id) pairs
 
-    fixme: what is this used for?
+
     """
     catalog = []
 
@@ -74,11 +75,11 @@ def open_all():
 
     for key in ALL_MODELS:
         m = ALL_MODELS[key]()
-        print(m.name)
+        print(m.metadata.name)
         try:
             m.open_ds()
-            cat.append([m.name, "GOOD"])
+            cat.append([m.metadata.name, "GOOD"])
         except Exception as e:
-            cat.append([m.name, e])
+            cat.append([m.metadata.name, e])
 
     return cat

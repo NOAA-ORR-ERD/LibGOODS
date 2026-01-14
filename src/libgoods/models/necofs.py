@@ -1,16 +1,25 @@
 from .base_xsg import FVCOM
 from .metadata import Metadata
 
+'''
+This is a work in progress -- subsetting over OPeNDAP is no bueno so we
+do a download of the whole file first (can select just the surface, narrow time, and filter relevant vars)
 
+'''
 class BaseNECOFS(FVCOM):
     access = "opendap"
     standard_names = FVCOM.standard_names.copy()
     standard_names["surface_eastward_sea_water_velocity"] = "u"
     standard_names["surface_northward_sea_water_velocity"] = "v"
 
-    def download_entire_grid(self, start_time, end_time, surface_only=True, filter_vars=True):
-        self.open_ds()
-        self.subset_time(start_time, end_time)
+    def open_ds(self, start_time=None, end_time=None, surface_only=True,
+                filter_vars=True):
+        # specialized case to download the full grid file
+        # then reopen locally for grid subsetting
+        ds = self.open_ds_tds(self.location)
+        self.ds = ds
+        if start_time is not None and end_time is not None:
+            self.subset_time(start_time, end_time) # TO DO - make subset_time accept start or end None
         if surface_only:
             self.select_surface()
         if filter_vars:
@@ -19,6 +28,7 @@ class BaseNECOFS(FVCOM):
         self.write_nc("necofs_fullgrid.nc")
         self.ds = None
         self.location = "necofs_fullgrid.nc"
+        self.open_ds_tds()
 
 
 class NECOFS(BaseNECOFS):
