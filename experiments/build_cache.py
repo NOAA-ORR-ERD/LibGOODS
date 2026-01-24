@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+Python script to call the aws command line to sync the aws cache
+
+currently hard-code for nowcast files and cbofs.
+
+"""
+
+
 import datetime
 from pathlib import Path
 import subprocess
@@ -25,6 +33,8 @@ def sync_model(MODEL, date=None, how_far_back=None):
 
     FILE_GLOB = f'*netcdf/{FILE_PATH}'
     print("Using:", FILE_GLOB)
+    # NOTE: you need to quite things with a * in them for the shell
+    #       but not when passing directly to subprocess.call()
     command = ['aws',
                's3',
                'sync',
@@ -33,16 +43,13 @@ def sync_model(MODEL, date=None, how_far_back=None):
                '--no-sign-request',
                '--size-only',
                '--exclude',
-               '"*"',
+               '*',
                '--include',
-               f'"{FILE_GLOB}"',
+               f'{FILE_GLOB}',
                ]
 
-    print("Running:", " ".join(command))
-    # I don't think you should have to join the args -- but this seems to work
-    subprocess.run(" ".join(command), shell=True)
-    # subprocess.run(command, shell=True)
-
+    print("Running:", command)
+    subprocess.run(command)
 
 if __name__ == "__main__":
     sync_model('cbofs')
