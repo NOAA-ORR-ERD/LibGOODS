@@ -1,4 +1,4 @@
-from .base_xsg import BaseModel
+from .base_xsg import XSGBaseModel
 from .metadata import Metadata
 
 url_base = "http://hfrnet-tds.ucsd.edu/thredds/dodsC/HFR/"
@@ -14,15 +14,17 @@ regions = {
 }
 
 
-class HFRadar(BaseModel):
+class HFRadar(XSGBaseModel):
     chunks = None
     drop_variables = None
     standard_names = {
-        "eastward_sea_water_velocity": "u",
-        "northward_sea_water_velocity": "v",
+        "surface_eastward_sea_water_velocity": "u",
+        "surface_northward_sea_water_velocity": "v",
     }
     tvar = "time"
     access = "opendap"
+    metadata = Metadata()
+    metadata.identifier = 'HFRadar'
 
     def __init__(self, region=None, res="6km"):
         """
@@ -32,13 +34,13 @@ class HFRadar(BaseModel):
         but URLs are inconsistent for 25h, monthly, annual
         maybe port code from GOODS which builds urls from server
         """
-        metadata = Metadata()
-        metadata.identifier = 'HFRadar'
+        super().__init__()
         if region in regions:
             fname = "HFRADAR_" + regions[region] + "_" + res + "_Resolution_Hourly_RTV_best.ncd"
             self.location = url_base + region + "/" + res + "/hourly/RTV/" + fname
         else:
             print("HFRadar: Region must be in ", list(regions.keys()))
             self.location = None
+
 
 

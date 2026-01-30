@@ -91,7 +91,10 @@ class XSGBaseModel(BaseModel):
         #       using same convention (0-->360 vs -180-180)
         self.ds = self.ds.xsg.subset_bbox(bbox)
 
-    def filter_variables(self, variable_list=None):
+    def select_surface(self, level_depth=0):
+        self.ds = self.ds.xsg.subset_vertical_level(level=level_depth, method='nearest')
+
+    def filter_variables(self, variable_list=None, get3d=False):
         # This one is for surface only models (used by HFradar)
         # variable list default is based on surface u/v variable names
         if variable_list is None:
@@ -102,6 +105,16 @@ class XSGBaseModel(BaseModel):
         self.ds = self.ds.xsg.subset_vars(vars2include)
 
     def write_nc(self, ofn="test.nc", close_ds=True):
+        self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
+        if close_ds:
+            self.ds.close()
+
+class GlobalModel(XSGBaseModel):
+    # Do any extra stuff particular to global models -- like longitude conversions
+    def write_nc(self, ofn="test.nc", close_ds=True):
+        lon = self.ds.variables["lon"].data[:]
+        # should only do if not dateline x-ing subset
+        self.ds = self.ds.assign_coords(lon=(((lon + 180) % 360) - 180))
         self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
         if close_ds:
             self.ds.close()
@@ -150,11 +163,6 @@ class FVCOM(XSGBaseModel):
             vars2include.extend(["siglay", "siglev"])
 
         self.ds = self.ds.xsg.subset_vars(vars2include)
-
-    def select_surface(self):
-        self.ds = self.ds.xsg.subset_vertical_level(level=0, method='nearest')
-        #self.ds = self.ds.xsg.subset_vertical_level(0)
-        #self.ds = self.ds.isel(siglay=0)
 
     def write_nc(self, ofn="test.nc", close_ds=True):
         ds = self.ds.compute()
@@ -212,9 +220,6 @@ class ROMS(XSGBaseModel):
             # I changed the order which seems to fix it for now
             pass
 
-    def select_surface(self):
-        self.ds = self.ds.xsg.subset_vertical_level(level=0, method='nearest')
-        #self.ds = self.ds.isel(s_rho=-1)
-        # self.ds = self.ds.drop_vars('siglay')
-        # self.ds = self.ds.drop_vars('siglev')
+
+
 
