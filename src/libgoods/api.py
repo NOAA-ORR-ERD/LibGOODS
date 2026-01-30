@@ -210,12 +210,9 @@ def get_model_subset(
     model_obj = get_model(model_id, start=start, end=end)
 
     if "3D currents" in environmental_parameters:
-        if model_obj.is3d:
             get3d = True
             model_obj.get3d = True
             # this is used by nc4 based subclasses in writing step
-        else:
-            raise ModelAvailabilityError('3D output not available')
     else:
         get3d = False
         model_obj.get3d = False
@@ -225,11 +222,9 @@ def get_model_subset(
 
     model_obj.subset_grid(bounds)
     if not get3d:
-        try:
-            model_obj.select_surface()
-        except AttributeError:  # may be surface only output
-            pass
+        model_obj.select_surface()
 
+    # this is for the code path not using xarray base class (may be defunct soon)
     if not hasattr(model_obj, 'ds'):
         model_obj.make_xr_dataset()
 

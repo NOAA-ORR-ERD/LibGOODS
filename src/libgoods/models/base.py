@@ -16,8 +16,9 @@ class BaseModel:
 
     standard_names = {}
 
-    def __init__(self):
+    def __init__(self, is3d=True):
         # add the environmental_params to metadata
+        self.is3d = is3d
         self.metadata.env_params = self.env_params
 
     @property
@@ -26,5 +27,5 @@ class BaseModel:
 
     @property
     def env_params(self):
-        return standard_names.get_env_params(self.standard_names.keys())
+        return standard_names.get_env_params(self.standard_names.keys(), self.is3d)
 

@@ -45,7 +45,6 @@ EP_map = {
         "sea_ice_area_fraction",
     ],
 }
-# WHY is this here twice?
 
 def get_standard_names(env_params):
     """
@@ -55,22 +54,7 @@ def get_standard_names(env_params):
     CF variables mapped to
     "eastward_sea_water_velocity" and "northward_sea_water_velocity"
     """
-    EP_map = {
-        "surface winds": ["eastward_wind", "northward_wind"],
-        "surface currents": ["eastward_sea_water_velocity", "northward_sea_water_velocity"],
-        "3D currents": [
-            "eastward_sea_water_velocity",
-            "northward_sea_water_velocity",
-            "upward_sea_water_velocity",
-        ],
-        "surface temperature": ["sea_surface_temperature"],
-        "water properties": ["sea_water_temperature", "sea_water_practical_salinity"],
-        "ice": [
-            "eastward_sea_ice_velocity",
-            "northward_sea_ice_velocity",
-            "sea_ice_area_fraction",
-        ],
-    }
+
 
     if isinstance(env_params, list):
         var_list = [var for param in env_params for var in EP_map[param]]
@@ -80,8 +64,10 @@ def get_standard_names(env_params):
     return var_list
 
 
-def get_env_params(standard_names):
+def get_env_params(standard_names, is3d):
     """ """
     params = {k for k, v in EP_map.items() if all(subv in standard_names for subv in v)}
+    if not is3d:
+        params.discard('3D currents')
 
     return params

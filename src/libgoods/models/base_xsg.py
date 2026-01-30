@@ -11,6 +11,7 @@ class XSGBaseModel(BaseModel):
     '''
     Base class for all models that can be accessed/subset using xarray_subset_grid
     '''
+
     def open_ds_tds(self, url):
         ds = xr.open_dataset(
             url,

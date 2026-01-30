@@ -9,8 +9,6 @@ do a download of the whole file first (can select just the surface, narrow time,
 class BaseNECOFS(FVCOM):
     access = "opendap"
     standard_names = FVCOM.standard_names.copy()
-    standard_names["surface_eastward_sea_water_velocity"] = "u"
-    standard_names["surface_northward_sea_water_velocity"] = "v"
 
     def open_ds(self, start_time=None, end_time=None, surface_only=True,
                 filter_vars=True):

@@ -18,13 +18,16 @@ class HFRadar(XSGBaseModel):
     chunks = None
     drop_variables = None
     standard_names = {
-        "surface_eastward_sea_water_velocity": "u",
-        "surface_northward_sea_water_velocity": "v",
+        "eastward_sea_water_velocity": "u",
+        "northward_sea_water_velocity": "v",
     }
     tvar = "time"
     access = "opendap"
+    is3d = False
     metadata = Metadata()
     metadata.identifier = 'HFRadar'
+    metadata.env_params = ['surface currents']
+
 
     def __init__(self, region=None, res="6km"):
         """
@@ -34,7 +37,7 @@ class HFRadar(XSGBaseModel):
         but URLs are inconsistent for 25h, monthly, annual
         maybe port code from GOODS which builds urls from server
         """
-        super().__init__()
+        super().__init__(is3d=False)
         if region in regions:
             fname = "HFRADAR_" + regions[region] + "_" + res + "_Resolution_Hourly_RTV_best.ncd"
             self.location = url_base + region + "/" + res + "/hourly/RTV/" + fname

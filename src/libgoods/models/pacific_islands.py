@@ -15,9 +15,6 @@ class PacIOOS(ROMS):
     # (gregorian_proleptic instead of proleptic_gregorian) and since we don't need it anyway,
     # we're dropping it
     access = "opendap"
-    standard_names["surface_eastward_sea_water_velocity"] = "u"
-    standard_names["surface_northward_sea_water_velocity"] = "v"
-
 
 class HIIG(PacIOOS):
     metadata = Metadata()
