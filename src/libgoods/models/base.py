@@ -28,4 +28,3 @@ class BaseModel:
     @property
     def env_params(self):
         return standard_names.get_env_params(self.standard_names.keys(), self.is3d)
-

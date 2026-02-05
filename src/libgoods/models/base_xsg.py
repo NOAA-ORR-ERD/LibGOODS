@@ -49,7 +49,7 @@ class XSGBaseModel(BaseModel):
             m,
             engine="zarr",
             backend_kwargs=dict(consolidated=False),
-            chunks = self.chunks,
+            chunks=self.chunks,
             drop_variables=self.drop_variables,
         )
         return ds
@@ -81,7 +81,6 @@ class XSGBaseModel(BaseModel):
         except AttributeError:
             print('Dataset not opened -- call open_ds')
 
-
     def subset_time(self, start_time, end_time):
         # TODO: make this smarter to use > start and/or < end etc (one end is None)
         # We also need to add some padding for output timesteps > 1 hour
@@ -93,6 +92,8 @@ class XSGBaseModel(BaseModel):
         self.ds = self.ds.xsg.subset_bbox(bbox)
 
     def select_surface(self, level_depth=0):
+
+        # subset_vertical_level uses sel based on vertical coord = 0 (e.g, z=0)
         self.ds = self.ds.xsg.subset_vertical_level(level=level_depth, method='nearest')
 
     def filter_variables(self, variable_list=None, get3d=False):
@@ -110,6 +111,7 @@ class XSGBaseModel(BaseModel):
         if close_ds:
             self.ds.close()
 
+
 class GlobalModel(XSGBaseModel):
     # Do any extra stuff particular to global models -- like longitude conversions
     def write_nc(self, ofn="test.nc", close_ds=True):
@@ -122,7 +124,7 @@ class GlobalModel(XSGBaseModel):
 
 
 class FVCOM(XSGBaseModel):
-    chunks = {"siglay": 1, "siglev":1, "time": 1}
+    chunks = {"siglay": 1, "siglev": 1, "time": 1}
     drop_variables = ["Itime", "Itime2"]
     standard_names = {
         "eastward_sea_water_velocity": "u",
@@ -154,16 +156,22 @@ class FVCOM(XSGBaseModel):
                     "northward_sea_water_velocity"]
 
         if get3d:
-            variable_list.extend(["sea_surface_elevation",
+            variable_list.extend(["upward_sea_water_velocity",
+                                  "sea_surface_elevation",
                                   "sea_floor_depth"])
 
         vars2include = [self.standard_names[v] for v in variable_list]
 
         # xarray subset grid should be smart enough to include these but its not
         if get3d:
-            vars2include.extend(["siglay", "siglev"])
+            vars2include.extend(["siglay"])
 
         self.ds = self.ds.xsg.subset_vars(vars2include)
+
+    def select_surface(self, siglay=0):
+        # siglay = 0 for surface, siglay=1 for bottom
+        # xsg uses sel but the siglay is 2d (depth,nodes) so incompatible *sometimes*
+        self.ds = self.ds.isel(siglay=siglay)
 
     def write_nc(self, ofn="test.nc", close_ds=True):
         ds = self.ds.compute()
@@ -220,7 +228,3 @@ class ROMS(XSGBaseModel):
             # this appears to get stripped off when the grid is subset
             # I changed the order which seems to fix it for now
             pass
-
-
-
-

@@ -293,12 +293,16 @@ def _filter_by_bb_intersection(mdl_meta, subset_bounds):
     :param subset_bounds: shapely Polygon (map) boundary.
            Coords must be in (-180, -90), (180, 90) range
     """
-    bb = np.array(mdl_meta.bounding_box)
-    if np.any(bb > 180):
-        bb = convert_longitude(bb)
+    if not mdl_meta.regional:
+        return True
 
-    bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
-    return bb_poly.intersects(subset_bounds)
+    else:
+        bb = np.array(mdl_meta.bounding_box)
+        if np.any(bb > 180):
+            bb = convert_longitude(bb)
+
+        bb_poly = MultiPoint([(bb[0], bb[1]), (bb[2], bb[3])]).envelope
+        return bb_poly.intersects(subset_bounds)
 
 
 def make_polygon_finer(poly, threshold=30.0):

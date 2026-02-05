@@ -35,7 +35,7 @@ EP_map = {
     "3D currents": [
         "eastward_sea_water_velocity",
         "northward_sea_water_velocity",
-        #"upward_sea_water_velocity",
+        # "upward_sea_water_velocity",
     ],
     "surface temperature": ["sea_surface_temperature"],
     "water properties": ["sea_water_temperature", "sea_water_practical_salinity"],
@@ -46,6 +46,7 @@ EP_map = {
     ],
 }
 
+
 def get_standard_names(env_params):
     """
     Use the mapping specified in EP_map to determine which variables
@@ -54,7 +55,6 @@ def get_standard_names(env_params):
     CF variables mapped to
     "eastward_sea_water_velocity" and "northward_sea_water_velocity"
     """
-
 
     if isinstance(env_params, list):
         var_list = [var for param in env_params for var in EP_map[param]]

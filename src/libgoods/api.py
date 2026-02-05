@@ -33,7 +33,7 @@ def list_models(model_ids=None,
     This is the static information about the models (typically a yaml file).
     It will not include actual start/end time based on querying the server.
 
-    :param model_ids_sources=None: Optional list of models identifiers.
+    :param model_ids=None: Optional list of models identifiers.
                                    If None all available models
                                    will be returned.
 

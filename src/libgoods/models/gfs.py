@@ -12,7 +12,7 @@ class GFS(GlobalModel):
         "eastward_wind": "u-component_of_wind_height_above_ground",
         "northward_wind": "v-component_of_wind_height_above_ground",
     }
-    tvar = "time"
+    tvar = "time1"
     access = "opendap"
     location = "https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_0p25deg/Best"
 
@@ -20,3 +20,8 @@ class GFS(GlobalModel):
         # until xarray fix is in -- flip arrays so lat is ascending
         super().open_ds()
         self.ds = self.ds.isel(lat=slice(None, None, -1))
+
+    def select_surface(self):
+        # subset_vertical_level uses sel based on vertical coord
+        # here its height_above_ground = 10
+        self.ds = self.ds.xsg.subset_vertical_level(level=10, method='nearest')

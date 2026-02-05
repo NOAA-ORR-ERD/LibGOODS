@@ -10,7 +10,7 @@ class BaseNECOFS(FVCOM):
     access = "opendap"
     standard_names = FVCOM.standard_names.copy()
 
-    def open_ds(self, start_time=None, end_time=None, surface_only=True,
+    def download_from_tds(self, start_time=None, end_time=None, surface_only=True,
                 filter_vars=True):
         # specialized case to download the full grid file
         # then reopen locally for grid subsetting
@@ -19,14 +19,15 @@ class BaseNECOFS(FVCOM):
         if start_time is not None and end_time is not None:
             self.subset_time(start_time, end_time) # TO DO - make subset_time accept start or end None
         if surface_only:
-            self.select_surface()
+            #self.select_surface()
+            self.ds = self.ds.isel(siglay=0)
         if filter_vars:
             self.filter_variables()
         print("Downloading file")
         self.write_nc("necofs_fullgrid.nc")
         self.ds = None
         self.location = "necofs_fullgrid.nc"
-        self.open_ds_tds()
+        #super().open_ds()
 
 
 class NECOFS(BaseNECOFS):

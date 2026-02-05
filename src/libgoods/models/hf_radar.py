@@ -1,8 +1,10 @@
 from .base_xsg import XSGBaseModel
 from .metadata import Metadata
 
-url_base = "http://hfrnet-tds.ucsd.edu/thredds/dodsC/HFR/"
+url_base = "https://dods.ndbc.noaa.gov/thredds/dodsC/"
 
+# Note: access just changed to NDBC and folder structure is much simpler -- this mapping no longer used
+# but still checking that input region is a key here
 regions = {
     "AKNS": "Alaska_-_North_Slope",
     "GAK": "US_Gulf_of_Alaska",
@@ -26,8 +28,6 @@ class HFRadar(XSGBaseModel):
     is3d = False
     metadata = Metadata()
     metadata.identifier = 'HFRadar'
-    metadata.env_params = ['surface currents']
-
 
     def __init__(self, region=None, res="6km"):
         """
@@ -35,15 +35,11 @@ class HFRadar(XSGBaseModel):
         Resolution - 500m, 1km, 2km, 6km
         This only handles hourly - can add averages in future
         but URLs are inconsistent for 25h, monthly, annual
-        maybe port code from GOODS which builds urls from server
+
         """
         super().__init__(is3d=False)
         if region in regions:
-            fname = "HFRADAR_" + regions[region] + "_" + res + "_Resolution_Hourly_RTV_best.ncd"
-            self.location = url_base + region + "/" + res + "/hourly/RTV/" + fname
+            self.location = url_base + 'hfradar_' + region.lower() + '_' + res
         else:
             print("HFRadar: Region must be in ", list(regions.keys()))
             self.location = None
-
-
-
