@@ -8,6 +8,7 @@ from .metadata import Metadata
 
 class BaseWFS(FVCOM):
     # might not need this base class -- we'll see
+    # I'd think you could just subclass from FVCOM
 
     access = "opendap"
 

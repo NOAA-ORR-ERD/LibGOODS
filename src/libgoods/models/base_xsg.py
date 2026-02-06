@@ -4,6 +4,7 @@ import pandas as pd
 import xarray as xr
 import xarray_subset_grid
 
+from  libgoods.utilities import convert_longitude
 from .base import BaseModel
 
 
@@ -71,28 +72,36 @@ class XSGBaseModel(BaseModel):
         self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
 
     def size(self):
-        print("Aggregation size is:")
-        print(f"{self.ds.nbytes / 1e9:.5} GB")
+        return ("Aggregation size is:\n"
+                f"{self.ds.nbytes / 1e9:.5} GB"
+                )
 
     def when(self):
+        # we shouldn't have prints buried in here -- it should return teh message
+        # then you can print it -- or, in iPython, it will display it.
         try:
-            print(self.actual_start)
-            print(self.actual_end)
+            return(f"{self.actual_start}\n{self.actual_end}")
         except AttributeError:
-            print('Dataset not opened -- call open_ds')
+            return 'Dataset not opened -- call open_ds'
 
     def subset_time(self, start_time, end_time):
         # TODO: make this smarter to use > start and/or < end etc (one end is None)
         # We also need to add some padding for output timesteps > 1 hour
+        #
+        # I think slices don't include the end point.
+        # So if end_time falls exactly on a timestep, it won't be included.
         self.ds = self.ds.sel({self.tvar: slice(start_time, end_time)})
 
     def subset_grid(self, bbox):
         # TODO: Add check on bbox and ds longitude to see if they are
         #       using same convention (0-->360 vs -180-180)
+        #  NOTE: XSG does somethign with this -- not sure what though ...
         self.ds = self.ds.xsg.subset_bbox(bbox)
 
     def select_surface(self, level_depth=0):
-
+        """
+        Pull out only the surface layer
+        """
         # subset_vertical_level uses sel based on vertical coord = 0 (e.g, z=0)
         self.ds = self.ds.xsg.subset_vertical_level(level=level_depth, method='nearest')
 
@@ -115,12 +124,33 @@ class XSGBaseModel(BaseModel):
 class GlobalModel(XSGBaseModel):
     # Do any extra stuff particular to global models -- like longitude conversions
     def write_nc(self, ofn="test.nc", close_ds=True):
-        lon = self.ds.variables["lon"].data[:]
-        # should only do if not dateline x-ing subset
-        self.ds = self.ds.assign_coords(lon=(((lon + 180) % 360) - 180))
+        self.normalize_longitude()
         self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
         if close_ds:
             self.ds.close()
+
+    def normalize_longitude(self):
+        """
+        normalizes the longitude for output
+
+        TODO: whether to do this depends on where in earth you are
+              e.g. crossing dateline, etc.
+
+              This should probably be called by subset, when you know the bounds
+              you are subsetting to.
+
+              There is some EPSG specific stuff in here too :-(
+
+        """
+        # it may not be called 'lon'
+        # but we should be able to use self.ds.cf.coordinates to find it
+        lon = self.ds['lon']
+        # should only do if not dateline x-ing subset
+        shifted = convert_longitude(lon.data, coord_system='-180--180')
+        new_lon = xr.DataArray(shifted, lon.coords, lon.dims, lon.name, lon.attrs)
+        new_lon.attrs.pop('modulo', 'None') # from EPSG model (It's set to '360 degrees')
+        self.ds = self.ds.assign_coords(lon=new_lon)
+
 
 
 class FVCOM(XSGBaseModel):

@@ -1,15 +1,16 @@
 from . import YAML_DIR
 #from .base_nc4 import NC4BaseModel as BaseModel
-from .base_xsg import GlobalModel as BaseModel
+from .base_xsg import GlobalModel
 from .metadata import Metadata
 
 
-class ESPC(BaseModel):
+class ESPC(GlobalModel):
     access = "opendap"
     metadata = Metadata.from_yaml(YAML_DIR / "espc.yaml")
     location = "https://tds.hycom.org/thredds/dodsC/FMRC_ESPC-D-V02_all/FMRC_ESPC-D-V02_all_best.ncd"
     is3d = True
-    drop_variables = ['tau'] #needed by xarray only
+    # time1 could confuse the time variables ...
+    drop_variables = ['tau', 'time1', 'time_run'] # needed by xarray only
     chunks = None
     standard_names = { #this has dims also to be compatible with old code
                       'time': 'time',
