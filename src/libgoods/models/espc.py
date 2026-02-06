@@ -1,10 +1,10 @@
 from . import YAML_DIR
 #from .base_nc4 import NC4BaseModel as BaseModel
-from .base_xsg import GlobalModel
+from .base_xsg import XSGBaseModel
 from .metadata import Metadata
 
 
-class ESPC(GlobalModel):
+class ESPC(XSGBaseModel):
     access = "opendap"
     metadata = Metadata.from_yaml(YAML_DIR / "espc.yaml")
     location = "https://tds.hycom.org/thredds/dodsC/FMRC_ESPC-D-V02_all/FMRC_ESPC-D-V02_all_best.ncd"

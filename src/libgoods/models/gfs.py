@@ -1,9 +1,9 @@
 from . import YAML_DIR
-from .base_xsg import GlobalModel
+from .base_xsg import XSGBaseModel
 from .metadata import Metadata
 
 
-class GFS(GlobalModel):
+class GFS(XSGBaseModel):
 
     metadata = Metadata.from_yaml(YAML_DIR / "gfs.yaml")
     chunks = None
