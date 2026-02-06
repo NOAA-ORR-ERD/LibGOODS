@@ -195,7 +195,7 @@ def get_model_subset(
     "3D currents", "water properties", "ice"]
     If 3D currents are selected, water properties will be 3D
 
-    :returns: What does this return??
+    :returns: libgoods model object
     """
     # we use subset_bbox in xarray_subset_grid so I think we need to flatten
     #    (there is a subset_polygon but I haven't tested)
@@ -210,12 +210,9 @@ def get_model_subset(
     model_obj = get_model(model_id, start=start, end=end)
 
     if "3D currents" in environmental_parameters:
-            get3d = True
-            model_obj.get3d = True
-            # this is used by nc4 based subclasses in writing step
+        get3d = True
     else:
         get3d = False
-        model_obj.get3d = False
 
     var_list = standard_names.get_standard_names(environmental_parameters)
     model_obj.filter_variables(var_list, get3d=get3d)
@@ -224,9 +221,8 @@ def get_model_subset(
     if not get3d:
         model_obj.select_surface()
 
-    # this is for the code path not using xarray base class (may be defunct soon)
-    if not hasattr(model_obj, 'ds'):
-        model_obj.make_xr_dataset()
+    if not cross_dateline:
+        model_obj.normalize_longitude()
 
     return model_obj
 

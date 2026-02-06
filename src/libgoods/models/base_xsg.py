@@ -115,44 +115,24 @@ class XSGBaseModel(BaseModel):
 
         self.ds = self.ds.xsg.subset_vars(vars2include)
 
-    def write_nc(self, ofn="test.nc", close_ds=True):
-        self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
-        if close_ds:
-            self.ds.close()
-
-
-class GlobalModel(XSGBaseModel):
-    # Do any extra stuff particular to global models -- like longitude conversions
-    def write_nc(self, ofn="test.nc", close_ds=True):
-        self.normalize_longitude()
-        self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
-        if close_ds:
-            self.ds.close()
-
     def normalize_longitude(self):
         """
         normalizes the longitude for output
 
-        TODO: whether to do this depends on where in earth you are
-              e.g. crossing dateline, etc.
-
-              This should probably be called by subset, when you know the bounds
-              you are subsetting to.
-
-              There is some EPSG specific stuff in here too :-(
-
         """
-        # it may not be called 'lon'
-        # but we should be able to use self.ds.cf.coordinates to find it
-        lon = self.ds['lon']
-        # should only do if not dateline x-ing subset
-        shifted = convert_longitude(lon.data, coord_system='-180--180')
-        new_lon = lon.copy(data=shifted)
-        #new_lon = xr.DataArray(shifted, lon.coords, lon.dims, lon.name, lon.attrs)
-        new_lon.attrs.pop('modulo', 'None') # from EPSG model (It's set to '360 degrees')
-        self.ds = self.ds.assign_coords(lon=new_lon)
+        lon_coords = self.ds.cf.coordinates.get("longitude")
 
+        for lc in lon_coords:
+            lon = self.ds[lc]
+            shifted = convert_longitude(lon.data, coord_system='-180--180')
+            new_lon = lon.copy(data=shifted)
+            new_lon.attrs.pop('modulo', None) # from EPSG model (It's set to '360 degrees')
+            self.ds = self.ds.assign_coords(lon=new_lon)
 
+    def write_nc(self, ofn="test.nc", close_ds=True):
+        self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
+        if close_ds:
+            self.ds.close()
 
 class FVCOM(XSGBaseModel):
     chunks = {"siglay": 1, "siglev": 1, "time": 1}
@@ -203,17 +183,6 @@ class FVCOM(XSGBaseModel):
         # siglay = 0 for surface, siglay=1 for bottom
         # xsg uses sel but the siglay is 2d (depth,nodes) so incompatible *sometimes*
         self.ds = self.ds.isel(siglay=siglay)
-
-    def write_nc(self, ofn="test.nc", close_ds=True):
-        ds = self.ds.compute()
-        lon = ds.variables["lon"][:]
-        lonc = ds.variables["lonc"][:]
-        ds.variables["lon"][:] = np.where(lon > 180, lon - 360, lon)
-        ds.variables["lonc"][:] = np.where(lonc > 180, lonc - 360, lonc)
-        ds.to_netcdf(ofn, unlimited_dims=self.tvar)
-        ds.close()
-        if close_ds:
-            self.ds.close()
 
 
 class ROMS(XSGBaseModel):

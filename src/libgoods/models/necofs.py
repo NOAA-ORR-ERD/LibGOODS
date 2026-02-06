@@ -27,7 +27,7 @@ class BaseNECOFS(FVCOM):
         self.write_nc("necofs_fullgrid.nc")
         self.ds = None
         self.location = "necofs_fullgrid.nc"
-        #super().open_ds()
+
 
 
 class NECOFS(BaseNECOFS):
