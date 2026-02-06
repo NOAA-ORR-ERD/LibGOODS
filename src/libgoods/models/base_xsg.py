@@ -147,7 +147,8 @@ class GlobalModel(XSGBaseModel):
         lon = self.ds['lon']
         # should only do if not dateline x-ing subset
         shifted = convert_longitude(lon.data, coord_system='-180--180')
-        new_lon = xr.DataArray(shifted, lon.coords, lon.dims, lon.name, lon.attrs)
+        new_lon = lon.copy(data=shifted)
+        #new_lon = xr.DataArray(shifted, lon.coords, lon.dims, lon.name, lon.attrs)
         new_lon.attrs.pop('modulo', 'None') # from EPSG model (It's set to '360 degrees')
         self.ds = self.ds.assign_coords(lon=new_lon)
 
