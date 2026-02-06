@@ -185,17 +185,6 @@ class FVCOM(XSGBaseModel):
         # xsg uses sel but the siglay is 2d (depth,nodes) so incompatible *sometimes*
         self.ds = self.ds.isel(siglay=siglay)
 
-    def write_nc(self, ofn="test.nc", close_ds=True):
-        ds = self.ds.compute()
-        lon = ds.variables["lon"][:]
-        lonc = ds.variables["lonc"][:]
-        ds.variables["lon"][:] = np.where(lon > 180, lon - 360, lon)
-        ds.variables["lonc"][:] = np.where(lonc > 180, lonc - 360, lonc)
-        ds.to_netcdf(ofn, unlimited_dims=self.tvar)
-        ds.close()
-        if close_ds:
-            self.ds.close()
-
 
 class ROMS(XSGBaseModel):
     chunks = {"s_rho": 1, "s_w": 1, "time": 1}
