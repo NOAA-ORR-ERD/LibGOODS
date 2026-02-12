@@ -8,6 +8,8 @@ html_desc: The <a href="https://www.emc.ncep.noaa.gov/emc/pages/numerical_foreca
             Research (UCAR)</a> data server at a variety of resolutions. WebGNOME accesses the 1/4
             degree resolution output.
 regional: false
+start: 'approximately one week before present time'
+end: 'the 16-day forecast period'
 bounding_box:
 - 0.0
 - -90.0

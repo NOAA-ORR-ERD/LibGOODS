@@ -123,11 +123,11 @@ class XSGBaseModel(BaseModel):
         lon_coords = self.ds.cf.coordinates.get("longitude")
 
         for lc in lon_coords:
-            lon = self.ds[lc]
-            shifted = convert_longitude(lon.data, coord_system='-180--180')
-            new_lon = lon.copy(data=shifted)
+            lon_var = self.ds[lc]
+            shifted = convert_longitude(lon_var.data, coord_system='-180--180')
+            new_lon = lon_var.copy(data=shifted)
             new_lon.attrs.pop('modulo', None) # from EPSG model (It's set to '360 degrees')
-            self.ds = self.ds.assign_coords(lon=new_lon)
+            self.ds = self.ds.assign_coords(**{lc: new_lon})
 
     def write_nc(self, ofn="test.nc", close_ds=True):
         self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
