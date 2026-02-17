@@ -1,15 +1,13 @@
 [workspace]
-authors = ["Chris Barker <Chris.Barker@noaa.gov>"]
-channels = ["conda-forge"]
-name = "libgoods"
-platforms = ["osx-64"]
-# version = "0.1.0"
+authors = ["Chris Barker <Chris.Barker@noaa.gov>",
+           "Amy MacFadyen <amy.macfadyen@noaa.gov>"]
+channels = ["https://prefix.dev/conda-forge"]
+platforms = ["win-64", "linux-64", "osx-arm64", "osx-64", "linux-aarch64"]
 
-[tasks]
 
 [dependencies]
-python = ">=3.10,<3.14"
-xarray-subset-grid = ">=0.1.0"
+python = ">=3.10,<3.15"
+xarray-subset-grid = ">=0.1.1"
 netCDF4 = "*"
 numpy = "*"
 requests = "*"
@@ -20,3 +18,32 @@ yaml = "*"
 siphon = "*"
 fiona = "*"
 cfgrib = "*"
+
+[feature.py312.dependencies]
+python = "~=3.12.0"
+
+[feature.py313.dependencies]
+python = "~=3.13.0"
+
+[feature.py314.dependencies]
+python = "~=3.14.0"
+
+[feature.dev.pypi-dependencies]
+libgoods = { path = ".", editable = true }
+
+[feature.dev.dependencies]
+ipython = "*"
+matplotlib = "*"
+pytest-cov = "*"
+
+[environments]
+default = { solve-group = "default" }
+py312 = [ "py312" ]
+py313 = [ "py313" ]
+py314 = [ "py314" ]
+dev = ["dev", "py312"]
+
+[tasks]
+build = "pip install --no-build-isolation ."
+test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
+
