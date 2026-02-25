@@ -9,10 +9,10 @@ class ESPC(XSGBaseModel):
     metadata = Metadata.from_yaml(YAML_DIR / "espc.yaml")
     location = "https://tds.hycom.org/thredds/dodsC/FMRC_ESPC-D-V02_all/FMRC_ESPC-D-V02_all_best.ncd"
     is3d = True
-    # time1 could confuse the time variables ...
-    drop_variables = ['tau', 'time1', 'time_run'] # needed by xarray only
+    # sst etc are on time1 - need to figure out how to handle that
+    drop_variables = ['tau', 'time1'] # needed by xarray only
     chunks = None
-    standard_names = { #this has dims also to be compatible with old code
+    standard_names = {  # this has dims also to be compatible with old code
                       'time': 'time',
                       'longitude': 'lon',
                       'latitude': 'lat',

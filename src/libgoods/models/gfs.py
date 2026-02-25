@@ -12,7 +12,7 @@ class GFS(XSGBaseModel):
         "eastward_wind": "u-component_of_wind_height_above_ground",
         "northward_wind": "v-component_of_wind_height_above_ground",
     }
-    tvar = "time1"
+    tvar = "time"
     access = "opendap"
     location = "https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_0p25deg/Best"
 
