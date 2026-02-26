@@ -16,6 +16,8 @@ html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/loofs/loofs.html" t
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/loofs/loofs_info.html" target="_blank">
             model information page.</a><br>
+start: approximately one week before present time
+end: the 48-120 hours forecast period
 regional: true
 bounding_box:
 - 280.199462890625

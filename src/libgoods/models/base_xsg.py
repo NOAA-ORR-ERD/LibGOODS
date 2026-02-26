@@ -26,7 +26,7 @@ class XSGBaseModel(BaseModel):
             flist,
             chunks=self.chunks,
             drop_variables=self.drop_variables,
-            concat_dim=self.tvar,
+            concat_dim=self.concat_dim,
             combine="nested",
             data_vars="minimal",
             coords="minimal",
@@ -67,7 +67,8 @@ class XSGBaseModel(BaseModel):
             raise NotImplementedError
 
         self.ds = ds
-        t = self.ds[self.tvar]
+        self.parse_time_dim_coords()
+        t = self.ds[self.tdim[0]] # this assumes variable and dimension have same name
         self.actual_start = pd.to_datetime(t.values[0]).to_pydatetime(t.values[0])
         self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
 
@@ -84,13 +85,31 @@ class XSGBaseModel(BaseModel):
         except AttributeError:
             return 'Dataset not opened -- call open_ds'
 
+    def parse_time_dim_coords(self):
+        '''
+        Get time dimension coordinates (index coordinates). These are special, 1D coordinates that enable label-based indexing.
+        Will be used in subset_time and to assign unlimited dimension when writing netcdf
+
+        Had to use both coords and dims list to ensure only getting dimension coordinates (see GFS dataset which has most complexity)
+        '''
+        coords =  list(self.ds.coords)
+        dims = list(self.ds.dims)
+        tdim = [d for d in dims if d.find('time')>=0 and d in coords]
+
+        self.tdim = tdim
+
+
+
     def subset_time(self, start_time, end_time):
         # TODO: make this smarter to use > start and/or < end etc (one end is None)
         # We also need to add some padding for output timesteps > 1 hour
         #
         # I think slices don't include the end point.
         # So if end_time falls exactly on a timestep, it won't be included.
-        self.ds = self.ds.sel({self.tvar: slice(start_time, end_time)})
+        # self.tdim is a list as some datasets have more than one time variable
+
+        for tdim in self.tdim:
+            self.ds = self.ds.sel({tdim: slice(start_time, end_time)})
 
     def subset_grid(self, bbox):
         # TODO: Add check on bbox and ds longitude to see if they are
@@ -130,7 +149,7 @@ class XSGBaseModel(BaseModel):
             self.ds = self.ds.assign_coords(**{lc: new_lon})
 
     def write_nc(self, ofn="test.nc", close_ds=True):
-        self.ds.to_netcdf(ofn, unlimited_dims=self.tvar)
+        self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
         if close_ds:
             self.ds.close()
 
@@ -148,7 +167,6 @@ class FVCOM(XSGBaseModel):
         "sea_water_temperature": "temp",
         "sea_water_practical_salinity": "salinity",
     }
-    tvar = "time"
     zcoord = ["sigma_layers", "sigma_levels"]
     access = None
     location = None
@@ -199,7 +217,6 @@ class ROMS(XSGBaseModel):
         "sea_water_temperature": "temp",
         "sea_water_practical_salinity": "salt",
     }
-    tvar = "ocean_time"
     zcoord = "sigma_layers"
     access = None
     location = None

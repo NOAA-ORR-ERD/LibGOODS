@@ -16,12 +16,10 @@ class COOPS_ROMS(ROMS):
             super().__init__()
             self.access = "zarr"
             self.location = coops_ofs.get_zarr_url(self.identifier)
-            self.metadata.start = 'approximately one week before present time'
-            self.metadata.end = 'the 48-120 hours forecast period'
+
 
         elif access == "opendap":
             super().__init__()
-            self.tvar = "time"
             self.access = "opendap"
             self.location = coops_ofs.get_ioos_tds_agg_url(self.identifier)
 
@@ -36,7 +34,7 @@ class COOPS_ROMS(ROMS):
                                           })
             else:
                 super().__init__(is3d=False)
-
+            self.concat_dim = 'ocean_time'
             self.access = "local"
             self.location = coops_ofs.get_local_flist(
                 self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end

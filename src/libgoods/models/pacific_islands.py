@@ -8,7 +8,6 @@ tds_url = "http://pae-paha.pacioos.hawaii.edu/thredds"
 # To see what's there -- use this link: http://pae-paha.pacioos.hawaii.edu//thredds/roms_native.html
 class PacIOOS(ROMS):
     standard_names = ROMS.standard_names.copy()
-    tvar = "time"
     drop_variables = ["ocean_time", "dstart"]
     # ocean_time causes problems in output file if included (vars are aggregated on "time")
     # - the dstart is an issue b/c *some* of the files have calendar attribute messed up
