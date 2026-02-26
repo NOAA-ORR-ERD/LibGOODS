@@ -28,7 +28,7 @@ class HFRadar(XSGBaseModel):
     metadata = Metadata()
     metadata.identifier = 'HFRadar'
 
-    def __init__(self, region=None, res="6km"):
+    def __init__(self, region="USWC", res="6km"):
         """
         Regions - must be key from dict above
         Resolution - 500m, 1km, 2km, 6km
