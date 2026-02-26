@@ -22,6 +22,9 @@ class XSGBaseModel(BaseModel):
         return ds
 
     def open_ds_local(self, flist):
+        tdim = self.tdim[0]
+        if len(self.tdim) > 2:
+            print('Concatenating along: ', self.tdim[0])
         ds = xr.open_mfdataset(
             flist,
             chunks=self.chunks,
