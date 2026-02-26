@@ -13,7 +13,6 @@ class NCOM(BaseModel):
         "sea_water_temperature": "water_temp",
         "sea_water_practical_salinity": "salinity",
     }
-    tvar = "time"
     zcoord = "depth"
     access = "opendap"
     location = None

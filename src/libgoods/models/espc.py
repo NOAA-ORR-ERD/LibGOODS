@@ -9,8 +9,7 @@ class ESPC(XSGBaseModel):
     metadata = Metadata.from_yaml(YAML_DIR / "espc.yaml")
     location = "https://tds.hycom.org/thredds/dodsC/FMRC_ESPC-D-V02_all/FMRC_ESPC-D-V02_all_best.ncd"
     is3d = True
-    # sst etc are on time1 - need to figure out how to handle that
-    drop_variables = ['tau', 'time1'] # needed by xarray only
+    drop_variables = ['tau'] # needed by xarray only
     chunks = None
     standard_names = {  # this has dims also to be compatible with old code
                       'time': 'time',
@@ -22,4 +21,4 @@ class ESPC(XSGBaseModel):
                       'sea_water_practical_salinity': 'salinity',
                       'depth': 'depth',
                       }
-    tvar = "time"
+

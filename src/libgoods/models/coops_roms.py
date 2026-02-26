@@ -21,7 +21,6 @@ class COOPS_ROMS(ROMS):
 
         elif access == "opendap":
             super().__init__()
-            self.tvar = "time"
             self.access = "opendap"
             self.location = coops_ofs.get_ioos_tds_agg_url(self.identifier)
 

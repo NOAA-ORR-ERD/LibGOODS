@@ -23,7 +23,6 @@ class HFRadar(XSGBaseModel):
         "eastward_sea_water_velocity": "u",
         "northward_sea_water_velocity": "v",
     }
-    tvar = "time"
     access = "opendap"
     is3d = False
     metadata = Metadata()
