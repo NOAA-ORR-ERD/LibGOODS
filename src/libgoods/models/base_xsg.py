@@ -152,8 +152,10 @@ class XSGBaseModel(BaseModel):
             self.ds = self.ds.assign_coords(**{lc: new_lon})
 
     def write_nc(self, ofn="test.nc", close_ds=True):
-        self.ds.encoding['unlimited_dims'] = self.tdim
-        self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+        try:
+            self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+        except:
+            self.ds.to_netcdf(ofn)
         if close_ds:
             self.ds.close()
 
