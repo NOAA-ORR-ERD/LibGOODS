@@ -22,9 +22,6 @@ class XSGBaseModel(BaseModel):
         return ds
 
     def open_ds_local(self, flist):
-        tdim = self.tdim[0]
-        if len(self.tdim) > 2:
-            print('Concatenating along: ', self.tdim[0])
         ds = xr.open_mfdataset(
             flist,
             chunks=self.chunks,
@@ -100,8 +97,6 @@ class XSGBaseModel(BaseModel):
         tdim = [d for d in dims if d.find('time')>=0 and d in coords]
 
         self.tdim = tdim
-
-
 
     def subset_time(self, start_time, end_time):
         # TODO: make this smarter to use > start and/or < end etc (one end is None)
