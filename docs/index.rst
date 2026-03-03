@@ -1,14 +1,36 @@
-.. gcm-filters documentation master file, created by
-   sphinx-quickstart on Tue Jan 12 09:24:23 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 ``LibGOODS``
-==================
+############
+
+The Library for the GNOME Online Oceanographic Data Server (libgoods) is
+a python library (and some utilities) designed to provide access to various
+oceanographic models and data sources in a form suitable for the
+`General NOAA Operational Modeling Environment <https://response.restoration.noaa.gov/gnomesuite>`_
+
+While built to support the GNOME Suite (and specifically `WebGNOME <https://gnome.orr.noaa.gov>`_), it generally supports data format standards, so its results can be usful for many other applications.
+
+Problem Statement
+=================
+
+For oil spill modeling, or particle tracking models in general, and many other modeling uses, data and model results are required that provide the environmental conditions for the problem at hand: Ocean Currents, Surface Winds, etc.
+
+There are multiple sources for these data, and many operational and semi-operational models that can provide the needed drivers.
+However, each source of data, and each operator, makes their results available in slightly different ways.
+Despite much progress in data standards and protocols (e.g. CF Metadata Standard, OPeNDAP), each data source does things in a slightly different way.
+In common data analysis use-cases, it's manageable to find the data you need, downlad it, and then do whatever tweaking you need to make it work for you. However, in the emergency response use-case, NOAA needs to quickly and easily access many different data sources without having time to custom manipulate each data source.
+
+In addition to adjustments due to file formats, meta-data, or access protocols,
+users often need just a subset of the available data: only a particular time period, or only a smaller region than that covered by the entire model, which can be on very large domains.
+
+``libgoods`` seeks to address these issues by providing a single simple API for accessing a variety of data sets and operational models in a consistent way.
+
 
 Installation
-------------
+============
 
+``libgoods`` is currently only available in source form -- it can be installed from source with the standard Python:
+
+``python -m pip install .``
 
 
 .. toctree::
@@ -17,6 +39,6 @@ Installation
    :caption: Documentation
 
    whats_new
-   UsingAPI
    api
-   GitHub repository <https://github.com/NOAA-ORR-ERD/LibGOODS>
+   api/libgoods
+

@@ -7,27 +7,10 @@ names to include based on what "environmental conditions" are being requested --
 "surface currents" will return the standard names for u/v (surface) velocities.
 """
 
-standard_names = [
-    "air_temperature",
-    "angle_of_rotation_from_east_to_x",
-    "dew_point_temperature",
-    "eastward_sea_water_velocity",
-    "eastward_wind",
-    "northward_sea_water_velocity",
-    "northward_wind",
-    "sea_floor_depth",
-    "sea_ice_area_fraction",
-    "sea_ice_thickness",
-    "sea_surface_elevation",
-    "sea_water_temperature",
-    "sea_water_practical_salinity",
-    "upward_sea_water_velocity",
-    "wind_gust",
-]
 """
 The following is a mapping of 'environmental conditions concepts' to the
-standard names used in the yaml files. Within the yaml files, these are
-in turn mapped to the CF names within the specific model output.
+standard names used in libgoods.
+Within the libgoods, these are in turn mapped to the CF names within the specific model output.
 """
 EP_map = {
     "surface winds": ["eastward_wind", "northward_wind"],
@@ -45,6 +28,24 @@ EP_map = {
         "sea_ice_area_fraction",
     ],
 }
+
+standard_names = [
+    "air_temperature",
+    "angle_of_rotation_from_east_to_x",
+    "dew_point_temperature",
+    "eastward_sea_water_velocity",
+    "eastward_wind",
+    "northward_sea_water_velocity",
+    "northward_wind",
+    "sea_floor_depth",
+    "sea_ice_area_fraction",
+    "sea_ice_thickness",
+    "sea_surface_elevation",
+    "sea_water_temperature",
+    "sea_water_practical_salinity",
+    "upward_sea_water_velocity",
+    "wind_gust",
+]
 
 
 def get_standard_names(env_params):

@@ -3,7 +3,8 @@ from .metadata import Metadata
 
 url_base = "https://dods.ndbc.noaa.gov/thredds/dodsC/"
 
-# Note: access just changed to NDBC and folder structure is much simpler -- this mapping no longer used
+# Note: access just changed to NDBC and folder structure is much simpler
+#       -- this mapping no longer used
 # but still checking that input region is a key here
 regions = {
     "AKNS": "Alaska_-_North_Slope",

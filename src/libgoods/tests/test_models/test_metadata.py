@@ -54,10 +54,8 @@ def test_init_from_wkt():
 
 def test_init_from_tuples():
     """
-    if you init it with WKT for the bounding polygon, you should get nested tuples (numpy array?)
+    if you init it with nested tuples, it should work.
     """
-
-    # WKT = "POLYGON ((270.6807861328125 30.374494552612305, 271.00927734375 30.4280948638916, 271.0753173828125 30.43028450012207, 271.1471252441406 30.429607391357422), 270.6807861328125 30.374494552612305)"  # noqa
 
     bounding_poly = np.array([
         (270.6807861328125, 30.374494552612305),

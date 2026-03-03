@@ -13,15 +13,9 @@ Shorelines
 
 etc...
 
-Not much here, but for configuration, you can access it like so: ::
+Most of the core functionality you need as an end user is in the "api" module::
 
-    import libgoods
-
-    # to get something
-    archive_dir = libgoods.config.archive_dir
-
-    # to set something
-    libgoods.shoreline_dir = r"C:\Users\Someone\my_data_folder"
+  from libgoods import api
 
 """
 

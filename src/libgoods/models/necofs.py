@@ -3,7 +3,8 @@ from .metadata import Metadata
 
 '''
 This is a work in progress -- subsetting over OPeNDAP is no bueno so we
-do a download of the whole file first (can select just the surface, narrow time, and filter relevant vars)
+do a download of the whole file first (can select just the surface, narrow time,
+and filter relevant vars)
 
 '''
 class BaseNECOFS(FVCOM):
@@ -17,7 +18,8 @@ class BaseNECOFS(FVCOM):
         ds = self.open_ds_tds(self.location)
         self.ds = ds
         if start_time is not None and end_time is not None:
-            self.subset_time(start_time, end_time) # TO DO - make subset_time accept start or end None
+            # TO DO - make subset_time accept start or end None
+            self.subset_time(start_time, end_time)
         if surface_only:
             #self.select_surface()
             self.ds = self.ds.isel(siglay=0)
