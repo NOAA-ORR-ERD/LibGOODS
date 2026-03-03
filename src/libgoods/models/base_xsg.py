@@ -1,10 +1,10 @@
 import fsspec
-import numpy as np
 import pandas as pd
 import xarray as xr
 import xarray_subset_grid
 
-from  libgoods.utilities import convert_longitude
+from libgoods.utilities import convert_longitude
+
 from .base import BaseModel
 
 
