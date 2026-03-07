@@ -9,7 +9,7 @@ authors = [
     {name = "Christopher H. Barker", email = "chris.barker@noaa.gov"},
 ]
 description = "Package for retrieving environmental data for GNOME"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "CC0-1.0"
 license-files = ["LICENSE.txt"]
 classifiers = [
@@ -26,15 +26,15 @@ dynamic = ["version"]
 dependencies = [
     "xarray-subset-grid>=0.1.0",
     "netCDF4",
-    "numpy>=2.2",
+    "numpy>=2.4",
     "requests",
     "shapely",
-    "s3fs",
     "pandas",
-    "pyaml",
+    "pyyaml",
     "siphon",
     "fiona",
     "cfgrib",
+    "s3fs",
     "zarr<3",
 ]
 

@@ -25,3 +25,5 @@ identifier: AN_ID
 long_name: An example model -- used to test and explaining the metadata required
 name: An example model
 regional: true
+start: approximately one week before present time
+end: the 48-120 hours forecast period

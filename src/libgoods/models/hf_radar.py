@@ -3,7 +3,8 @@ from .metadata import Metadata
 
 url_base = "https://dods.ndbc.noaa.gov/thredds/dodsC/"
 
-# Note: access just changed to NDBC and folder structure is much simpler -- this mapping no longer used
+# Note: access just changed to NDBC and folder structure is much simpler
+#       -- this mapping no longer used
 # but still checking that input region is a key here
 regions = {
     "AKNS": "Alaska_-_North_Slope",
@@ -23,13 +24,12 @@ class HFRadar(XSGBaseModel):
         "eastward_sea_water_velocity": "u",
         "northward_sea_water_velocity": "v",
     }
-    tvar = "time"
     access = "opendap"
     is3d = False
     metadata = Metadata()
     metadata.identifier = 'HFRadar'
 
-    def __init__(self, region=None, res="6km"):
+    def __init__(self, region="USWC", res="6km"):
         """
         Regions - must be key from dict above
         Resolution - 500m, 1km, 2km, 6km

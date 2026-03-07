@@ -11,7 +11,6 @@ Mocking, local, cache, etc.
 import datetime
 
 from . import (
-    ModelAvailabilityError,
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     NWS_point,
@@ -22,6 +21,13 @@ from . import (
     utilities,
 )
 
+
+def list_model_names():
+    """
+    return a list of all the available models id and name
+    """
+    return([f"{model.identifier}: {model.name} -- {model.long_name}"
+            for model in list_models(as_pyson=False)])
 
 def list_models(model_ids=None,
                 map_bounds=None,

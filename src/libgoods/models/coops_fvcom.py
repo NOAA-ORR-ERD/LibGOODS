@@ -17,8 +17,6 @@ class COOPS_FVCOM(FVCOM):
             super().__init__()
             self.access = "zarr"
             self.location = coops_ofs.get_zarr_url(self.identifier)
-            self.metadata.start = 'approximately one week before present time'
-            self.metadata.end = 'the 48-120 hours forecast period'
 
         elif access == "opendap":
             super().__init__()
@@ -37,10 +35,13 @@ class COOPS_FVCOM(FVCOM):
                                           })
             else:
                 super().__init__()
-
+            self.concat_dim = 'time'
             self.access = 'local'
             self.location = coops_ofs.get_local_flist(
-                    self.identifier, archive_dir, file_type=self.local_file_type, start=start, end=end
+                    self.identifier, archive_dir,
+                    file_type=self.local_file_type,
+                    start=start,
+                    end=end
                 )
             self.actual_start = coops_ofs.file2dt(self.location[0], self.update_cycle)
             self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)

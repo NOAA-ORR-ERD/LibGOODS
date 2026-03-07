@@ -9,6 +9,7 @@ from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS
 from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO
 from .espc import ESPC
+from .gfs import GFS
 from .hf_radar import HFRadar
 from .ncom_regional import Alaska, AmSeas, USEast
 from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
@@ -16,7 +17,6 @@ from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARIG, SAMOA, 
 from .tamu import TAMU
 from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
-from .gfs import GFS
 
 # fixme: should this be an instance or the model class??
 #        it's currently the class, and get_models instantiates them,
