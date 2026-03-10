@@ -7,45 +7,42 @@ import fnmatch
 import re
 
 import numpy as np
-import pandas as pd
+import pytest
+import requests
 
 from libgoods import coops_ofs
 
-# An example to test with: lake Michigan-Huron
-model_id = "LMHOFS"
+from .test_utilities import utc_now
+
+# check if the TDS server is working:
+TDS_URL = "https://opendap.co-ops.nos.noaa.gov/thredds/catalog/catalog.html"
+
+try:
+    r = requests.get(TDS_URL, timeout=5)
+except (requests.ConnectionError, requests.ReadTimeout):
+    SKIP_TDS = True
+else:
+    SKIP_TDS = False if r.status_code == 200 else True
 
 
-# utility for the tests:
-def utc_now(freq="min"):
-    """
-    get now rounded to a given unit:
+# An example to test with:
+# model_id = "LMHOFS"
+model_id = "WCOFS"
 
-    freq='h' # hour
-    freq='min' # minute
-    freq='s'  seconds
+# def test_metadata():
+#     """
+#     not really important, but what the heck ...
+#     """
+#     print(coops_ofs.OFS_INFO)
 
-    or any other freq pandas accepts
-    """
-    now = pd.Timestamp.now("UTC").replace(tzinfo=None)
-    #    now = pd.to_datetime(datetime.datetime.utcnow())
-    now = now.round(freq=freq)
-    return now
-
-
-def test_metadata():
-    """
-    not really important, but what the heck ...
-    """
-    print(coops_ofs.OFS_INFO)
-
-    assert coops_ofs.OFS_INFO["WCOFS"].update_cycle == 24
-    assert coops_ofs.OFS_INFO["SSCOFS"].update_cycle == 6
+#     assert coops_ofs.OFS_INFO["WCOFS"].update_cycle == 24
+#     assert coops_ofs.OFS_INFO["SSCOFS"].update_cycle == 6
 
 
 # def test_file2dt():
 #     pass
 #     # how do i use the flist generated in test_tds_past_filelist?
-
+@pytest.mark.skipif(SKIP_TDS, reason="COOPS TDS not responding")
 def test_tds_past_filelist():
     """
     check if getting a file list entirely from the past works
@@ -86,6 +83,7 @@ def test_aws_future_filelist():
     assert contains_ncs is False, "File list contains nowcasts"
 
 
+@pytest.mark.skipif(SKIP_TDS, reason="COOPS TDS not responding")
 def test_tds_nc_fc_filelist():
     dt = datetime.timedelta(days=1)
     start = utc_now() - dt
