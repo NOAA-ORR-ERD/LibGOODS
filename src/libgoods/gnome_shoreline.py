@@ -64,7 +64,7 @@ class GNOME_shoreline:
             raise ValueError(f"File has incorrect header for BNA format: {header}")
 
         # if num_points < 0 or num_points == 2:
-        #     raise ValueError("GNOME Map BNA doesnot support polylines")
+        #     raise ValueError("GNOME Map BNA does not support polylines")
         #     # poly_type = "polyline"
         #     # num_points = abs(num_points)
         # elif num_points == 1:
@@ -105,6 +105,12 @@ class GNOME_shoreline:
             for point in verts:
                 # point = np.asarray(point)
                 outfile.write(f"{point[0]:.8f}, {point[1]:.8f} \n")
+
+    @classmethod
+    def from_file(cls, filepath):
+        gm = cls()
+        gm.read_bna(filepath)
+        return gm
 
     def read_bna(self, filename):
         """

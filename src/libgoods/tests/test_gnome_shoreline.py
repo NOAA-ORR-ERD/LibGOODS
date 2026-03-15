@@ -1,7 +1,7 @@
 
-from libgoods.utilities.gnome_shoreline import GNOME_shoreline
+from libgoods.gnome_shoreline import GNOME_shoreline
 
-from .conftest import DATA_DIR, OUTPUT_DIR
+from .test_utilities.conftest import DATA_DIR, OUTPUT_DIR
 
 
 def test_init():
