@@ -25,6 +25,7 @@ shoreline_datasets = {
     "nos": ["nos_shoreline", "nosshore.shp"],
     "OSM": ["OpenStreetMap", "land-polygons-complete-4326", "land_polygons.shp"],
     "gshhs": ["gshhg", "GSHHS_shp"],
+    "GI": ["ERMA", "Coastal_Land_Area.shp"]
 }
 # call this in one place:
 # opens up the option of having different datasets in different places.

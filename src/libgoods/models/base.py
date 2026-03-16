@@ -14,6 +14,7 @@ class BaseModel:
 
     # this should get overwritten by all subclasses
     access = None
+    location = None
 
     standard_names = {}
 
@@ -21,8 +22,6 @@ class BaseModel:
         # add the environmental_params to metadata
         self.is3d = is3d
         self.metadata.env_params = self.env_params
-
-        self.location = None
 
     @property
     def identifier(self):
