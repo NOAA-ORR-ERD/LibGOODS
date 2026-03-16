@@ -11,18 +11,42 @@ import numpy as np
 from libgoods import shoreline
 from libgoods.utilities.haz_files import ReadBNA
 
+import pytest
+
 OUTPUT_DIR = Path(__file__).parent / "output"
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+def test_get_map_bad_source():
+    bounds = (
+        -93.5,
+        29.6,
+        -93.1,
+        30.1,
+    )
+    ofn = OUTPUT_DIR / "junk.bna"
 
-def test_get_map():
+    with pytest.raises(ValueError):
+        shoreline.get_map(
+            bounds,
+            # data_source='gshhs',
+            data_source="garbage",
+            ofn=ofn,
+            resolution="f",  # default is 'h'
+            cross_dateline=False,
+            max_filesize=1e6,
+        )
+
+def test_get_map_specify_source():
     """
-    At least make sure it works with something ...
+    Pass the path to source in directly
+
+    doesn't see if the results are god, but you get something :-)
     """
     # Test with NOS shoreline
-    # Lake Sabine, for no good reason
-    ofn = OUTPUT_DIR / "sabine.bna"
+    ofn = OUTPUT_DIR / "junk.bna"
+
+    data_source_path = shoreline.shoreline_datasets["nos"]
 
     bounds = (
         -93.5,
@@ -36,7 +60,104 @@ def test_get_map():
     shoreline.get_map(
         bounds,
         # data_source='gshhs',
-        data_source="nos",
+        data_source=data_source_path,
+        ofn=ofn,
+        cross_dateline=False,
+        max_filesize=1e6,
+    )
+
+    assert ofn.is_file()
+
+    polys = ReadBNA(ofn)
+
+    assert len(polys) == 134
+    assert polys[0][2] == "Map Bounds"
+
+    assert np.array_equal(
+        polys[0][0],
+        [
+            [-93.5, 29.6],
+            [-93.5, 30.1],
+            [-93.1, 30.1],
+            [-93.1, 29.6],
+        ],
+    )
+
+# NOTE:
+# we should test other datasets, but it takes a bit more setup to do so.
+# and nos and gshhs are the "supported" ones at this point.
+@pytest.mark.parametrize('source, resolution',
+                         [('nos', None),
+                          ('gshhs', 'f'),
+                          ('gshhs', 'h'),
+                          ('gshhs', 'i'),
+                          ('gshhs', 'c'),
+                          ])
+def test_get_map_multiple_sources(source, resolution):
+    """
+    At least make sure it does something with all these
+    sources.
+    """
+    # Test with NOS shoreline
+    # Lake Sabine, for no good reason
+    ofn = OUTPUT_DIR / f"{source}_{resolution}.bna"
+    # make sure it's not left over from a previous run
+    ofn.unlink(missing_ok=True)
+
+    bounds = (
+        -93.5,
+        29.6,
+        -93.1,
+        30.1,
+    )
+
+    shoreline.get_map(
+        bounds,
+        data_source=source,
+        ofn=ofn,
+        resolution=resolution,
+        cross_dateline=False,
+        max_filesize=1e6,
+    )
+
+    assert ofn.is_file()
+
+    polys = ReadBNA(ofn)
+
+    # at least there's a couple land polygons
+    assert len(polys) >= 3
+    assert polys[0][2] == "Map Bounds"
+
+    assert np.array_equal(
+        polys[0][0],
+        [
+            [-93.5, 29.6],
+            [-93.5, 30.1],
+            [-93.1, 30.1],
+            [-93.1, 29.6],
+        ],
+    )
+
+def test_get_map_nos():
+    """
+    At least make sure it works with something ...
+    # Test with NOS shoreline
+    # Lake Sabine, for no good reason
+    """
+    ofn = OUTPUT_DIR / "sabine.bna"
+
+    bounds = (
+        -93.5,
+        29.6,
+        -93.1,
+        30.1,
+    )
+
+    # make sure it's not left over from a previous run
+    ofn.unlink(missing_ok=True)
+    shoreline.get_map(
+        bounds,
+        data_source='nos',
         ofn=ofn,
         resolution="f",  # default is 'h'
         cross_dateline=False,

@@ -7,6 +7,7 @@ NOTE: for Open Street Map, see some example code in the example_scripts dir
 in this project
 """
 
+from pathlib import Path
 
 import fiona
 import numpy as np
@@ -146,28 +147,39 @@ def get_map(
         data_source: str
             which data to use: options include:
             "gshhs", "nos" -- others are experimental.
-        resolution: str
+
+            For full list: `shoreline.shoreline_datasets.keys()`
+
+            To point to custom dataset, pass in a path to a shapefile dir.
+
+        resolution: str default: "f"
             for GSHHS - one of "c", "i", "h", "f" (coarse, intermediate, high, full)
         include_lakes: bool
             only valid for GSHHS dataset where lakes are in separate shapefile
     """
     # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
-    shpfile_dir = shoreline_datasets[data_source]
+    try:
+        shapefile_path = shoreline_datasets[data_source]
+    except KeyError:
+        shapefile_path = Path(data_source)
+        if not shapefile_path.is_file():
+            raise ValueError(f'"{data_source}" is not valid shoreline dataset and {shapefile_path} is not a file.')
+
     if data_source == "gshhs":
         # extra stuff to find the nested dirs for the resolution
         fname = "GSHHS_" + resolution + "_L1.shp"
-        shpfile = shpfile_dir.joinpath(resolution, fname)
+        shpfile = shapefile_path.joinpath(resolution, fname)
         bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
         if include_lakes:
             # "L2" which is lakes (L3/4 gets down to ponds in islands in lakes
             # and L5/6 are for Antarctica
             fname = "GSHHS_" + resolution + "_L2.shp"
-            shpfile = shpfile_dir.joinpath(resolution, fname)
+            shpfile = shapefile_path.joinpath(resolution, fname)
             bna_polys2, levs2 = load_polys_and_clip(shpfile, bbox, dl=cross_dateline, lev=2)
             bna_polys.extend(bna_polys2)
             levs.extend(levs2)
     else:
-        bna_polys, levs = load_polys_and_clip(shpfile_dir, bbox, dl=cross_dateline)
+        bna_polys, levs = load_polys_and_clip(shapefile_path, bbox, dl=cross_dateline)
 
     format_for_bna(ofn, bna_polys, levs, dl=cross_dateline)
