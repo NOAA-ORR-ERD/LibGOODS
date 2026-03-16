@@ -63,6 +63,16 @@ def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
     Change lev to 2 if loading lakes
 
     These *may not* be able to be used to clip trajectories from GAn in Arc?
+
+    :param bound_box: bounding box in the form: (min_lon, min_lat, max_lon, max_lat)
+
+    :param shfile: path to a shapefile of land polygons
+
+    :param dl=False: ???
+
+    :param lev=1: topological level -- 1 == land 2 == lake in land, ...
+                  this matches what the GSHHS does anyway
+
     """
 
     wl, sl, el, nl = bound_box
