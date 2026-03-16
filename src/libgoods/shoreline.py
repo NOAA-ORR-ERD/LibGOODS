@@ -87,6 +87,7 @@ def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
     bna_polys = []
 
     with fiona.open(shpfile) as source:
+        breakpoint()
         for s in source.filter(bbox=bound_box):
             geo = s["geometry"]["coordinates"]
             for c in geo:
@@ -150,7 +151,7 @@ def get_map(
 
             For full list: `shoreline.shoreline_datasets.keys()`
 
-            To point to custom dataset, pass in a path to a shapefile dir.
+            To point to custom dataset, pass in a path to a shapefile.
 
         resolution: str default: "f"
             for GSHHS - one of "c", "i", "h", "f" (coarse, intermediate, high, full)
