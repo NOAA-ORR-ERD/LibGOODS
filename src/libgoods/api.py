@@ -115,8 +115,6 @@ def get_model(model_id, start=None, end=None):
     meta.actual_start = model_obj.actual_start.isoformat()
     meta.actual_end = model_obj.actual_end.isoformat()
 
-    model_obj.metadata = meta.as_pyson()
-
     return model_obj
 
 
@@ -147,7 +145,7 @@ def validate_subset(model_id, start, end, subset_bounds):
     # FIXME: we should probably special-case the global models:
     #        the round earth is a pain!
     if not utilities.subset_intersects_model_boundary(
-                        model_obj.metadata["bounding_poly"],
+                        model_obj.metadata.bounding_poly,
                         subset_bounds):
         # no overlap in at least one dimension
         raise NonIntersectingSubsetError(
@@ -155,8 +153,8 @@ def validate_subset(model_id, start, end, subset_bounds):
 
     if not utilities.check_valid_time_intersection(
                 (start, end),
-                (model_obj.metadata["actual_start"],
-                    model_obj.metadata["actual_end"])
+                (model_obj.actual_start,
+                    model_obj.actual_end)
                 ):
         raise NonIntersectingTimeIntervalError(
             "Subset does not intersect model time bounds")
