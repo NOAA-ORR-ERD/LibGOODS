@@ -42,8 +42,8 @@ def test_get_model_info_no_archive():
     #        The underlying functionality should be tested elsewhere.
     m = api.get_model(model_id="TBOFS") # arbitrary choice
 
-    assert 'actual_start' in m.metadata
-    assert 'actual_end' in m.metadata
+    assert hasattr(m.metadata, 'actual_start')
+    assert hasattr(m.metadata, 'actual_end')
 
 
 class Test_validate_subset:
