@@ -307,6 +307,7 @@ def get_local_flist(model_id, local_dir, start=None, end=None, file_type="2ds"):
     """
     Assumes all files are in one directory for one OFS
     """
+
     model_info = OFS_INFO[model_id]
     nc_list = []
     fc_list = []

@@ -97,7 +97,6 @@ def get_model(model_id, start=None, end=None):
     """
 
     archive_dir = config.archive_dir
-
     if archive_dir is not None and (archive_dir / model_id.lower()).is_dir():
         model_obj = models.ALL_MODELS[model_id](access='local',
                                                 start=start,
@@ -223,7 +222,10 @@ def get_model_subset(
 
     model_obj.subset_grid(bounds)
     if not get3d:
-        model_obj.select_surface()
+        try:
+            model_obj.select_surface()
+        except ValueError:
+            pass
 
     if not cross_dateline:
         model_obj.normalize_longitude()

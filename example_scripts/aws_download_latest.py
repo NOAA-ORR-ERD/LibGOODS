@@ -1,12 +1,19 @@
 #!/usr/bin env python
 
 import datetime
-import logging
 import os
 from pathlib import Path
 import re
 
 from libgoods import coops_ofs, scripting
+
+'''
+This was the original script (not using aws cli) to donwload the latest
+batch of COOPS OFS files and populate a local directory. It does not
+preserve the foler structure of the AWS bucket and hence won't work
+with the libGOODS API as a local archive.
+
+'''
 
 # Set up the logger:
 scripting.initialize_console_log('info')  # debug gets a LOT from the AWS stuff

@@ -24,7 +24,6 @@ class COOPS_FVCOM(FVCOM):
             self.location = coops_ofs.get_ioos_tds_agg_url(self.identifier)
 
         elif access == "local":
-
             if self.local_file_type == '2ds':
                 super().__init__(is3d=False)
                 self.standard_names = (FVCOM.standard_names
@@ -38,7 +37,7 @@ class COOPS_FVCOM(FVCOM):
             self.concat_dim = 'time'
             self.access = 'local'
             self.location = coops_ofs.get_local_flist(
-                    self.identifier, archive_dir,
+                    self.identifier, str(archive_dir),
                     file_type=self.local_file_type,
                     start=start,
                     end=end

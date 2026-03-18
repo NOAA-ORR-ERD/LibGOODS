@@ -3,7 +3,9 @@
 """
 Python script to call the aws command line to sync the aws cache
 
-currently hard-code for nowcast files and cbofs.
+Notes:
+Currently hard-code to only sync nowcast files from today
+File type (fields or 2ds set to mirror what's in the libGOODS archive on servers)
 
 """
 
@@ -19,11 +21,11 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 AWS_COMMAND = []
 
-def sync_model(MODEL, date=None, how_far_back=None):
+def sync_model(MODEL, PATTERN='fields', date=None):
 
     date = datetime.datetime.now() if date is None else date
 
-    PATTERN="fields"
+    PATTERN=PATTERN
     DATEPATTERN = date.strftime("%Y/%m/%d/")
     CAST=".n"
 
@@ -52,9 +54,17 @@ def sync_model(MODEL, date=None, how_far_back=None):
     subprocess.run(command)
 
 if __name__ == "__main__":
-    sync_model('cbofs')
 
+    models = ['wcofs', 'sscofs', 'ngofs2', 'cbofs', 'tbofs', 'dbofs', \
+              'gomofs', 'ciofs', 'sfbofs', 'leofs', 'loofs', 'lmhofs', 'lsofs']
 
+    for model in models:
+        print('Syncing', model)
+        if model in ['wcofs', 'ngofs2', 'gomofs']:
+            pattern = '2ds'
+        else:
+           pattern = 'fields'
+        sync_model(MODEL=model, PATTERN=pattern)
 
 
 
