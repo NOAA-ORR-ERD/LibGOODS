@@ -11,6 +11,7 @@ from pathlib import Path
 
 import fiona
 import numpy as np
+import shapely
 import shapely.geometry as sgeo
 
 from libgoods import config
@@ -54,7 +55,7 @@ def format_for_bna(filename, polys, levs, dl=False):
         outfile.write(data)
 
 
-def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
+def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1, skip_errors=False):
     """
     Loop through polygons in shapefile, if they overlap with user
     specified rectangle, load the polygon and clip
@@ -87,10 +88,9 @@ def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
     bna_polys = []
 
     with fiona.open(shpfile) as source:
-        breakpoint()
-        for s in source.filter(bbox=bound_box):
+        for idx1, s in enumerate(source.filter(bbox=bound_box)):
             geo = s["geometry"]["coordinates"]
-            for c in geo:
+            for idx2, c in enumerate(geo):
                 poly = sgeo.Polygon(c)
                 if dl:
                     poly_bnds = poly.bounds
@@ -99,7 +99,13 @@ def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1):
                     else:
                         clip_box = sgeo.box(-180, sl, el, nl)
                 if poly.intersects(clip_box):
-                    clipped_polys = poly.intersection(clip_box)
+                    try:
+                        clipped_polys = poly.intersection(clip_box)
+                    except Exception as exc: # shapely.GEOSException:
+                        if skip_errors:
+                            print(f"Error: skipping polygon: {idx1}:{idx2}")
+                        else:
+                            raise
                     if type(clipped_polys) is sgeo.multipolygon.MultiPolygon:
                         for clipped_poly in clipped_polys.geoms:
                             try:
@@ -139,6 +145,7 @@ def get_map(
     cross_dateline=False,
     max_filesize=1e6,
     include_lakes=True,
+    skip_errors=False
 ):
     """
     Parameters
@@ -155,10 +162,13 @@ def get_map(
 
         resolution: str default: "f"
             for GSHHS - one of "c", "i", "h", "f" (coarse, intermediate, high, full)
+
         include_lakes: bool
             only valid for GSHHS dataset where lakes are in separate shapefile
+
+        skip_errors: bool default: False. If True, a polygon will be skipped if
+            an error is raised trying to clip it.
     """
-    # bbox = utilities.flatten_bbox(bounds)
     bbox = bounds
     try:
         shapefile_path = shoreline_datasets[data_source]
@@ -171,16 +181,26 @@ def get_map(
         # extra stuff to find the nested dirs for the resolution
         fname = "GSHHS_" + resolution + "_L1.shp"
         shpfile = shapefile_path.joinpath(resolution, fname)
-        bna_polys, levs = load_polys_and_clip(shpfile, bbox, dl=cross_dateline)
+        bna_polys, levs = load_polys_and_clip(shpfile,
+                                              bbox,
+                                              dl=cross_dateline,
+                                              skip_errors=skip_errors)
         if include_lakes:
             # "L2" which is lakes (L3/4 gets down to ponds in islands in lakes
             # and L5/6 are for Antarctica
             fname = "GSHHS_" + resolution + "_L2.shp"
             shpfile = shapefile_path.joinpath(resolution, fname)
-            bna_polys2, levs2 = load_polys_and_clip(shpfile, bbox, dl=cross_dateline, lev=2)
+            bna_polys2, levs2 = load_polys_and_clip(shpfile,
+                                                    bbox,
+                                                    dl=cross_dateline,
+                                                    lev=2,
+                                                    skip_errors=skip_errors)
             bna_polys.extend(bna_polys2)
             levs.extend(levs2)
     else:
-        bna_polys, levs = load_polys_and_clip(shapefile_path, bbox, dl=cross_dateline)
+        bna_polys, levs = load_polys_and_clip(shapefile_path,
+                                              bbox,
+                                              dl=cross_dateline,
+                                              skip_errors=skip_errors)
 
     format_for_bna(ofn, bna_polys, levs, dl=cross_dateline)
