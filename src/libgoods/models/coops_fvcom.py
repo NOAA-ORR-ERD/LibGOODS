@@ -53,6 +53,10 @@ class NGOFS2(COOPS_FVCOM):
     metadata = Metadata.from_yaml(YAML_DIR / "ngofs2.yaml")
     local_file_type = "2ds"  # this is what we're archiving locally
 
+class SFBOFS(COOPS_FVCOM):
+
+    metadata = Metadata.from_yaml(YAML_DIR / "sfbofs.yaml")
+    local_file_type = "fields"
 
 class SSCOFS(COOPS_FVCOM):
     metadata = Metadata.from_yaml(YAML_DIR / 'sscofs.yaml')
