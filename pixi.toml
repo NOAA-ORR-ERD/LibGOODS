@@ -2,7 +2,7 @@
 authors = ["Chris Barker <Chris.Barker@noaa.gov>",
            "Amy MacFadyen <amy.macfadyen@noaa.gov>"]
 channels = ["https://prefix.dev/conda-forge"]
-platforms = ["win-64", "linux-64", "osx-arm64", "osx-64", "linux-aarch64"]
+platforms = ["win-64", "linux-64", "osx-arm64", "osx-64"]
 
 [pypi-dependencies]
 libgoods = { path = ".", editable = true }
