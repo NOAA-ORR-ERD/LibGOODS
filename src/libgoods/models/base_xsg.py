@@ -78,7 +78,7 @@ class XSGBaseModel(BaseModel):
                 )
 
     def when(self):
-        # we shouldn't have prints buried in here -- it should return teh message
+        # we shouldn't have prints buried in here -- it should return the message
         # then you can print it -- or, in iPython, it will display it.
         try:
             return(f"{self.actual_start}\n{self.actual_end}")
@@ -99,15 +99,22 @@ class XSGBaseModel(BaseModel):
         self.tdim = tdim
 
     def subset_time(self, start_time, end_time):
-        # TODO: make this smarter to use > start and/or < end etc (one end is None)
-        # We also need to add some padding for output timesteps > 1 hour
+        # Shoud return time series inclusive of start and end dates
         #
-        # I think slices don't include the end point.
-        # So if end_time falls exactly on a timestep, it won't be included.
         # self.tdim is a list as some datasets have more than one time variable
-
         for tdim in self.tdim:
-            self.ds = self.ds.sel({tdim: slice(start_time, end_time)})
+
+            if start_time is not None:
+                best_start = self.ds.time.sel(time=start_time, method='ffill')
+            else:
+                best_start = None
+
+            if end_time is not None:
+                best_end = self.ds.time.sel(time=end_time, method='bfill')
+            else:
+                best_end = None
+
+            self.ds = self.ds.sel({tdim: slice(best_start, best_end)})
 
     def subset_grid(self, bbox):
         # TODO: Add check on bbox and ds longitude to see if they are
