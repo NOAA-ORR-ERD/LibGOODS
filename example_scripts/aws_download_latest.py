@@ -8,20 +8,23 @@ import re
 from libgoods import coops_ofs, scripting
 
 '''
-This was the original script (not using aws cli) to donwload the latest
+This was the original script (not using aws cli) to download the latest
 batch of COOPS OFS files and populate a local directory. It does not
-preserve the foler structure of the AWS bucket and hence won't work
+preserve the folder structure of the AWS bucket and hence won't work
 with the libGOODS API as a local archive.
 
 '''
+
+how_many_days_back = 20
+
 
 # Set up the logger:
 scripting.initialize_console_log('info')  # debug gets a LOT from the AWS stuff
 
 
 models_to_download = [#'WCOFS',
-              'SSCOFS',
-             # 'NGOFS2',
+              # 'SSCOFS',
+              'NGOFS2',
 #             'CBOFS',
              #'TBOFS',
              # 'DBOFS',
@@ -51,7 +54,7 @@ for model in models_to_download:
     else:
         old_fc_list = []
 
-    x_days_ago = datetime.timedelta(days=2)
+    x_days_ago = datetime.timedelta(days=how_many_days_back)
     start = datetime.datetime.today() - x_days_ago
     end = start + datetime.timedelta(days=10)  # longest COOPS forecast is 120 hrs
 

@@ -5,7 +5,7 @@ channels = ["https://prefix.dev/conda-forge"]
 platforms = ["win-64", "linux-64", "osx-arm64", "osx-64"]
 
 [pypi-dependencies]
-libgoods = { path = ".", editable = true }
+gnome = { path = ".", editable = true }
 
 [dependencies]
 python = ">=3.10,<3.15"
@@ -21,10 +21,24 @@ cfgrib = "*"
 pyyaml = "*"
 s3fs = "*"
 zarr = "<3"
+
+# [feature.dev.dependencies]
+ipython = "*"
+pytest = "*"
 # only for dev -- but good also for use
 ipython = "*"
 matplotlib = "*"
 pytest-cov = "*"
+
+# needed to build pygnome
+cython="3.*"
+pip = "*"
+setuptools= ">=62"
+gitpython = "*"
+python-build = "*"
+cmake = "*"
+ninja = "*"
+scikit-build-core = ">=0.9.9"
 
 [feature.py312.dependencies]
 python = "~=3.12.0"
@@ -41,9 +55,9 @@ py312 = [ "py312" ]
 py313 = [ "py313" ]
 py314 = [ "py314" ]
 
-[tasks]
-build = "pip install --no-build-isolation ."
-test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
+# [tasks]
+# build = "pip install --no-build-isolation ."
+# test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
 # test = { cmd = ["pytest", "--pyargs", "libgoods"]}
 
 
