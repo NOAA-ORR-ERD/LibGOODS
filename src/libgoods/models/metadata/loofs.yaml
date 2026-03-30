@@ -16,7 +16,9 @@ html_desc: The <a href="http://tidesandcurrents.noaa.gov/ofs/loofs/loofs.html" t
             For detailed model information, visit the NOAA CO-OPS
             <a href="http://tidesandcurrents.noaa.gov/ofs/loofs/loofs_info.html" target="_blank">
             model information page.</a><br>
-start: approximately one week before present time
+            <br></br>
+            Model output can also be accessed using the <a href = "https://opendap.co-ops.nos.noaa.gov/ofsdataagg/loofs.html" target="_blank">CO-OPS OFS Data Aggregation and Sub-setting</a> utility and manually loaded into WebGNOME.
+start: approximately two weeks before present time
 end: the 48-120 hours forecast period
 regional: true
 bounding_box:
