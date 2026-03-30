@@ -10,34 +10,37 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import os
-import pathlib
-import sys
+# import os
+# import pathlib
+# import sys
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 # see https://pypi.org/project/setuptools-scm/ for details
-from pkg_resources import get_distribution
+# from pkg_resources import get_distribution
 
 
-print("python exec:", sys.executable)
-print("sys.path:", sys.path)
-root = pathlib.Path(__file__).parent.parent.absolute()
-os.environ["PYTHONPATH"] = str(root)
-sys.path.insert(0, str(root))
+# print("python exec:", sys.executable)
+# print("sys.path:", sys.path)
+# root = pathlib.Path(__file__).parent.parent.absolute()
+# os.environ["PYTHONPATH"] = str(root)
+# sys.path.insert(0, str(root))
 
+import importlib.metadata
 import libgoods  # noqa: F401, E402, isort:skip
 
 # -- Project information -----------------------------------------------------
 
 project = "libgoods"
-copyright = "2022, NOAA"
 author = "NOAA"
 
-release = get_distribution("libgoods").version
-# for example take major/minor
-version = ".".join(release.split(".")[:2])
+version = importlib.metadata.version('libgoods')
+
+# release = get_distribution("libgoods").version
+# # for example take major/minor
+# version = ".".join(release.split(".")[:2])
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -49,12 +52,12 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "nbsphinx",
-    "recommonmark",
+#    "recommonmark",
     "sphinx.ext.mathjax",
     "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
-    "numpydoc",
+#    "numpydoc",
     "nbsphinx",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
@@ -76,10 +79,10 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 # html_theme = "pangeo"
-html_theme = "furo"
+html_theme = "sphinx_rtd_theme"
 
 # furo variables
-html_title = "LibGOODS documentation"
+html_title = "LibGOODS Documentation"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

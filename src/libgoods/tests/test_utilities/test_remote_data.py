@@ -1,6 +1,6 @@
-'''
+"""
 test functions in remote_data module
-'''
+"""
 
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -9,13 +9,14 @@ from libgoods.utilities.remote_data import get_datafile
 
 TEMP_DIR = Path(__file__).parents[1] / "temp_test_files"
 
+
 def test_exception():
     """
     bogus file to raise an exception - do this if we have an internet
     connection before testing it
     """
 
-    bogus = TEMP_DIR / 'bogus.txt'
+    bogus = TEMP_DIR / "bogus.txt"
 
     # just making sure that the test is a valid test!
     bogus.unlink(missing_ok=True)
@@ -29,7 +30,7 @@ def test_exception():
         # with pytest.raises(HTTPError):
         #     get_datafile(bogus)
     except URLError:
-        'no internet connection'
+        "no internet connection"
         return
 
 
@@ -61,4 +62,3 @@ def test_get_datafile():
         #               "get_datafile(). Check internet connectivity.")
         #     pytest.xfail(reason=reason)
         #     return
-

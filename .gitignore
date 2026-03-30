@@ -113,3 +113,8 @@ ENV/
 *.swp
 
 scripts/examples/*/output
+/src/libgoods/utilities/make_boundary.py
+/src/libgoods/utilities/make_boundary.py
+# pixi environments
+.pixi/*
+!.pixi/config.toml

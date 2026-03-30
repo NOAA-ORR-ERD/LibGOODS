@@ -9,13 +9,14 @@ from urllib.parse import urljoin
 from urllib.request import urlopen
 
 try:
-    from progressbar import (ProgressBar, Percentage, FileTransferSpeed, ETA, Bar)  # noqa: I001
+    from progressbar import ProgressBar, Percentage, FileTransferSpeed, ETA, Bar  # noqa: I001
+
     HAVE_PB = True
 except ImportError:
     HAVE_PB = False
 
 
-DATA_SERVER = 'https://gnome.orr.noaa.gov/py_gnome_testdata/'
+DATA_SERVER = "https://gnome.orr.noaa.gov/py_gnome_testdata/"
 
 CHUNKSIZE = 1024 * 1024
 
@@ -58,36 +59,35 @@ def get_datafile(filename, data_server=None):
         # download file, then return filename path
 
         (path_, fname) = os.path.split(filename)
-        if path_ == '':
-            path_ = '.'     # relative to current path
+        if path_ == "":
+            path_ = "."  # relative to current path
 
         try:
             resp = urlopen(urljoin(data_server, fname))
         except HTTPError as ex:
-            ex.msg = (f"{ex.msg}. '{fname}' not found on server or server is down")
+            ex.msg = f"{ex.msg}. '{fname}' not found on server or server is down"
             raise ex
 
         if HAVE_PB:
             # progress bar
-            widgets = [fname + ':      ',
-                       Percentage(),
-                       ' ',
-                       Bar(),
-                       ' ',
-                       ETA(),
-                       ' ',
-                       FileTransferSpeed(),
-                       ]
+            widgets = [
+                fname + ":      ",
+                Percentage(),
+                " ",
+                Bar(),
+                " ",
+                ETA(),
+                " ",
+                FileTransferSpeed(),
+            ]
 
-            pbar = ProgressBar(widgets=widgets,
-                               maxval=int(resp.info()['Content-Length'])
-                               ).start()
+            pbar = ProgressBar(widgets=widgets, maxval=int(resp.info()["Content-Length"])).start()
 
         if not os.path.exists(path_):
             os.makedirs(path_)
 
         sz_read = 0
-        with open(filename, 'wb') as fh:
+        with open(filename, "wb") as fh:
             # while sz_read < resp.info().getheader('Content-Length')
             # goes into infinite recursion so break loop for len(data) == 0
             while True:

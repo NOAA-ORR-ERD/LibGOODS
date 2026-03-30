@@ -1,71 +1,124 @@
 """
 Base classes for the core data models
 
-Static Model metadata:
+Static Model metadata::
 
-{'name': self.name,
- 'bounding_box': self.bounding_box, # (lower_left, upper_right)
- 'bounds': self.bounds, # thinned polygon ~ 100 points
- 'info_text': self.info_text
- 'forecast_available': True
- 'hindcast_available': False
- 'environmental_parameters': ## eg: ['surface winds', 'sea surface temperature']
-}
+    {'name': self.name,
+     'bounding_box': self.bounding_box, # (lower_left, upper_right)
+     'bounds': self.bounds, # thinned polygon ~ 100 points
+     'info_text': self.info_text
+     'forecast_available': True
+     'hindcast_available': False
+     'environmental_parameters': ## eg: ['surface winds', 'sea surface temperature']
+    }
 
 Environmental Parameters will be one of these:
     - This is to make sure we use the same vocabulary everywhere
     - Draft list -- needs much cleaning up.
-        surface winds
-        surface currents
-        3D currents
-        sea surface temperature
-        ice data
+        - surface winds
+        - surface currents
+        - 3D currents
+        - sea surface temperature
+        - ice data
         ...
 
 
 Dynamic Model Information:
 
-Model.available_times
-Model.subset_info(query_params) => info about subset
+``Model.available_times``
+
+``Model.subset_info(query_params)`` => info about subset
   - X, Y, Z, T dimensions
   - Estimated File Size
 """
 
 import dataclasses
-from pathlib import Path
+
+import shapely.wkt
+import yaml
 
 
 @dataclasses.dataclass
 class Metadata:
+    """All the metadata about a particular model type """
     identifier: str = ""
+    "using ID for this model -- used to index and find it"
     name: str = ""
-    description: str = ""
+    "Short name to identify this model"
+    long_name: str = ""
+    "Long descriptive name to identify this model"
     html_desc: str = ""
+    "html version of full description, can contain links, etc."
     regional: bool = False
-    bounding_box: tuple = ()
-    bounding_poly: tuple = ()
-    # grid_type: str = ""  # 'Rectangular', 'Curvilinear', 'Unstructured'
-    has_depth: bool = True
+    "Flag indicating if this is a region model. If False -- it's a global model"
+    bounding_box: tuple = None
+    "Bounding box of the model's domain, of form: ((min_lon, min_lat),(max_lon, max_lat))"
+    bounding_poly: tuple = None
+    "Bounding polygon the model's domain, of form: ((lon, lat), (lon, lat), ...)"
+    example_bbox: tuple = None
+    env_params: set = None
+    start: str = ""
+    end: str = ""
+    actual_start: str = ""
+    actual_end: str = ""
     """
     Class to hold the external meta data for a model source
 
-    This is about the data that a user wants to see -- not what's needed to impliment it.
+    This is about the data that a user wants to see -- not what's needed to implement it.
 
     Currently this has defaults for everything, but maybe it should require everything? or more?
     """
 
-# def get_all_metadata():
-#     """
-#     Loop though all the files in the yaml files directory and return a
-#     dict of the metadata for all models
-#     """
+    @classmethod
+    def from_yaml(cls, yaml_file_path):
+        """
+        Create a metadata object from a yaml file
+        """
+        with open(yaml_file_path) as file:
+            model_info = yaml.full_load(file)
 
-#     flist = yaml_file_directory.glob('*.yaml')
-#     all_metas = {
-#         f.name.split('.')[0].upper(): Metadata().init_from_yaml(f)
-#         for f in flist
-#     }
-#     return (all_metas)
+        md = cls(**model_info)
+
+        return md
+
+    def to_yaml(self, yaml_file_path):
+        dct = dataclasses.asdict(self)
+        if not dct['env_params']:
+            del dct['env_params']
+        else:
+            dct['env_params'] = list(dct['env_params'])
+        with open(yaml_file_path, "w") as outfile:
+            yaml.safe_dump(dct, stream=outfile)
+        return None
+
+    def as_pyson(self):
+        dct = dataclasses.asdict(self)
+        dct['env_params'] = list(dct['env_params']) if dct['env_params'] is not None else None
+
+        return dct
+
+    def __post_init__(self):
+        self.bounding_box = tuple(self.bounding_box) if self.bounding_box is not None else None
+        self.example_bbox = tuple(self.example_bbox) if self.example_bbox is not None else None
+
+        self.env_params = set(self.env_params) if self.env_params is not None else None
+
+        # if the bounding_poly is WKT: convert to nested tuples
+        bounding_poly = self.bounding_poly
+        if bounding_poly is not None:
+            # convert from WKT to simple tuple of vertices
+            if isinstance(bounding_poly, str):
+                bounding_poly = tuple(shapely.from_wkt(bounding_poly).boundary.coords)
+            else:
+                #  clean up types a bit:
+                print("post_init for:", self.identifier)
+                print(bounding_poly)
+                bounding_poly = tuple(tuple(p) for p in bounding_poly)
+
+            self.bounding_poly = bounding_poly
+
+
+
 
 
 # def get_metadata_for_model(model, source):
@@ -85,7 +138,7 @@ class Metadata:
 #     identifier: str = ""
 #     name: str = ""
 #     description: str = ""
-#     html_desc: str = ""
+    #     html_desc: str = ""
 #     regional: bool = False
 #     bounding_box: tuple = ()
 #     bounding_poly: tuple = ()
@@ -168,7 +221,8 @@ class Metadata:
 #     def regional_test(bb):
 #         """
 #         Selection criteria for 'regional' flag in the metadata
-#         Effectively, a flag to describe what is a 'large' regional model (HYCOM, GFS) and what isnt
+#         Effectively, a flag to describe what is a 'large' regional model
+#          (HYCOM, GFS) and what isn't
 #         """
 #         return abs(bb[2] - bb[0]) > 90 or abs(bb[3] - bb[1]) > 90
 
