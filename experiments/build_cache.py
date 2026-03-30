@@ -20,7 +20,9 @@ AWS_OFS_ENDPOINT = "s3://noaa-nos-ofs-pds/"
 CACHE_DIR = Path(__file__).parent / "libgoods-cache"
 CACHE_DIR.mkdir(exist_ok=True)
 
-AWS_COMMAND = []
+NUM_PARALLEL = 5
+
+# AWS_COMMAND = []
 
 def sync_model(MODEL, PATTERN='fields', days_back=0):
 
@@ -49,6 +51,7 @@ def sync_model(MODEL, PATTERN='fields', days_back=0):
     s3_url = f"s3://noaa-nos-ofs-pds/{MODEL}"
     CAST=".n"
 
+    commands = []
     for date in dates:
     #    PATTERN=PATTERN
         DATEPATTERN = date.strftime("%Y/%m/%d/")
@@ -71,10 +74,57 @@ def sync_model(MODEL, PATTERN='fields', days_back=0):
                    '--include',
                    f'{FILE_GLOB}',
                    ]
+        command.append(command)
+    return command
 
-        print("Running:", command)
-        subprocess.run(command)
-    print("Done running them all")
+
+def run_command(command):
+    try:
+        result = subprocess.run(command)
+        return "aws sync command finished"
+    except subprocess.CalledProcessError as e:
+        return f"Command '{command}' failed with error: {e.stderr.decode()}"
+
+
+def run_in_parallel(commands):
+    """
+    Run the multiple subprocess commands all at once
+
+    Naomi reported that running ten at once was optimum -- who knows?
+
+    Probably different on every machine and network state.
+
+    Code adapted from Google ...
+    """
+
+# Google's version --might want to borrow some of this.
+# def run_command(command):
+#     """Function to execute a command and return its completion status."""
+#     try:
+#         # subprocess.run is good for simple commands and blocks the worker process until completion
+#         subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#         return f"Command '{command}' finished successfully."
+#     except subprocess.CalledProcessError as e:
+#         return f"Command '{command}' failed with error: {e.stderr.decode()}"
+
+    # # List of commands to run
+    # commands = [
+    #     'echo "hello from command 1" && sleep 1',
+    #     'echo "hello from command 2" && sleep 2',
+    #     'echo "hello from command 3" && sleep 1',
+    #     'echo "hello from command 4" && sleep 3',
+    #     'non_existing_command', # Example of a failing command
+    # ]
+
+# Set the number of parallel processes (e.g., number of CPU cores)
+
+    with ProcessPoolExecutor(max_workers=NUM_PARALLEL) as executor:
+        # Map the function to the list of commands
+        results = executor.map(run_command, commands)
+
+    for result in results:
+        print(result)
+
 
 # There should be some way to get this list from libgoods.
 
@@ -104,13 +154,17 @@ if __name__ == "__main__":
 
     print("Syncing:", models)
 
+    commands = []
+
     for model in models:
         print('Syncing', model)
         if model in ['wcofs', 'ngofs2', 'gomofs']:
             pattern = '2ds'
         else:
            pattern = 'fields'
-        sync_model(MODEL=model, PATTERN=pattern, days_back=days_back)
+        commands.extend(build_aws_sync_commands(MODEL=model, PATTERN=pattern, days_back=days_back))
+
+
 
 
 
