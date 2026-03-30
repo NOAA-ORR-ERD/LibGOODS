@@ -1,4 +1,4 @@
-r"""
+"""
 libgoods package
 
 Package for working with various data sources of model results, etc.
@@ -22,7 +22,7 @@ Most of the core functionality you need as an end user is in the "api" module::
 from dataclasses import dataclass
 from pathlib import Path
 
-__version__ = "2.1.0dev"
+__version__ = "2.1.0b"
 
 # some basic config:
 
