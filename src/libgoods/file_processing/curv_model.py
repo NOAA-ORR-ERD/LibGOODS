@@ -3,6 +3,7 @@ A class for dealing with curvilinear grid model output and converting to GNOME f
 By passing in a var_map dict the
 variable names can be customized for different models or datasets
 """
+# ruff: noqa
 
 import numpy as np
 from netCDF4 import Dataset, MFDataset  # noqa: F401
@@ -10,7 +11,7 @@ from netCDF4 import Dataset, MFDataset  # noqa: F401
 from . import base
 
 
-class curv(base.nc):
+class curv(base.BaseModel):
     """
     A class for dealing with curvilinear grid model output and converting to GNOME format
     By passing in a var_map dict the
@@ -27,8 +28,7 @@ class curv(base.nc):
             self.time_varname = var_map["time"]
             self.time = self.Dataset.variables[var_map["time"]][:]
             self.time_units = self.Dataset[var_map["time"]].units
-            self.time_dimension = self.Dataset.variables[
-                var_map["time"]].dimensions
+            self.time_dimension = self.Dataset.variables[var_map["time"]].dimensions
 
         if get_xy:
             if self.GridDataset is not None:
@@ -60,25 +60,27 @@ class curv(base.nc):
         sl = bbox[1]
         nl = bbox[3]
 
-        if (abs(np.nanmax(glat) - nl) < 1e-3) and (abs(np.nanmin(glon) - wl) <
-                                                   1e-3):  # original values
+        if (abs(np.nanmax(glat) - nl) < 1e-3) and (
+            abs(np.nanmin(glon) - wl) < 1e-3
+        ):  # original values
             self.y = [0, np.size(glat, 0), 1]
             self.x = [0, np.size(glat, 1), 1]
         else:  # do subset
-
             if not dl:
                 # print not dl
                 [yvec, xvec] = np.where(
                     np.logical_and(
                         np.logical_and(glat >= sl, glat <= nl),
                         np.logical_and(glon >= wl, glon <= el),
-                    ))
+                    )
+                )
             else:
                 [yvec, xvec] = np.where(
                     np.logical_and(
                         np.logical_and(glat >= sl, glat <= nl),
                         np.logical_or(glon >= wl, glon <= el),
-                    ))
+                    )
+                )
                 # self.dlx = 1 #Could do this to make the writing not need the dl flag passed in explicity
 
             if len(yvec) > 2 and len(xvec) > 2:
@@ -98,7 +100,7 @@ class curv(base.nc):
         ofn="test.nc",
         t_index=None,
         d_index=0,
-        is3d=False,
+        get3d=False,
         grid_only=False,
         dl=False,
     ):
@@ -121,12 +123,11 @@ class curv(base.nc):
 
         if not grid_only:
             if t_index is not None:
-                self.time = self.time[t_index[0]:t_index[1]:t_index[2]]
+                self.time = self.time[t_index[0] : t_index[1] : t_index[2]]
             else:
                 t_index = [0, len(self.time), 1]
             nc_out.createDimension(self.time_dimension[0], None)
-            tvar = nc_out.createVariable(self.time_varname, "f8",
-                                         self.time_dimension)
+            tvar = nc_out.createVariable(self.time_varname, "f8", self.time_dimension)
             tvar[:] = self.time[:].data
             tvar.setncattr("units", self.time_units)
 
@@ -141,14 +142,13 @@ class curv(base.nc):
             if var in var_map:
                 # Create variable in new file:
                 var_in = nc_grid.variables[var_map[var]]
-                var_out = nc_out.createVariable(var_map[var], var_in.dtype,
-                                                ("y", "x"))
+                var_out = nc_out.createVariable(var_map[var], var_in.dtype, ("y", "x"))
                 # Copy data
                 if var in [
-                        "lon",
-                        "lonc",
+                    "lon",
+                    "lonc",
                 ]:  # Need to only do this when not crossing -180
-                    lon = var_in[self.y[0]:self.y[1], self.x[0]:self.x[1]]
+                    lon = var_in[self.y[0] : self.y[1], self.x[0] : self.x[1]]
                     if dl is True:
                         lon = (lon < 0).choose(lon, lon + 360)
                     if flipud:
@@ -158,11 +158,11 @@ class curv(base.nc):
                 # Copy NetCDF attributes:
                 else:
                     if flipud:
-                        var_out[:] = var_in[self.y[0]:self.y[1],
-                                            self.x[0]:self.x[1]].transpose()
+                        var_out[:] = var_in[
+                            self.y[0] : self.y[1], self.x[0] : self.x[1]
+                        ].transpose()
                     else:
-                        var_out[:] = var_in[self.y[0]:self.y[1],
-                                            self.x[0]:self.x[1]]
+                        var_out[:] = var_in[self.y[0] : self.y[1], self.x[0] : self.x[1]]
                 # Copy NetCDF attributes:
                 for attr in var_in.ncattrs():
                     var_out.setncattr(attr, var_in.getncattr(attr))
@@ -175,31 +175,38 @@ class curv(base.nc):
                     coords = var_in.coordinates
                     dims = (self.time_dimension[0], "y", "x")
 
-                    var_out = nc_out.createVariable(var_map[var], var_in.dtype,
-                                                    dims)
+                    var_out = nc_out.createVariable(var_map[var], var_in.dtype, dims)
                     # Copy data:
                     if len(var_in.shape) == 4:
                         if flipud:
-                            for i, tt in enumerate(
-                                    range(t_index[0], t_index[1], t_index[2])):
+                            for i, tt in enumerate(range(t_index[0], t_index[1], t_index[2])):
                                 var_out[i, :] = np.flipud(
-                                    var_in[tt, d_index, self.y[0]:self.y[1],
-                                           self.x[0]:self.x[1], ])
+                                    var_in[
+                                        tt,
+                                        d_index,
+                                        self.y[0] : self.y[1],
+                                        self.x[0] : self.x[1],
+                                    ]
+                                )
                         else:
                             var_out[:] = var_in[
-                                t_index[0]:t_index[1]:t_index[2], d_index,
-                                self.y[0]:self.y[1], self.x[0]:self.x[1], ]
+                                t_index[0] : t_index[1] : t_index[2],
+                                d_index,
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
                     else:
                         if flipud:
-                            for i, tt in enumerate(
-                                    range(t_index[0], t_index[1], t_index[2])):
+                            for i, tt in enumerate(range(t_index[0], t_index[1], t_index[2])):
                                 var_out[i, :] = np.flipud(
-                                    var_in[tt, self.y[0]:self.y[1],
-                                           self.x[0]:self.x[1]])
+                                    var_in[tt, self.y[0] : self.y[1], self.x[0] : self.x[1]]
+                                )
                         else:
                             var_out[:] = var_in[
-                                t_index[0]:t_index[1]:t_index[2],
-                                self.y[0]:self.y[1], self.x[0]:self.x[1], ]
+                                t_index[0] : t_index[1] : t_index[2],
+                                self.y[0] : self.y[1],
+                                self.x[0] : self.x[1],
+                            ]
                     # Copy NetCDF attributes:
                     for attr in var_in.ncattrs():
                         if attr == "coordinates":
@@ -210,7 +217,5 @@ class curv(base.nc):
 
                     # check for nans - replace with zero
                     var_out[:] = np.nan_to_num(var_out)
-
-
 
         nc_out.close()

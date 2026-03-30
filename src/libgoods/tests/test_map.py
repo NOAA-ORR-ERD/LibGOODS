@@ -32,8 +32,7 @@ def test_get_map_dateline():
     south = 42.0
 
     # To emulate what the WebAPI does
-    bounds = ((west, south),
-              (east, north))
+    bounds = ((west, south), (east, north))
 
     filename, contents = maps.get_map(
         bounds,
@@ -52,9 +51,5 @@ def test_get_map_dateline():
 204.000000, 58.000000
 204.000000, 42.000000
 """
-    print(contents[:len(header)])
-    assert contents[:len(header)] == header
-
-
-
-
+    print(contents[: len(header)])
+    assert contents[: len(header)] == header

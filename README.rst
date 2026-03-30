@@ -38,10 +38,10 @@ for your operating system.
 
     .. code-block::
 
-       conda create --name libgoods python=3.9 --file conda_requirements.txt
+       conda create --name libgoods python=3.13 --file conda_requirements.txt
        conda activate libgoods
 
-    The above command creates a new conda environment titled ``libgoods`` with Python 3.9 and libgoods' dependencies
+    The above command creates a new conda environment titled ``libgoods`` with Python 3.13 and libgoods' dependencies
 
 
 5. If you want to run the tests, you need the dependencies
@@ -56,47 +56,6 @@ for your operating system.
 
       pip install -e .
 
-7. Install ``model_catalogs``.
-
-   The model_catalogs project may be required for some libgoods functionality.
-
-   It can be installed with conda
-
-   .. code-block::
-
-     conda install model_catalogs
-
-   Or from source:
-
-   Clone the repository at
-   `https://github.com/NOAA-ORR-ERD/model_catalogs <https://github.com/NOAA-ORR-ERD/model_catalogs>`_
-   and follow the instructions for installing the project. A summary of the steps:
-
-
-      cd ../..
-      git clone https://github.com/NOAA-ORR-ERD/model_catalogs/
-      cd model_catalogs
-      conda install -c conda-forge --file conda-requirements.txt
-      pip install -r pip-requirements.txt
-      pip install -e .
-
-
-To run precommit checks
------------------------
-
-NOTE: this may no longer be functional
-
-Install necessary packages, listed in `conda_requirements_dev.txt`, with
-
-.. code-block::
-
-   conda install --file conda_requirements_dev.txt
-
-Then to keep your code linted, and especially before pushing any code, run:
-
-.. code-block::
-
-   pre-commit run --all-files
 
 
 Examples

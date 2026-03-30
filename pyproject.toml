@@ -9,38 +9,44 @@ authors = [
     {name = "Christopher H. Barker", email = "chris.barker@noaa.gov"},
 ]
 description = "Package for retrieving environmental data for GNOME"
-requires-python = ">=3.10"
-license = {text = "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"}
+requires-python = ">=3.12"
+license = "CC0-1.0"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
     "Topic :: Utilities",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Meteorology/Oceanography",
 ]
 dynamic = ["version"]
 
+dependencies = [
+    "xarray-subset-grid>=0.1.0",
+    "netCDF4",
+    "numpy>=2.4",
+    "requests",
+    "shapely",
+    "pandas",
+    "pyyaml",
+    "siphon",
+    "fiona",
+    "cfgrib",
+    "s3fs",
+    "zarr<3",
+]
+
 [tool.setuptools.dynamic]
 version = {attr = "libgoods.__version__"}
 readme = {file = ["README.rst"]}
-
-# use conda -- so not here??
-# dependencies = [
-#     "requests",
-#     'importlib-metadata; python_version<"3.8"',
-# ]
 
 [project.urls]
 # Homepage = "https://example.com"
 # Documentation = "https://readthedocs.org"
 Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
-
-# [project.optional-dependencies]
-# pdf = ["ReportLab>=1.2", "RXP"]
 
 [project.scripts]
 #     # does this work?? -- left over from model_catalogs
@@ -54,14 +60,20 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-libgoods = ["yaml_files/*.yaml",
-            "yaml_files/boundaries/*.yaml",
-            "shoreline_data/**/*",
+libgoods = ["shoreline_data/nos_shoreline/*",
+            "shoreline_data/gshhg/**/*",
+            "models/metadata/*.yaml",
+            "tests/test_utilities/data_files/*",
             ]
+# I could not get exclude to work ?????
+# [tool.setuptools.exclude-package-data]
+# # these are really big -- excluding them until they are used.
+# libgoods = ["shoreline_data/OpenStreetMap/land-polygons-complete-4326/*",
+#             "shoreline_data/AK_CUSP/*"]
 
 [tool.ruff]
 builtins = ["ellipsis"]
-extend-exclude = ["xarray_subset_grid/_version.py"]
+# extend-exclude = ["xarray_subset_grid/_version.py"]
 target-version = "py310"
 # Use a longer line length.
 line-length = 100
@@ -82,3 +94,15 @@ select = [
 extend-safe-fixes = [
   "TID252", # absolute imports
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# examples
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+# "__init__.py" = ["E402"]
+# "path/to/file.py" = ["E402"]
+"src/libgoods/utilities/haz_files.py" = ["UP031"]
+"src/libgoods/models/__init__.py" = ["F401"]
+"src/libgoods/NWS_point.py" = ["UP031"]
+"docs/conf.py" = ["I001"]
+
+
