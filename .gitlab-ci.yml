@@ -6,6 +6,7 @@ variables:
 stages:
   - lint
   - test
+  - build
   - data
 
 cache:
@@ -141,3 +142,23 @@ tidy forcast data:
       when: always
   tags:
     - macOS
+
+build and deploy pypi package:
+  stage: build
+  image: registry.orr.noaa.gov/erd/environments/ubuntu/ubuntuforge-python${PYTHON_VER}
+  tags:
+    - docker
+  script:
+    - |
+      conda install -y python=$PYTHON_VER \
+        --file conda_requirements.txt
+    - python -m pip install ./
+    - python -m pip install build twine
+    - python -m build -o pydist
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m
+      twine upload --repository-url
+      ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi ./pydist/*
+  artifacts:
+    paths:
+      - ./pydist
+    expire_in: '5 days'

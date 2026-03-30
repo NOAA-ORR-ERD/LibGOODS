@@ -67,7 +67,6 @@ class Config:
 
 config = Config(shoreline_dir = Path(__file__).parent / "shoreline_data")
 
-
 # temp_files_dir = os.path.join(os.path.split(__file__)[0], "temp_files")
 temp_files_dir = Path(__file__).parent / "temp_files"
 temp_files_dir.mkdir(parents=True, exist_ok=True)

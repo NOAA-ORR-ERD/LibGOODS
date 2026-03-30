@@ -1,7 +1,3 @@
-# check-manifest
-# doctr
-extract_model
-# furo
 ipython
 isort
 mypy
@@ -16,8 +12,9 @@ pytest-xdist
 recommonmark
 setuptools
 setuptools_scm
-shapely
 sphinx
 sphinxcontrib-srclinks
 sphinx_rtd_theme
+
+
 

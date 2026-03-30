@@ -15,7 +15,7 @@ from .ncom_regional import Alaska, AmSeas, USEast
 from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
 from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARIG, SAMOA, WPAC
 from .tamu import TAMU
-from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
+#from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
 
 # fixme: should this be an instance or the model class??
