@@ -3,6 +3,10 @@ assorted utilities useful for libgoods
 """
 
 import datetime
+import cftime
+import cftime
+from dateutil.parser import parse as parsetime
+
 import warnings
 
 import numpy as np
@@ -171,6 +175,24 @@ def check_valid_time_intersection(interval_1, interval_2):
         # raise ValueError("Start is not before or equal to end for interval 2")
     return interval_1[0] <= interval_2[1] and interval_1[1] >= interval_2[0]
 
+def asdatetime(dt):
+    """
+    makes sure the input is a datetime.datetime object
+
+    if it already is, it will be passed through.
+
+    If not it will attempt to parse a string to make a datetime object.
+
+    None will also be passed through silently
+    """
+    if dt is None:
+        return dt
+    # if not isinstance(dt, datetime):
+    if not isinstance(dt, (datetime.datetime, cftime.datetime)):
+        # assume it's an ISO string, or something that dateutils can parse.
+        return parsetime(dt, ignoretz=True)
+    else:
+        return dt
 
 def polygon2bbox(bounds):
     """

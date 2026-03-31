@@ -2,6 +2,10 @@ import datetime
 from libgoods import coops_ofs, models
 
 '''
+INCOMPLETE!
+
+Hopefully we can use the aws syncing script now.
+
 This script demonstrates downloading a time series of CCOOPS files from AWS and creating and working with a model object to subset and write
 to a aggregated file for GNOME
 '''

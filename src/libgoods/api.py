@@ -169,46 +169,55 @@ def get_model_subset(
     cross_dateline=False,
     environmental_parameters=["surface currents"],
         ):
-    """
     ## Fixme: there's a fair bit of logic here, does this belong in the API?
+    """
 
-    Determine the indices for the desired subset (in space and time)
+    Get a libgoods model, set up to provide the required subset
 
-    :param model_id: the name (unique ID) of the model
+
+    :param model_id: the identifier (unique ID) of the model
 
     :param start: start of model output to include
-                  (strings in format %Y-%m-%dT%H:%M:%S
-                  or datetimes)
+                  string in ISO format (%Y-%m-%dT%H:%M:%S)
+                  or datetime
 
     :param end: end of model output to include
-                (strings in format %Y-%m-%dT%H:%M:%S
-                or datetimes)
+                string in ISO format (%Y-%m-%dT%H:%M:%S)
+                or datetime
 
     :param bounds: spatial bounds to subset: vertices of a polygon
-                   if a grid aligned box: ((w,s), (w,n), (e,n), (e,s)).
+                   [(lon, lat), (lon, lat), (lon, lat), (lon, lat)]
+                   or two corners of a bounding box:
+                   [(min_lon, min_lat), (max_lon, max_lat)]
+
                    Currently the bounding box of the polygon is used.
 
-    :param surface_only: boolean to select only surface values
+                   Proper polygons might be supported in the future.
 
     :param cross_dateline: boolean to specify dateline cross
-    TODO: check implementation
+           TODO: check implementation
 
     :param environmental_parameters: which variables to include -
-    can be a subset of ["surface currents", "surface winds",
-    "3D currents", "water properties", "ice"]
-    If 3D currents are selected, water properties will be 3D
+            can be a subset of ["surface currents", "surface winds",
+            "3D currents", "water properties", "ice"]
+            If 3D currents are selected, water properties will be 3D.
 
-    :returns: libgoods model object
+            Default is ["surface_currents"]
+
+    :returns: libgoods model object, ready to be subset.
+
     """
-    # we use subset_bbox in xarray_subset_grid so I think we need to flatten
+    # we use subset_bbox in xarray_subset_grid so we need to
     #    (there is a subset_polygon but I haven't tested)
     bounds = utilities.polygon2bbox(bounds)
     bounds = utilities.flatten_bbox(bounds)
 
-    if type(start) is not datetime.datetime:
-        start = datetime.datetime.fromisoformat(start)
-    if type(end) is not datetime.datetime:
-        end = datetime.datetime.fromisoformat(end)
+    start = utilities.asdatetime(start)
+    end = utilities.asdatetime(end)
+    # if type(start) is not datetime.datetime:
+    #     start = datetime.datetime.fromisoformat(start)
+    # if type(end) is not datetime.datetime:
+    #     end = datetime.datetime.fromisoformat(end)
 
     model_obj = get_model(model_id, start=start, end=end)
 
