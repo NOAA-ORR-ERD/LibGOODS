@@ -92,7 +92,8 @@ class XSGBaseModel(BaseModel):
 
         Had to use both coords and dims list to ensure only getting dimension coordinates (see GFS dataset which has most complexity)
         '''
-        coords =  list(self.ds.coords)
+
+        coords = list(self.ds.coords)
         dims = list(self.ds.dims)
         tdim = [d for d in dims if d.find('time')>=0 and d in coords]
 
@@ -105,12 +106,12 @@ class XSGBaseModel(BaseModel):
         for tdim in self.tdim:
 
             if start_time is not None:
-                best_start = self.ds.time.sel(time=start_time, method='ffill')
+                best_start = self.ds[tdim].sel({tdim: start_time}, method='ffill')
             else:
                 best_start = None
 
             if end_time is not None:
-                best_end = self.ds.time.sel(time=end_time, method='bfill')
+                best_end = self.ds[tdim].sel({tdim: end_time}, method='bfill')
             else:
                 best_end = None
 
