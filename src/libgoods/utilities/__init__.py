@@ -194,6 +194,26 @@ def asdatetime(dt):
     else:
         return dt
 
+def asdate(date):
+    """
+    makes sure the input is a datetime.date object
+
+    if it already is, it will be passed through.
+
+    If not it will attempt to parse a string to make a datetime object.
+
+    None will also be passed through silently
+    """
+    if date is None:
+        return date
+    if not isinstance(dt, (datetime.date,)):
+        # assume it's an ISO string, or something that dateutils can parse.
+        dt = parsetime(dt, ignoretz=True)
+        date = datetime.date(dt.year, dt.month, dt.day)
+    else:
+        return date
+
+
 def polygon2bbox(bounds):
     """
     converts two or more points to a two pair tuple defining a bounding box:

@@ -15,6 +15,10 @@ from pathlib import Path
 import subprocess
 import sys
 
+from libgoods.utilities import asdate
+
+from concurrent.futures import ProcessPoolExecutor
+
 AWS_OFS_ENDPOINT = "s3://noaa-nos-ofs-pds/"
 
 CACHE_DIR = Path(__file__).parent / "libgoods-cache"
@@ -24,7 +28,7 @@ NUM_PARALLEL = 5
 
 # AWS_COMMAND = []
 
-def sync_model(MODEL, PATTERN='fields', days_back=0):
+def build_aws_sync_commands(MODEL, PATTERN='fields', days_back=0):
 
     """
     Syncs the local cache with the OFS models on AWS
@@ -59,7 +63,6 @@ def sync_model(MODEL, PATTERN='fields', days_back=0):
 
 
         FILE_GLOB = f'*netcdf/{FILE_PATH}'
-        print("Using:", FILE_GLOB)
         # NOTE: you need to quote things with a * in them for the shell
         #       but not when passing directly to subprocess.call()
         command = ['aws',
@@ -74,11 +77,12 @@ def sync_model(MODEL, PATTERN='fields', days_back=0):
                    '--include',
                    f'{FILE_GLOB}',
                    ]
-        command.append(command)
-    return command
+        commands.append(command)
+    return commands
 
 
 def run_command(command):
+    print("Starting Up:", command)
     try:
         result = subprocess.run(command)
         return "aws sync command finished"
@@ -96,6 +100,14 @@ def run_in_parallel(commands):
 
     Code adapted from Google ...
     """
+
+    with ProcessPoolExecutor(max_workers=NUM_PARALLEL) as executor:
+        # Map the function to the list of commands
+        results = executor.map(run_command, commands)
+
+    for result in results:
+        print(result)
+
 
 # Google's version --might want to borrow some of this.
 # def run_command(command):
@@ -118,12 +130,6 @@ def run_in_parallel(commands):
 
 # Set the number of parallel processes (e.g., number of CPU cores)
 
-    with ProcessPoolExecutor(max_workers=NUM_PARALLEL) as executor:
-        # Map the function to the list of commands
-        results = executor.map(run_command, commands)
-
-    for result in results:
-        print(result)
 
 
 # There should be some way to get this list from libgoods.
@@ -140,6 +146,45 @@ USAGE = ('You need to pass in the number of days back, and\n'
          'build_cache 3 cbofs')
 
 
+def sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL):
+
+    """
+    Syncs the local cache with the OFS models on AWS
+
+    Runs num_parallel commands in parallel
+
+
+    Parameters
+    ----------
+    models : list of models to sync (in COOPS lower case)
+
+    start_day: datetime.date
+        when to start (how far back in the past)
+        defaults to today
+
+    end_day: datetime.date
+        when to stop -- defaults to today
+
+    num_parallel: int
+        How many subprocesses to run in parallel (default is 5)
+
+    Returns
+    -------
+    None:
+        Processes are farmed out, and files should be created.
+    """
+    start_day = asdate(start_day)
+    end_day = asdate(end_day)
+
+    commands = []
+    for model in models:
+        if model in ['wcofs', 'ngofs2', 'gomofs']:
+            pattern = '2ds'
+        else:
+            pattern = 'fields'
+        commands.extend(build_aws_sync_commands(MODEL=model, PATTERN=pattern, days_back=days_back))
+    run_in_parallel(commands)
+
 
 if __name__ == "__main__":
 
@@ -152,17 +197,11 @@ if __name__ == "__main__":
         print(USAGE)
         sys.exit()
 
+
+
+    sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL)
     print("Syncing:", models)
 
-    commands = []
-
-    for model in models:
-        print('Syncing', model)
-        if model in ['wcofs', 'ngofs2', 'gomofs']:
-            pattern = '2ds'
-        else:
-           pattern = 'fields'
-        commands.extend(build_aws_sync_commands(MODEL=model, PATTERN=pattern, days_back=days_back))
 
 
 
