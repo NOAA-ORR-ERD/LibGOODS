@@ -21,8 +21,51 @@ from concurrent.futures import ProcessPoolExecutor
 
 AWS_OFS_ENDPOINT = "s3://noaa-nos-ofs-pds/"
 
-CACHE_DIR = Path(__file__).parent / "libgoods-cache"
-CACHE_DIR.mkdir(exist_ok=True)
+def set_cache_dir(cache_path=None):
+    """
+    Set the cache directory -- where the cache will go.
+
+    The default Cache path is set, and it is returned, so you know what it was set to.
+
+    If None:
+
+    The path is set to the value of LIBGOODS_CACHE environment variable.
+
+    If it doesn't exist, it is set to "./libgoods-cache"
+    in the current working directory.
+
+
+    Parameters
+    ----------
+    cache_path : PathLike
+        The Path to where to store the cache.
+        If a relative path, it will use the current working directory when
+        this function is called.
+
+    Returns
+    -------
+    type:
+        pathlib.Path
+
+    The cache path as set.
+    """
+
+    global CACHE_DIR
+
+    if cache_path is None:
+        # look for the Environment variable
+        cache_path = os.getenv('LIBGOODS_CACHE')
+        if cache_path is None:
+            Path() / "libgoods-cache"
+        else:
+            Path(cache_path).resolve()
+    else:
+        CACHE_DIR = Path(cache_path).resolve()
+
+
+    CACHE_DIR.mkdir(exist_ok=True)
+
+    return CACHE_DIR
 
 NUM_PARALLEL = 5
 
