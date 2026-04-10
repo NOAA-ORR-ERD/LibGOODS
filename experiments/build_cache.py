@@ -240,7 +240,7 @@ if __name__ == "__main__":
         print(USAGE)
         sys.exit()
 
-
+    set_cache_dir()
 
     sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL)
     print("Syncing:", models)
