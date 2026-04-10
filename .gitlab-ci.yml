@@ -1,12 +1,13 @@
 variables:
-  PYTHON_VER: '3.12'
+  PYTHON_VER: '3.13'
   IMAGE_NAME: '/erd/environments/ubuntu/ubuntuforge-python'
   GIT_DEPTH: 2
 
 stages:
   - lint
   - test
-  - build
+# disabling build -- which builds wheels, 'cause we aren't using it.
+#  - build
   - data
 
 cache:
