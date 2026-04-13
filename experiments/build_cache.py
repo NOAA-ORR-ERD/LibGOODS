@@ -12,6 +12,7 @@ File type (fields or 2ds set to mirror what's in the libGOODS archive on servers
 
 import datetime
 from pathlib import Path
+import os
 import subprocess
 import sys
 
@@ -56,9 +57,9 @@ def set_cache_dir(cache_path=None):
         # look for the Environment variable
         cache_path = os.getenv('LIBGOODS_CACHE')
         if cache_path is None:
-            Path() / "libgoods-cache"
+            CACHE_DIR = Path() / "libgoods-cache"
         else:
-            Path(cache_path).resolve()
+            CACHE_DIR = Path(cache_path).resolve()
     else:
         CACHE_DIR = Path(cache_path).resolve()
 
