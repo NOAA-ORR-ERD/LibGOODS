@@ -72,7 +72,60 @@ NUM_PARALLEL = 5
 
 # AWS_COMMAND = []
 
-def build_aws_sync_commands(MODEL, PATTERN='fields', days_back=0):
+def get_last_nowcast_date(model):
+    """
+    This will sync the forecast files -- going from
+    now to forward.
+    """
+    # first see how far the nowcast files go
+    model_dir = CACHE_DIR / model
+    try:
+        last_nowcast_file = sorted(model_dir.rglob("*n0??.nc"))[-1]
+    except IndexError:
+        return None
+    year, month, day = (int(n) for n in str(last_nowcast_file).split("/")[-4:-1])
+    last_nowcast_date = datetime.date(year,  month, day)
+
+    return last_nowcast_date
+
+def get_forecast_files(model):
+    """
+    This will sync the forecast files -- going from
+    the last nowcast file forward 6? days
+    now to forward.
+    """
+    # first see how far the nowcast files go
+    model_dir = CACHE_DIR / model
+    last_nowcast_file = sorted(model_dir.rglob("*n0??.nc"))[-1]
+    year, month, day = (int(n) for n in str(last_nowcast_file).split("/")[-4:-1])
+    last_nowcast_date = datetime.date(year,  month, day)
+
+def build_aws_command(model, date, which_set, cast):
+    """
+    makes the file glob for a particular model, set, and cast
+    """
+    date_pattern = date.strftime("%Y/%m/%d/")
+    file_path=f"{date_pattern}*{which_set}{cast}*"
+    file_glob = f'*netcdf/{file_path}'
+    # NOTE: you need to quote things with a * in them for the shell
+    #       but not when passing directly to subprocess.call()
+    command = ['aws',
+               's3',
+               'sync',
+               f's3://noaa-nos-ofs-pds/{model}',
+               f'{CACHE_DIR}/{model}',
+               '--no-sign-request',
+               '--size-only',
+               '--exclude',
+               '*',
+               '--include',
+               f'{file_glob}',
+               ]
+
+    return command
+
+
+def build_aws_sync_commands(MODEL, PATTERN, start_date, end_date):
 
     """
     Syncs the local cache with the OFS models on AWS
@@ -92,37 +145,28 @@ def build_aws_sync_commands(MODEL, PATTERN='fields', days_back=0):
       Waits to return until after the sync process is complete.
 
     """
-
     today = datetime.date.today()
-    dates = [today - (i * datetime.timedelta(days=1)) for i in range(days_back, -1,  -1)]
 
-    s3_url = f"s3://noaa-nos-ofs-pds/{MODEL}"
-    CAST=".n"
-
-    commands = []
+    # nowcast files
+    if end_date > today:
+        dates = [today + datetime.timedelta(days=1)] # extra to make sure -- could be the next day in UTC
+    else:
+        dates = [end_date]
+    while dates[-1] > start_date:
+        dates.append(dates[-1] - datetime.timedelta(days=1))
+    nowcast_commands = []
     for date in dates:
-    #    PATTERN=PATTERN
-        DATEPATTERN = date.strftime("%Y/%m/%d/")
-        FILE_PATH=f"{DATEPATTERN}*{PATTERN}{CAST}*"
+        nowcast_commands.append(build_aws_command(MODEL, date, PATTERN, ".n"))
 
+    # forecast files
+    if end_date >= today:
+        # maybe some day, we can break this down
+        forecast_commands = [build_aws_command(MODEL, end_date, PATTERN, ".f")]
+    else:
+        forecast_commands = []
 
-        FILE_GLOB = f'*netcdf/{FILE_PATH}'
-        # NOTE: you need to quote things with a * in them for the shell
-        #       but not when passing directly to subprocess.call()
-        command = ['aws',
-                   's3',
-                   'sync',
-                   f's3://noaa-nos-ofs-pds/{MODEL}',
-                   f'{CACHE_DIR}/{MODEL}',
-                   '--no-sign-request',
-                   '--size-only',
-                   '--exclude',
-                   '*',
-                   '--include',
-                   f'{FILE_GLOB}',
-                   ]
-        commands.append(command)
-    return commands
+    return nowcast_commands, forecast_commands
+
 
 
 def run_command(command):
@@ -190,7 +234,7 @@ USAGE = ('You need to pass in the number of days back, and\n'
          'build_cache 3 cbofs')
 
 
-def sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL):
+def sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL):
 
     """
     Syncs the local cache with the OFS models on AWS
@@ -202,11 +246,11 @@ def sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL
     ----------
     models : list of models to sync (in COOPS lower case)
 
-    start_day: datetime.date
+    start_date: datetime.date
         when to start (how far back in the past)
         defaults to today
 
-    end_day: datetime.date
+    end_date: datetime.date
         when to stop -- defaults to today
 
     num_parallel: int
@@ -217,8 +261,8 @@ def sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL
     None:
         Processes are farmed out, and files should be created.
     """
-    start_day = asdate(start_day)
-    end_day = asdate(end_day)
+    start_date = asdate(start_date)
+    end_date = asdate(end_date)
 
     commands = []
     for model in models:
@@ -226,8 +270,16 @@ def sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL
             pattern = '2ds'
         else:
             pattern = 'fields'
-        commands.extend(build_aws_sync_commands(MODEL=model, PATTERN=pattern, days_back=days_back))
+        forecast_comands, nowcast_commands = build_aws_sync_commands(
+                                                model,
+                                                pattern,
+                                                start_date,
+                                                end_date)
+        commands.extend(nowcast_commands)
+    # get the nowcast first
     run_in_parallel(commands)
+    # and now the forecast (nowcast has to be run first, to know what's there.)
+    run_in_parallel(forecast_commands)
 
 
 if __name__ == "__main__":
@@ -243,7 +295,11 @@ if __name__ == "__main__":
 
     set_cache_dir()
 
-    sync_nos_aws(models, start_day=None, end_day=None, num_parallel=NUM_PARALLEL)
+    end_date = datetime.date.today()
+    start_date = end_date - datetime.timedelta(days=days_back)
+
+    sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL)
+
     print("Syncing:", models)
 
 
