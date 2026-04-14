@@ -206,9 +206,9 @@ def asdate(date):
     """
     if date is None:
         return date
-    if not isinstance(dt, (datetime.date,)):
+    if not isinstance(date, (datetime.date,)):
         # assume it's an ISO string, or something that dateutils can parse.
-        dt = parsetime(dt, ignoretz=True)
+        dt = parsetime(date, ignoretz=True)
         date = datetime.date(dt.year, dt.month, dt.day)
     else:
         return date
