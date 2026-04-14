@@ -217,9 +217,9 @@ class ROMS(XSGBaseModel):
     drop_variables = None
     standard_names = {
         "eastward_sea_water_velocity": "u",
-        "eastward_wind": "uwind_speed",
+        "eastward_wind": "Uwind",
         "northward_sea_water_velocity": "v",
-        "northward_wind": "vwind_speed",
+        "northward_wind": "Vwind",
         "upward_sea_water_velocity": "w",
         "sea_floor_depth": "h",
         "sea_surface_elevation": "zeta",
