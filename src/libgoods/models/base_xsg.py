@@ -73,9 +73,7 @@ class XSGBaseModel(BaseModel):
         self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
 
     def size(self):
-        return ("Aggregation size is:\n"
-                f"{self.ds.nbytes / 1e9:.5} GB"
-                )
+        return self.ds.nbytes
 
     def when(self):
         # we shouldn't have prints buried in here -- it should return the message
