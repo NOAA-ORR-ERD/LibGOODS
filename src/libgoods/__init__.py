@@ -23,7 +23,7 @@ Most of the core functionality you need as an end user is in the "api" module::
 from dataclasses import dataclass
 from pathlib import Path
 
-__version__ = "2.2.1dev"
+__version__ = "2.2.3dev"
 
 # some basic config:
 
