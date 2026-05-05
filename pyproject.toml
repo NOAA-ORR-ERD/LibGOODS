@@ -49,8 +49,6 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
 
 [project.scripts]
-#     # does this work?? -- left over from model_catalogs
-#     fetch-model = "libgoods.cli:main"
 shift_bna = "libgoods.scripting.shift_bna:main"
 
 [tools.setuptools]
