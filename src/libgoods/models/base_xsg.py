@@ -73,9 +73,7 @@ class XSGBaseModel(BaseModel):
         self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
 
     def size(self):
-        return ("Aggregation size is:\n"
-                f"{self.ds.nbytes / 1e9:.5} GB"
-                )
+        return self.ds.nbytes
 
     def when(self):
         # we shouldn't have prints buried in here -- it should return the message
@@ -217,9 +215,9 @@ class ROMS(XSGBaseModel):
     drop_variables = None
     standard_names = {
         "eastward_sea_water_velocity": "u",
-        "eastward_wind": "uwind_speed",
+        "eastward_wind": "Uwind",
         "northward_sea_water_velocity": "v",
-        "northward_wind": "vwind_speed",
+        "northward_wind": "Vwind",
         "upward_sea_water_velocity": "w",
         "sea_floor_depth": "h",
         "sea_surface_elevation": "zeta",

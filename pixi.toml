@@ -21,8 +21,11 @@ cfgrib = "*"
 pyyaml = "*"
 s3fs = "*"
 zarr = "<3"
-# only for dev -- but good also for use
+awscli = "*"
+
+[feature.dev.dependencies]
 ipython = "*"
+pytest = "*"
 matplotlib = "*"
 pytest-cov = "*"
 
@@ -37,13 +40,14 @@ python = "~=3.14.0"
 
 [environments]
 default = { solve-group = "default" }
+dev = ["py312", "dev"]
 py312 = [ "py312" ]
 py313 = [ "py313" ]
 py314 = [ "py314" ]
 
-[tasks]
-build = "pip install --no-build-isolation ."
-test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
+# [tasks]
+# build = "pip install --no-build-isolation ."
+# test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
 # test = { cmd = ["pytest", "--pyargs", "libgoods"]}
 
 
