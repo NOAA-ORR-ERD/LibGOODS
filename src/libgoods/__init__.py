@@ -23,7 +23,11 @@ Most of the core functionality you need as an end user is in the "api" module::
 from dataclasses import dataclass
 from pathlib import Path
 
-__version__ = "2.2.3dev"
+# using setuptools_scm to write a _version.py file
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown"
 
 # some basic config:
 # We could make this fancier for sure, but
