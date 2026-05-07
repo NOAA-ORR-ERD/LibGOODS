@@ -4,11 +4,8 @@ authors = ["Chris Barker <Chris.Barker@noaa.gov>",
 channels = ["https://prefix.dev/conda-forge"]
 platforms = ["win-64", "linux-64", "osx-arm64", "osx-64"]
 
-[pypi-dependencies]
-libgoods = { path = ".", editable = true }
-
 [dependencies]
-python = ">=3.10,<3.15"
+python = ">=3.12,<3.15"
 xarray-subset-grid = ">=0.1.1"
 netCDF4 = "*"
 numpy = "*"
@@ -25,8 +22,21 @@ awscli = "*"
 
 [feature.dev.dependencies]
 ipython = "*"
-pytest = "*"
 matplotlib = "*"
+ruff = "*"
+
+[feature.dev.pypi-dependencies]
+libgoods = { path = ".", editable = true }
+
+[feature.build.dependencies]
+pip = "*"
+python-build = "*"
+setuptools = ">=80"
+setuptools-scm = ">=8"
+
+
+[feature.test.dependencies]
+pytest = "*"
 pytest-cov = "*"
 
 [feature.py312.dependencies]
@@ -39,15 +49,19 @@ python = "~=3.13.0"
 python = "~=3.14.0"
 
 [environments]
-default = { solve-group = "default" }
-dev = ["py312", "dev"]
-py312 = [ "py312" ]
-py313 = [ "py313" ]
-py314 = [ "py314" ]
+default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
+# using the oldest supported version for development
+dev312 = ["py312", "dev", "test", "build"]
+dev313 = ["py313", "dev", "test", "build"]
+dev314 = ["py314", "dev", "test", "build"]
+build = ["py312", "build"]
+test312 = [ "py312", "test", "build"]
+test313 = [ "py313", "test", "build"]
+test314 = [ "py314", "test", "build"]
 
-# [tasks]
-# build = "pip install --no-build-isolation ."
-# test = { cmd = ["pytest", "--pyargs", "libgoods"], depends-on = ["build"] }
-# test = { cmd = ["pytest", "--pyargs", "libgoods"]}
-
+[tasks]
+install = { cmd = "pip install -v --no-deps --root-user-action=ignore ./", default-environment = "build"}
+build_wheel = {cmd = "python -m build ./", default-environment = "build"}
+test = { cmd = "pytest --pyargs libgoods", depends-on = ["install"] }
+lint = { cmd = "ruff check src/libgoods", default-environment = "dev"}
 

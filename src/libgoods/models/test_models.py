@@ -1,7 +1,9 @@
 
+from .base import BaseModel
 from .metadata import Metadata
 
-def Dummy_Model(BaseModel):
+
+class DummyModel(BaseModel):
     """
     A Dummy model with all static info
 
