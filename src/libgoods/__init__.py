@@ -25,8 +25,8 @@ from pathlib import Path
 
 __version__ = "2.2.3dev"
 
-# some basic config:
 
+# some basic config:
 # We could make this fancier for sure, but
 
 class UnsetConfigError(AttributeError):
