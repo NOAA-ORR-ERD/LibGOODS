@@ -11,4 +11,4 @@ class TAMU(ROMS):
     standard_names = ROMS.standard_names.copy()
     location = "https://gcoos5.geos.tamu.edu/thredds/dodsC/ROFS_latest/txla2_his_f_latest.nc"
     access = "opendap"
-    metadata.example_bbox = (-91.5, 29.25, -91, 29.75)
+

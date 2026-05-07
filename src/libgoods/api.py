@@ -93,6 +93,11 @@ def get_model(model_id, start=None, end=None):
     typically done after opening the dataset
 
     :returns: model obj with metadata of the model converted to dict
+
+    NOTE: models using the local archive do not have an xarray ds attached
+    unless the start date is not None - this is to avoid opening a really large
+    multi file dataset. For external (TDS/OpenDAP sources) we need to open the ds
+    to get the actual start/end. This makes the API a bit inconsistent.
     """
 
     archive_dir = config.archive_dir
