@@ -85,10 +85,12 @@ class XSGBaseModel(BaseModel):
 
     def parse_time_dim_coords(self):
         '''
-        Get time dimension coordinates (index coordinates). These are special, 1D coordinates that enable label-based indexing.
+        Get time dimension coordinates (index coordinates).
+        These are special, 1D coordinates that enable label-based indexing.
         Will be used in subset_time and to assign unlimited dimension when writing netcdf
 
-        Had to use both coords and dims list to ensure only getting dimension coordinates (see GFS dataset which has most complexity)
+        Had to use both coords and dims list to ensure only getting dimension coordinates
+        (see GFS dataset which has most complexity)
         '''
 
         coords = list(self.ds.coords)
@@ -98,7 +100,7 @@ class XSGBaseModel(BaseModel):
         self.tdim = tdim
 
     def subset_time(self, start_time, end_time):
-        # Shoud return time series inclusive of start and end dates
+        # Should return time series inclusive of start and end dates
         #
         # self.tdim is a list as some datasets have more than one time variable
         for tdim in self.tdim:
@@ -155,6 +157,7 @@ class XSGBaseModel(BaseModel):
     def write_nc(self, ofn="test.nc", close_ds=True):
         try:
             self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+       # fixme: what exception might be raised here??
         except:
             self.ds.to_netcdf(ofn)
         if close_ds:

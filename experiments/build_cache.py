@@ -124,6 +124,27 @@ def build_aws_command(model, date, which_set, cast):
 
     return command
 
+def purge_forecast_files():
+    """
+    Removes any forecast files before the lastest nowcast
+    Loops through all models.
+    """
+    set_cache_dir()
+
+    models = [p.stem for p in CACHE_DIR.iterdir() if p.is_dir()]
+
+    for model in models:
+        d = get_last_nowcast_date(model)
+        print(d)
+        for root, dirs, files in (CACHE_DIR / model / "netcdf").walk():
+            print(f"Current Directory: {root}")
+            if str(root).endswith(f"{d.year:04}/{d.month:02}/{d.day:02}"):
+                print("it's the current one:")
+                raise Exception
+            for file in files:
+                file_path = root / file
+                # print(f"File: {file_path}")
+
 
 def build_aws_sync_commands(MODEL, PATTERN, start_date, end_date):
 

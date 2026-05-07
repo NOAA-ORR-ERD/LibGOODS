@@ -7,11 +7,10 @@ something
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from libgoods import shoreline
 from libgoods.utilities.haz_files import ReadBNA
-
-import pytest
 
 OUTPUT_DIR = Path(__file__).parent / "output"
 

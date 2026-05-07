@@ -8,7 +8,6 @@ NOTE: These really need to be refactored to not hit any servers.
 Mocking, local, cache, etc.
 
 """
-import datetime
 
 from . import (
     NonIntersectingSubsetError,

@@ -49,8 +49,6 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
 
 [project.scripts]
-#     # does this work?? -- left over from model_catalogs
-#     fetch-model = "libgoods.cli:main"
 shift_bna = "libgoods.scripting.shift_bna:main"
 
 [tools.setuptools]
@@ -81,6 +79,7 @@ line-length = 100
 [tool.ruff.lint]
 ignore = [
   "E402", # module level import not at top of file
+  "UP038", # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 #  "E731", # do not assign a lambda expression, use a def
 ]
 select = [
