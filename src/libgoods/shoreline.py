@@ -11,7 +11,6 @@ from pathlib import Path
 
 import fiona
 import numpy as np
-import shapely
 import shapely.geometry as sgeo
 
 from libgoods import config
@@ -101,7 +100,7 @@ def load_polys_and_clip(shpfile, bound_box, dl=False, lev=1, skip_errors=False):
                 if poly.intersects(clip_box):
                     try:
                         clipped_polys = poly.intersection(clip_box)
-                    except Exception as exc: # shapely.GEOSException:
+                    except Exception: # shapely.GEOSException:
                         if skip_errors:
                             print(f"Error: skipping polygon: {idx1}:{idx2}")
                         else:
@@ -175,7 +174,8 @@ def get_map(
     except KeyError:
         shapefile_path = Path(data_source)
         if not shapefile_path.is_file():
-            raise ValueError(f'"{data_source}" is not valid shoreline dataset and {shapefile_path} is not a file.')
+            raise ValueError(f'"{data_source}" is not a valid shoreline '
+                             'dataset and {shapefile_path} is not a file.')
 
     if data_source == "gshhs":
         # extra stuff to find the nested dirs for the resolution

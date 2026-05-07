@@ -23,6 +23,7 @@ awscli = "*"
 [feature.dev.dependencies]
 ipython = "*"
 matplotlib = "*"
+ruff = "*"
 
 [feature.dev.pypi-dependencies]
 libgoods = { path = ".", editable = true }
@@ -30,7 +31,9 @@ libgoods = { path = ".", editable = true }
 [feature.build.dependencies]
 pip = "*"
 python-build = "*"
-setuptools = "*"
+setuptools = ">=80"
+setuptools-scm = ">=8"
+
 
 [feature.test.dependencies]
 pytest = "*"
@@ -46,9 +49,9 @@ python = "~=3.13.0"
 python = "~=3.14.0"
 
 [environments]
-default = ["dev"]
+default = { features = ["py312", "dev", "test", "build"], solve-group = "default" }
 # using the oldest supported version for development
-dev = ["py312", "dev", "test", "build"]
+dev312 = ["py312", "dev", "test", "build"]
 dev313 = ["py313", "dev", "test", "build"]
 dev314 = ["py314", "dev", "test", "build"]
 build = ["py312", "build"]
@@ -57,8 +60,8 @@ test313 = [ "py313", "test", "build"]
 test314 = [ "py314", "test", "build"]
 
 [tasks]
-install = { cmd = "pip install -v --no-deps ./", default-environment = "build"}
+install = { cmd = "pip install -v --no-deps --root-user-action=ignore ./", default-environment = "build"}
 build_wheel = {cmd = "python -m build ./", default-environment = "build"}
 test = { cmd = "pytest --pyargs libgoods", depends-on = ["install"] }
-
+lint = { cmd = "ruff check src/libgoods", default-environment = "dev"}
 
