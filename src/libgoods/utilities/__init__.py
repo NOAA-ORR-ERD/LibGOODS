@@ -3,13 +3,11 @@ assorted utilities useful for libgoods
 """
 
 import datetime
-import cftime
-import cftime
-from dateutil.parser import parse as parsetime
-
 import warnings
 
+import cftime
 import numpy as np
+from dateutil.parser import parse as parsetime
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
 from libgoods import NonIntersectingTimeIntervalError

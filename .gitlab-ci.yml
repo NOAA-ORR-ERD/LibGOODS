@@ -1,165 +1,50 @@
+# new CI using pixi to run tests, etc.
+
 variables:
-  PYTHON_VER: '3.13'
-  IMAGE_NAME: '/erd/environments/ubuntu/ubuntuforge-python'
+  IMAGE_NAME: 'registry.orr.noaa.gov/erd/environments/ubuntu-pixi:latest'
   GIT_DEPTH: 2
 
 stages:
   - lint
   - test
-# disabling build -- which builds wheels, 'cause we aren't using it.
-#  - build
-  - data
+  - test_multi_py
+  - build
 
 cache:
   paths:
-    - ./$CI_PIPELINE_ID
-
-before_script:
-  - pwd
-  - echo $CI_PIPELINE_ID
-  - source activate ./$CI_PIPELINE_ID
-
-configure_env:
-  stage: .pre
-  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
-  before_script:
-    - echo '' # manual override of before_script because we're on runner 12.3 and inherit options are only 12.9+
-  script:
-    - conda create --prefix ./$CI_PIPELINE_ID
-  tags:
-    - docker
-  artifacts:
-    expire_in: 5 days
-    paths:
-      - ./$CI_PIPELINE_ID
-  rules:
-    - if: $SCHEDULED == "true"
-      when: never
-    - if: $CI_COMMIT_REF_NAME
-      when: always
+   - ./.pixi
 
 lint_libgoods:
   stage: lint
   allow_failure: true
-  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
+  image: $IMAGE_NAME
   script:
-    - conda install -y ruff
-    - ruff check src/libgoods
-  rules:
-    - if: $SCHEDULED == "true"
-      when: never
-    - if: $CI_COMMIT_REF_NAME
-      when: always
+    - pixi run lint
 
 test_libgoods:
   stage: test
   allow_failure: false
-  image: registry.orr.noaa.gov$IMAGE_NAME$PYTHON_VER
+  image: $IMAGE_NAME
   script:
-    - conda install -y python=$PYTHON_VER
-      pip
-      --file conda_requirements.txt
-      --file conda_requirements_test.txt
+    - pixi run test
 
-    - pip install ./
-
-    - pytest --pyargs libgoods
-
-  rules:
-    - if: $SCHEDULED == "true"
-      when: never
-    - if: $CI_COMMIT_REF_NAME
-      when: always
-
-populate data on mac pro:
-  stage: data
-  needs: []
-  before_script: []
+test_multi_py:
+  stage: test_multi_py
+  allow_failure: false
+  image: $IMAGE_NAME
   script:
-    - ./example_scripts/aws-mirror-matrix.sh
-  rules:
-    - if: $SCHEDULED == "true"
-      when: always
-  tags:
-    - macOS
-  parallel:
-    matrix:
-      - MODEL: 'wcofs'
-        PATTERN: '2ds'
-      - MODEL: 'sscofs'
-      - MODEL: 'ngofs2'
-        PATTERN: '2ds'
-      - MODEL: 'cbofs'
-      - MODEL: 'tbofs'
-      - MODEL: 'dbofs'
-      - MODEL: 'gomofs'
-        PATTERN: '2ds'
-      - MODEL: 'ciofs'
-      - MODEL: 'sfbofs'
-      - MODEL: 'leofs'
-      - MODEL: 'lmhofs'
-      - MODEL: 'loofs'
-      - MODEL: 'lsofs'
-      - MODEL: 'wcofs'
-        PATTERN: '2ds'
-        CAST: '.f'
-      - MODEL: 'sscofs'
-        CAST: '.f'
-      - MODEL: 'ngofs2'
-        CAST: '.f'
-        PATTERN: '2ds'
-      - MODEL: 'cbofs'
-        CAST: '.f'
-      - MODEL: 'tbofs'
-        CAST: '.f'
-      - MODEL: 'dbofs'
-        CAST: '.f'
-      - MODEL: 'gomofs'
-        PATTERN: '2ds'
-        CAST: '.f'
-      - MODEL: 'ciofs'
-        CAST: '.f'
-      - MODEL: 'sfbofs'
-        CAST: '.f'
-      - MODEL: 'leofs'
-        CAST: '.f'
-      - MODEL: 'lmhofs'
-        CAST: '.f'
-      - MODEL: 'loofs'
-        CAST: '.f'
-      - MODEL: 'lsofs'
-        CAST: '.f'
+    - pixi run -e test312 test
+    - pixi run -e test313 test
+    - pixi run -e test314 test
 
-tidy forcast data:
-  stage: data
-  needs: []
-  before_script: []
+build_wheel:
+  stage: build
+  allow_failure: false
+  image: $IMAGE_NAME
   script:
-    - ./example_scripts/aws-purge-old-forcasts.sh
-    - ./example_scripts/aws-purge-old-nowcasts.sh
-  rules:
-    - if: $SCHEDULED == "true"
-    - if: $TIDY == "true"
-      when: always
-  tags:
-    - macOS
-
-# build and deploy pypi package:
-#   stage: build
-#   image: registry.orr.noaa.gov/erd/environments/ubuntu/ubuntuforge-python${PYTHON_VER}
-#   tags:
-#     - docker
-#   script:
-#     - |
-#       conda install -y python=$PYTHON_VER \
-#         --file conda_requirements.txt
-#     - python -m pip install ./
-#     - python -m pip install build twine
-#     - python -m build -o pydist
-#     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m
-#       twine upload --repository-url
-#       ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi ./pydist/*
-#   artifacts:
-#     paths:
-#       - ./pydist
-#     expire_in: '5 days'
+    - pixi run build_wheel
+  # rules:
+  #   - if: $SCHEDULED == "true"
+  #     when: never
+  #   - if: $CI_COMMIT_REF_NAME
+  #     when: always

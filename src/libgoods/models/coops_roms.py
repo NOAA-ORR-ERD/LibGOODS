@@ -36,9 +36,11 @@ class COOPS_ROMS(ROMS):
                 super().__init__(is3d=False)
             self.concat_dim = 'ocean_time'
             self.access = "local"
-            self.location = coops_ofs.get_local_flist(
-                self.identifier, str(archive_dir), file_type=self.local_file_type, start=start, end=end
-            )
+            self.location = coops_ofs.get_local_flist(self.identifier,
+                                                      str(archive_dir),
+                                                      file_type=self.local_file_type,
+                                                      start=start,
+                                                      end=end)
             self.actual_start = coops_ofs.file2dt(self.location[0], self.update_cycle)
             self.actual_end = coops_ofs.file2dt(self.location[-1], self.update_cycle)
 

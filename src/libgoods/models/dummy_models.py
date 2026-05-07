@@ -1,10 +1,13 @@
 
+import datetime
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
 from .base_xsg import XSGBaseModel
 from .metadata import Metadata
-import datetime
-import xarray as xr
-import pandas as pd
-import numpy as np
+
 
 class DummyGlobalModel(XSGBaseModel):
     """
@@ -44,7 +47,9 @@ class DummyGlobalModel(XSGBaseModel):
         bb = self.metadata.bounding_box
         lats = np.linspace(bb[0][1], bb[1][1], 180)   # 1 degree increments
         lons = np.linspace(bb[0][0], bb[1][0], 360)  # 1 degree increments
-        times = pd.date_range(self.metadata.start, self.metadata.end, freq=datetime.timedelta(hours=3))
+        times = pd.date_range(self.metadata.start,
+                              self.metadata.end,
+                              freq=datetime.timedelta(hours=3))
         data_shape = (len(times), len(lats), len(lons))
         var_values = 1 + 1 * np.random.randn(*data_shape)
         self.ds = xr.Dataset(

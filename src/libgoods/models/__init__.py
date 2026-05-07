@@ -5,7 +5,7 @@ YAML_DIR = Path(__file__).parent / "metadata"
 # do we need them in the whole namespace?
 
 from .base import BaseModel
-from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SSCOFS, SFBOFS
+from .coops_fvcom import LEOFS, LMHOFS, LOOFS, LSOFS, NGOFS2, SFBOFS, SSCOFS
 from .coops_roms import CBOFS, CIOFS, DBOFS, GOMOFS, TBOFS, WCOFS
 from .doppio import DOPPIO
 from .espc import ESPC
@@ -15,6 +15,7 @@ from .ncom_regional import Alaska, AmSeas, USEast
 from .necofs import NECOFS, BostonHarbor, Hampton, MassCoastal, Scituate
 from .pacific_islands import HIIG, HIOEKG, HIOG, HIOMSAG, HIOMSG, MARIG, SAMOA, WPAC
 from .tamu import TAMU
+
 #from .twdb import CorpusChristiBay, GalvestonBay, MatagordaBay, SabineLake, SanAntonioBay
 from .wfs import TBCOM, WFCOM
 
