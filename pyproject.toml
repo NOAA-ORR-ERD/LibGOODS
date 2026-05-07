@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"] # maybe later "setuptools-scm"]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -39,11 +39,13 @@ dependencies = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "libgoods.__version__"}
 readme = {file = ["README.rst"]}
 
+[tool.setuptools_scm]
+version_file = "src/libgoods/_version.py"
+
 [project.urls]
-# Homepage = "https://example.com"
+Homepage = "https://github.com/NOAA-ORR-ERD/libGOODS"
 # Documentation = "https://readthedocs.org"
 Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 

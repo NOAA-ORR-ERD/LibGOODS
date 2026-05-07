@@ -19,6 +19,7 @@ pyyaml = "*"
 s3fs = "*"
 zarr = "<3"
 awscli = "*"
+pynucos = ">=3.4.1,<4"
 
 [feature.dev.dependencies]
 ipython = "*"
