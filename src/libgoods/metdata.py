@@ -30,7 +30,6 @@ Standard Field names used so far:
  "Unknown" : if it's not clear -- there should be a way to reset this...
  "BAR" : Used on NDBC data -- don't know what it means (atm. pressure?)
 
-
 """
 import copy
 import datetime
@@ -882,7 +881,7 @@ class NDBCReaderClass(MetFileReader):
                 h = int(values[self.Fields['Hour']])
                 try:
                     min = int(values[self.Fields['Minute']])
-                except ValueError:
+                except KeyError:
                     min = 0
                 dt = datetime.datetime(y,mo,d,h,min)
                 Times.append(dt)
