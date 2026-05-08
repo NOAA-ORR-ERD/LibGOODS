@@ -51,7 +51,9 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 
 
 [project.scripts]
-shift_bna = "libgoods.scripting.shift_bna:main"
+lg_shift_bna = "libgoods.scripting.shift_bna:main"
+lg_get_ndbc = "libgoods.NDBC:get_wind_from_ndbc_script"
+
 
 [tool.setuptools]
 include-package-data = true

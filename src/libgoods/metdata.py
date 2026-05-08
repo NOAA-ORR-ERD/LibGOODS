@@ -32,11 +32,13 @@ Standard Field names used so far:
 
 
 """
-import os, datetime, copy
-
-import numpy as np
+import copy
+import datetime
+import os
 
 import nucos
+import numpy as np
+
 
 ## Special Exceptions:
 class MetDataError(Exception):
@@ -137,7 +139,8 @@ class MetData:
             if FileReader is None:
                 PossibleTypes = self.DetectFileType()
                 if len(PossibleTypes) == 0:
-                    raise NoFileTypeMatchError("%s does not match any of the known file types"%FileName)
+                    raise NoFileTypeMatchError(f"{FileName} does not match any of the known "
+                                               "file types")
                 elif len(PossibleTypes) > 1:
                     print("PossibleTypes:")
                     print([r.Type for r in PossibleTypes])
@@ -148,9 +151,9 @@ class MetData:
             self.LoadData()
 
     def __getitem__(self, index):
-       if ( type(index) == type("") or type(index) == type(u"") ):
+        if isinstance(index, str):
            index = (index,)
-       return self.GetFieldsAsArray(index)
+        return self.GetFieldsAsArray(index)
 
     def DetectFileType(self):
         PossibleTypes = []
@@ -202,11 +205,11 @@ class MetData:
         self.Times = [t + shift for t in self.Times]
 
     def ChangeUnits(self, shift, name):
-        raise NotImplimentedError
+        raise NotImplementedError
 
     def TruncateTimeSeries(self, sdate=None, edate=None):
         '''
-        TODO: catch error for out of range data 
+        TODO: catch error for out of range data
         '''
         if sdate is not None:
             sidx = [id for id,date in enumerate(self.Times) if date>=sdate][0]
@@ -229,18 +232,18 @@ class MetData:
         data = self.DataArray[:, (spd_idx, dir_idx)]
         # write the file:
         outfile = open(filename, 'w')
-        outfile.write("%s\n"%self.Name)
+        outfile.write("%s\n"%self.Name) # noqa (should modernize, but not without a test)
         if self.LatLong[0] is not None and self.LatLong[1] is not None:
             print("writing lat-lon:", self.LatLong)
-            outfile.write("%f, %f\n"%tuple(self.LatLong)) ## this needs to be fixed!
+            outfile.write("%f, %f\n"%tuple(self.LatLong)) ## this needs to be fixed! # noqa (should modernize, but not without a test)
         else:
             outfile.write("\n")
-        outfile.write("%s\n"%units)
+        outfile.write("%s\n"%units) # noqa (should modernize, but not without a test)
         tzo = "" if self.TimeZoneOffset is None else self.TimeZoneOffset
         if style == "4line":
-            outfile.write("%s, %s\n"%(str(tzo), self.TimeZone))
+            outfile.write("%s, %s\n"%(str(tzo), self.TimeZone)) # noqa (should modernize, but not without a test)
         else:
-            outfile.write("%s\n"%str(tzo))
+            outfile.write("%s\n"%str(tzo)) # noqa (should modernize, but not without a test)
             outfile.write("0,0,0,0,0,0,0,0\n")
         for t, (speed, dir) in zip(self.Times, data):
             if np.isnan(speed):
@@ -250,10 +253,10 @@ class MetData:
                     dir = 0 # arbitrary
                 else:
                     continue
-            outfile.write("%i, %i, %i, %i, %i, "%(t.day, t.month, t.year, t.hour, t.minute) )
+            outfile.write("%i, %i, %i, %i, %i, "%(t.day, t.month, t.year, t.hour, t.minute) ) # noqa (should modernize, but not without a test)
             # convert speed
             speed = nucos.convert("Velocity", SpeedUnits, units, speed)
-            outfile.write("%.2f, %i\n"%(speed, dir))
+            outfile.write("%.2f, %i\n"%(speed, dir)) # noqa (should modernize, but not without a test)
 
     def SaveAsOSSMWave(self, filename, name=None, units='mps'):
         print("writing:", filename)
@@ -262,22 +265,22 @@ class MetData:
         data = self.DataArray[:, (spd_idx, )]
         # write the file:
         outfile = open(filename, 'w')
-        outfile.write("%s\n"%self.Name)
+        outfile.write("%s\n"%self.Name) # noqa (should modernize, but not without a test)
         try:
-           outfile.write("%f, %f\n"%self.LatLong) ## this needs to be fixed!
+           outfile.write("%f, %f\n"%self.LatLong) ## this needs to be fixed!  # noqa (should modernize, but not without a test)
         except TypeError:
            outfile.write("\n")
 
-        outfile.write("%s\n"%units)
-        outfile.write("%s\n"%self.TimeZone)
+        outfile.write("%s\n"%units) # noqa (should modernize, but not without a test)
+        outfile.write("%s\n"%self.TimeZone) # noqa (should modernize, but not without a test)
         outfile.write("0,0,0,0,0,0,0,0\n")
         for t, (speed) in zip(self.Times, data):
             if np.isnan(speed):
                 continue
-            outfile.write("%i, %i, %i, %i, %i, "%(t.day, t.month, t.year, t.hour, t.minute) )
+            outfile.write("%i, %i, %i, %i, %i, "%(t.day, t.month, t.year, t.hour, t.minute) ) # noqa (should modernize, but not without a test)
             # convert speed
             speed = nucos.convert("Velocity", SpeedUnits, units, speed)
-            outfile.write("%.2f\n"%(speed,))
+            outfile.write("%.2f\n"%(speed,)) # noqa (should modernize, but not without a test)
 
     def GetFieldsAsArray(self, fields):
         """
@@ -291,7 +294,8 @@ class MetData:
 
     def GetFieldsMonthlyAsArray(self, months, fields, ):
         """
-        Returns a numpy array with just the fields specified in fields, and only for the months specified.
+        Returns a numpy array with just the fields specified in fields,
+        and only for the months specified.
 
         months should be a sequence of month indexes, ie: (1,2) for January and February
         """
@@ -316,7 +320,7 @@ class MetData:
         prev_time = self.Times[0]
         for i, time in enumerate(self.Times[1:]):
             if time - prev_time <= datetime.timedelta(0):
-                raise MetDataError("Times are out of sequence at: %s"%time)
+                raise MetDataError(f"Times are out of sequence at: {time}")
         return True
 
     def Copy(self):
@@ -335,22 +339,23 @@ class MetData:
 
         return MD
 
-    def Concatenate(self, new_data):
-        """
-        adds the passed in data to this data set.
-        """
-        # check the time periods of the two:
-        start1 = self.Times[0]
-        end1 = self.Times[-1]
-        start2 = new_data.Times[0]
-        end2 = new_data.Times[-1]
+    # not functional yet
+    # def Concatenate(self, new_data):
+    #     """
+    #     adds the passed in data to this data set.
+    #     """
+    #     # check the time periods of the two:
+    #     start1 = self.Times[0]
+    #     end1 = self.Times[-1]
+    #     start2 = new_data.Times[0]
+    #     end2 = new_data.Times[-1]
 
-        if start1 > start2:
-            first = 1
-        else:
-            first = 2
+    #     if start1 > start2:
+    #         first = 1
+    #     else:
+    #         first = 2
 
-        # check for overlap:
+    #     # check for overlap:
 
 
 
@@ -399,7 +404,7 @@ class OSSM_ReaderClass(MetFileReader):
         infile = open(FileName, 'ur')
         for i in range(4):
             infile.readline()
-        line = infile.readline()
+        infile.readline()
 
     def CheckDataLine(self, line):
         """
@@ -445,7 +450,8 @@ class OSSM_ReaderClass(MetFileReader):
         Times = []
         for line in infile:
             line = line.strip()
-            if not line: continue
+            if not line:
+                continue
             data = line.split(",")
             if data:
                 DataArray.append( (float(data[5]), float(data[6]) ) )
@@ -505,7 +511,7 @@ class OSSM_Wind_ReaderClass(OSSM_ReaderClass):
             elif len(LatLong) == 2:
                 self.LatLong = tuple(LatLong)
             else:
-                raise ValueError( 'Lat-Lon line bad in header: "%s"'%line)
+                raise ValueError(f'Lat-Lon line bad in header: "{line}"')
         # units
         self.Units["WindSpeed"] = infile.readline().strip()
         # time zone:
@@ -573,8 +579,7 @@ class NGDC_ReaderClass(MetFileReader):
     ## These are all possible numbers indicating missing values!
     MissingValues = ("*","**", "***", "*****", "******")
 
-    HeaderLine = 'USAF  WBAN YR--MODAHRMN DIR SPD GUS CLG SKC L M H  VSB WW WW WW W TEMP DEWP    SLP   ALT    STP MAX MIN PCP01 PCP06 PCP24 PCPXX SD'
-    #HeaderLine = ['YR', 'JD', 'PW', 'OW', 'WS', 'WD', 'WG', 'AT', 'WT', 'SA', 'SG', 'TZ', 'AP', 'CD', 'T']
+    HeaderLine = 'USAF  WBAN YR--MODAHRMN DIR SPD GUS CLG SKC L M H  VSB WW WW WW W TEMP DEWP    SLP   ALT    STP MAX MIN PCP01 PCP06 PCP24 PCPXX SD' # noqa
 
     def IsType(self, FileName):
         """
@@ -602,7 +607,7 @@ class NGDC_ReaderClass(MetFileReader):
             if not self.Name:
                 # pull the station number from the first data line
                 # fixme: could there be multiple stations in one file?
-                self.Name = "USAF: %s, NCDC WBAN NUMBER: %s"%(line[0:6], line[7:12])
+                self.Name = f"USAF: {line[0:6]}, NCDC WBAN NUMBER: {line[7:12]}"
             data = line[13:73].split()# only the first part -- all we're parsing
 
             #process date:
@@ -674,16 +679,17 @@ class RawPortsReaderClass(MetFileReader):
     ## These are all possible numbers indicating missing values!
     MissingValues = (99.99, -999, -999.900, -999.99 )
 
-    HeaderLine = ['YR', 'JD', 'PW', 'OW', 'WS', 'WD', 'WG', 'AT', 'WT', 'SA', 'SG', 'TZ', 'AP', 'CD', 'T']
+    HeaderLine = ['YR', 'JD', 'PW', 'OW', 'WS', 'WD', 'WG',
+                  'AT', 'WT', 'SA', 'SG', 'TZ', 'AP', 'CD', 'T']
 
     def IsType(self, FileName):
         """
         Detects whether the given file is this type of met file
 
-        I'm sure this could be much improved -- why not just use LoadData and see if you get an exception?
+        I'm sure this could be much improved
+         -- why not just use LoadData and see if you get an exception?
 
         """
-        Yes = 0
         infile = open(FileName)
         for i, line in enumerate(infile):
             if line.split() == self.HeaderLine:
@@ -705,11 +711,14 @@ class RawPortsReaderClass(MetFileReader):
                 print(infile.readline())
                 break
         if self.StationName is None:
-            raise BadFileTypeError("This does not appear to be a %s file\n It does not have a 'STATION NAME' line"%self.Type)
+            raise BadFileTypeError(f"This does not appear to be a {self.Type} file\n"
+                                   "It does not have a 'STATION NAME' line")
 
         line = infile.readline()
         if line.split() != self.HeaderLine:
-            raise BadFileTypeError("This does not appear to be a %s file\nIt does not have the right Header line after the 'STATION NAME'"%self.Type)
+            raise BadFileTypeError(f"This does not appear to be a {self.Type} file\n"
+                                   "It does not have the right Header line after "
+                                   "the 'STATION NAME'")
         infile.readline()
         infile.readline()
 
@@ -723,7 +732,7 @@ class RawPortsReaderClass(MetFileReader):
             if not line:
                 break
             values = line[2:11]
-            TZ = line[11]
+            TZ = line[11] # noqa # we may use that some day
             values.append(line[12])
             mo, d, y = line[13].split('/')
             h, mi, s = line[14].split(':')
@@ -745,11 +754,14 @@ class NDBCReaderClass(MetFileReader):
     """
     Class for reading data from the NDBC historical archives or Real time data
 
-    Amy 11/09: Included year,month,day,hour,min column in field mapping -- since there are so many variations
+    Amy 11/09: Included year,month,day,hour,min column in field mapping
+    -- since there are so many variations
 
     """
-    ##fixme -- this is going to have to be much smarter -- reading the header to figure out what fields are there. ARRGG!!
-    ## Amy 11/09 made it a litte bit smarter -- it handles all NDBC archives formats, real-time and continuous winds formats
+    ## fixme -- this is going to have to be much smarter -- reading the header to figure out
+    ##   what fields are there. ARRGG!!
+    ## Amy 11/09 made it a little bit smarter -- it handles all NDBC archives formats,
+    ## real-time and continuous winds formats
 
     Type = "NDBC"
 
@@ -835,7 +847,8 @@ class NDBCReaderClass(MetFileReader):
             self.Name = os.path.split(FileName)[-1].rsplit(".")[0]
         infile = open(FileName)
         if not self.IsType(FileName):
-            raise BadFileTypeError("This does not appear to be a %s file\n It does not have the correct header line"%self.Type)
+            raise BadFileTypeError(f"This does not appear to be a {self.Type} file\n"
+                                   "It does not have the correct header line")
 
         ## load the data
         Header = infile.readline().split()
@@ -849,7 +862,8 @@ class NDBCReaderClass(MetFileReader):
             line = line.split()
             try: #sometimes there is a second headerline
                 values = [float(v) for v in line]
-                if len(values) == Header_len: #sometimes the number of data columns abruptly changes!
+                # sometimes the number of data columns abruptly changes!
+                if len(values) == Header_len:
                     self.DataArray.append(values)
                 elif len(values) > Header_len:
                     self.DataArray.append(values[:Header_len])
@@ -868,7 +882,7 @@ class NDBCReaderClass(MetFileReader):
                 h = int(values[self.Fields['Hour']])
                 try:
                     min = int(values[self.Fields['Minute']])
-                except:
+                except ValueError:
                     min = 0
                 dt = datetime.datetime(y,mo,d,h,min)
                 Times.append(dt)
@@ -913,7 +927,7 @@ class NCDC_LCD_ReaderClass(MetFileReader):
     ## These are all possible numbers indicating missing values!
     MissingValues = (-99999, )
 
-    HeaderLine = "WBAN,Date,Time,StationType,SkyCondition,SkyConditionFlag,Visibility,VisibilityFlag,WeatherType,WeatherTypeFlag,DryBulbFarenheit,DryBulbFarenheitFlag,DryBulbCelsius,DryBulbCelsiusFlag,WetBulbFarenheit,WetBulbFarenheitFlag,WetBulbCelsius,WetBulbCelsiusFlag,DewPointFarenheit,DewPointFarenheitFlag,DewPointCelsius,DewPointCelsiusFlag,RelativeHumidity,RelativeHumidityFlag,WindSpeed,WindSpeedFlag,WindDirection,WindDirectionFlag,ValueForWindCharacter,ValueForWindCharacterFlag,StationPressure,StationPressureFlag,PressureTendency,PressureTendencyFlag,PressureChange,PressureChangeFlag,SeaLevelPressure,SeaLevelPressureFlag,RecordType,RecordTypeFlag,HourlyPrecip,HourlyPrecipFlag,Altimeter,AltimeterFlag".split(',')
+    HeaderLine = "WBAN,Date,Time,StationType,SkyCondition,SkyConditionFlag,Visibility,VisibilityFlag,WeatherType,WeatherTypeFlag,DryBulbFarenheit,DryBulbFarenheitFlag,DryBulbCelsius,DryBulbCelsiusFlag,WetBulbFarenheit,WetBulbFarenheitFlag,WetBulbCelsius,WetBulbCelsiusFlag,DewPointFarenheit,DewPointFarenheitFlag,DewPointCelsius,DewPointCelsiusFlag,RelativeHumidity,RelativeHumidityFlag,WindSpeed,WindSpeedFlag,WindDirection,WindDirectionFlag,ValueForWindCharacter,ValueForWindCharacterFlag,StationPressure,StationPressureFlag,PressureTendency,PressureTendencyFlag,PressureChange,PressureChangeFlag,SeaLevelPressure,SeaLevelPressureFlag,RecordType,RecordTypeFlag,HourlyPrecip,HourlyPrecipFlag,Altimeter,AltimeterFlag".split(',') #noqa
 
     def IsType(self, FileName):
         """
@@ -922,7 +936,6 @@ class NCDC_LCD_ReaderClass(MetFileReader):
         I'm sure this could be much improved -- why not just use LoadData?
 
         """
-        Yes = 0
         infile = open(FileName)
         for i, line in enumerate(infile):
             if line.strip().split(",") == self.HeaderLine:
@@ -947,7 +960,8 @@ class NCDC_LCD_ReaderClass(MetFileReader):
                 break
             count += 1
         else:
-            raise BadFileTypeError("This does not appear to be a %s file\n It does not have a the right header line."%self.Type)
+            raise BadFileTypeError(f"This does not appear to be a {self.Type} file\n"
+                                   "It does not have a the right header line.")
 
         ## load the data
         DataArray = []

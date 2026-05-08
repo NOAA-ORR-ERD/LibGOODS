@@ -1,9 +1,11 @@
 import datetime
-import os
-import requests
+import sys
 import tempfile
+
 import numpy as np
+import requests
 from netCDF4 import Dataset, num2date
+
 from . import metdata
 
 
@@ -38,7 +40,7 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
     tz : str
         The timezone offset string (e.g., '-07') to apply for time conversion.
     number_days_ago : int or str
-        The number of days before preent  to keep in the time series;
+        The number of days before present  to keep in the time series;
         data is truncated to the latest `time_period` days.
         Max is 45 days ago for this source
 
@@ -48,7 +50,6 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
     metdata.MetData
         A populated object containing time series for 'WindDirection' (degrees)
         and 'WindSpeed' (m/s or original units), along with available station metadata
-
     """
 
 
@@ -57,15 +58,16 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
 
     if r.status_code == 404:
         error_msg = (
-            "Error reading from url: "
-            + NDBC_url
-            + ". Either the station does not exist or there is no recent data."
+            f"Error getting data for station: {station}\n"
+            f"url: {NDBC_url}\n"
+            "Either the station does not exist or there is no recent data."
         )
         raise ValueError(error_msg)
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmpf:
         tmpf.write(r.text)
-        data = metdata.MetData(tmpf.name) # TODO: MetData object should be refactored to be able to take data directly
+        # TODO: MetData object should be refactored to be able to take data directly
+        data = metdata.MetData(tmpf.name)
 
     sdate = data.Times[-1] - datetime.timedelta(days=int(number_days_ago))
     data.TruncateTimeSeries(sdate=sdate)
@@ -79,25 +81,19 @@ def write_osm_file(data,  out_file_name=None):
     """
     Writes NDBC recent station data into the OSM wind format using the metdata module.
 
-    This function fetches NDBC data from a URL for a specified station, processes it using
-    metdata.MetData, truncates the time series to the specifed number of days ago,
-    changes the timezone, and saves the resulting wind data to a file.
-
     Parameters
     ----------
     data : metdata.Metdata object
 
-    tz : str
-        The timezone offset string (e.g., '-07') to apply for time conversion.
-
     out_file_name : str
         The file path for the output OSM wind format file. If None the
         Name attribute from the Data object is used
-
     """
 
     if out_file_name is None:
-        out_file_name = data.Name + '.osm'
+        t_start = data.Times[0].strftime('%m-%d-%y')
+        t_end = data.Times[-1].strftime('%m-%d-%y')
+        out_file_name = f"{data.Name}-{t_start}--{t_end}.osm"
     data.SaveAsOSSMWind(out_file_name, units="knots")
 
 
@@ -135,7 +131,7 @@ def get_historical_data_TDS(station, year=None, tz='00'):
     """
 
     try:
-        server_url_base = "http://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/" + str(station).lower() + "/"
+        server_url_base = "http://dods.ndbc.noaa.gov/thredds/dodsC/data/stdmet/" + str(station).lower() + "/" # noqa
         if year is not None:
             server_url = server_url_base + str(station).lower()  + "h" + str(year) + ".nc"
         else:
@@ -271,5 +267,54 @@ def plot(data):
     out_file_name = data.Name + '.png'
     plt.savefig(out_file_name, format="png")
     plt.close(fig)
+
+def get_wind_from_ndbc_script():
+    """
+    Top level script to download the recent wind data
+    """
+    USAGE = """lg_get_ndbc station id timezone_offset [days past]
+    example:
+
+    lg_get_ndbc GISL1 -6 10
+
+    Gets the last 10 days of data from
+    Station GISL1 - 8761724 - Grand Isle, LA
+    And converts it to UTC -6 timezone.
+
+    Leaving number of days off results in all the data
+    (usually 45 days)
+
+    OSSM format file is created with the name:
+    <station_id.osm>
+
+    """
+    USAGE += get_recent_data_from_url.__doc__
+
+    try:
+        station = sys.argv[1]
+    except IndexError:
+        print(USAGE)
+        sys.exit(1)
+    try:
+        tz_offset = sys.argv[2]
+    except IndexError:
+        print("You must provide a timezone offset (0 for UTC)")
+        print (USAGE)
+        sys.exit(1)
+    try:
+        number_days_ago = int(sys.argv[3])
+    except IndexError:
+        number_days_ago = 45
+
+    data = get_recent_data_from_url(station, tz_offset, number_days_ago)
+    write_osm_file(data)
+
+
+
+
+
+
+
+
 
 
