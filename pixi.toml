@@ -30,11 +30,11 @@ ruff = "*"
 libgoods = { path = ".", editable = true }
 
 [feature.build.dependencies]
+git = "*" # git may not be there on the CI -- needed for setuptools_scm
 pip = "*"
 python-build = "*"
 setuptools = ">=80"
 setuptools-scm = ">=8"
-
 
 [feature.test.dependencies]
 pytest = "*"
