@@ -13569,8 +13569,8 @@ packages:
   timestamp: 1771382118742
 - pypi: ./
   name: libgoods
-  version: 2.2.3.dev16+g79fdf1d3d
-  sha256: f0c2a85549a8a970e1e7b68a63a93daf95026f6e3e7ad627705d5f81636dbf9a
+  version: 2.2.3.dev19+g86e54da2b.d20260508
+  sha256: 7e04f8f519cd0d532e58fdafcd3688697bf4c5f36c30f094263b59f13c20d949
   requires_dist:
   - xarray-subset-grid>=0.1.0
   - netcdf4

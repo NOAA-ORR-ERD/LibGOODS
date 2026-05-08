@@ -66,12 +66,11 @@ libgoods = ["shoreline_data/nos_shoreline/*",
             "shoreline_data/gshhg/**/*",
             "models/metadata/*.yaml",
             "tests/test_utilities/data_files/*",
+            "tests/sample_metdata/*",
             ]
 # I could not get exclude to work ?????
-# [tool.setuptools.exclude-package-data]
-# # these are really big -- excluding them until they are used.
-# libgoods = ["shoreline_data/OpenStreetMap/land-polygons-complete-4326/*",
-#             "shoreline_data/AK_CUSP/*"]
+# setuptools_scm overrides it anyway
+# MANIFEST.in has it
 
 [tool.ruff]
 builtins = ["ellipsis"]
