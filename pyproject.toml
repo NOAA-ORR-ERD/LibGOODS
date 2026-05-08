@@ -53,7 +53,7 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 [project.scripts]
 shift_bna = "libgoods.scripting.shift_bna:main"
 
-[tools.setuptools]
+[tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]

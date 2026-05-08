@@ -1,0 +1,4 @@
+# Exclude entire directories
+prune src/libgoods/shoreline_data/AK_CUSP
+prune src/libgoods/shoreline_data/OpenStreetMap
+
