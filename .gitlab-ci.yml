@@ -10,9 +10,9 @@ stages:
   - test_multi_py
   - build
 
-cache:
-  paths:
-   - ./.pixi
+# cache:
+#   paths:
+#    - ./.pixi
 
 lint_libgoods:
   stage: lint
