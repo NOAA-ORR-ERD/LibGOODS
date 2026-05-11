@@ -53,7 +53,7 @@ Repository = "https://github.com/NOAA-ORR-ERD/libGOODS"
 [project.scripts]
 lg_shift_bna = "libgoods.scripting.shift_bna:main"
 lg_get_ndbc = "libgoods.NDBC:get_wind_from_ndbc_script"
-
+lg_build_cache = "libgoods.scripting.build_cache:main"
 
 [tool.setuptools]
 include-package-data = true
@@ -75,7 +75,7 @@ libgoods = ["shoreline_data/nos_shoreline/*",
 [tool.ruff]
 builtins = ["ellipsis"]
 # extend-exclude = ["xarray_subset_grid/_version.py"]
-target-version = "py310"
+target-version = "py312"
 # Use a longer line length.
 line-length = 100
 

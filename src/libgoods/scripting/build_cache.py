@@ -134,15 +134,16 @@ def purge_forecast_files():
 
     for model in models:
         d = get_last_nowcast_date(model)
-        print(d)
         for root, dirs, files in (CACHE_DIR / model / "netcdf").walk():
-            print(f"Current Directory: {root}")
             if str(root).endswith(f"{d.year:04}/{d.month:02}/{d.day:02}"):
-                print("it's the current one:")
-                raise Exception
-            for file in files:
-                file_path = root / file
-                # print(f"File: {file_path}")
+                pass
+            else:
+                for file in files:
+                    file_path = root / file
+                    if str(file_path).split(".")[-2][0] == 'f':
+                        print("{file_path}\nis a forecast file: removing it")
+                        file_path.unlink()
+
 
 
 def build_aws_sync_commands(MODEL, PATTERN, start_date, end_date):
@@ -217,42 +218,12 @@ def run_in_parallel(commands):
         print(result)
 
 
-# Google's version --might want to borrow some of this.
-# def run_command(command):
-#     """Function to execute a command and return its completion status."""
-#     try:
-#         # subprocess.run is good for simple commands and blocks the worker process until completion
-#         subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#         return f"Command '{command}' finished successfully."
-#     except subprocess.CalledProcessError as e:
-#         return f"Command '{command}' failed with error: {e.stderr.decode()}"
-
-    # # List of commands to run
-    # commands = [
-    #     'echo "hello from command 1" && sleep 1',
-    #     'echo "hello from command 2" && sleep 2',
-    #     'echo "hello from command 3" && sleep 1',
-    #     'echo "hello from command 4" && sleep 3',
-    #     'non_existing_command', # Example of a failing command
-    # ]
-
-# Set the number of parallel processes (e.g., number of CPU cores)
-
-
-
 # There should be some way to get this list from libgoods.
 
 ALL_MODELS = [
             'wcofs', 'sscofs', 'ngofs2', 'cbofs', 'tbofs', 'dbofs', 'gomofs',
             'ciofs', 'sfbofs', 'leofs', 'loofs', 'lmhofs', 'lsofs'
         ]
-
-USAGE = ('You need to pass in the number of days back, and\n'
-         'a list of models to cache, or "all" for all models.\n'
-         f'Options are: {ALL_MODELS}\n'
-         'Example:\n'
-         'build_cache 3 cbofs')
-
 
 def sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL):
 
@@ -290,7 +261,7 @@ def sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL):
             pattern = '2ds'
         else:
             pattern = 'fields'
-        forecast_comands, nowcast_commands = build_aws_sync_commands(
+        forecast_commands, nowcast_commands = build_aws_sync_commands(
                                                 model,
                                                 pattern,
                                                 start_date,
@@ -302,8 +273,7 @@ def sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL):
     run_in_parallel(forecast_commands)
 
 
-if __name__ == "__main__":
-
+def main():
     try:
         days_back = int(sys.argv[1])
         models = sys.argv[2:]
@@ -318,12 +288,31 @@ if __name__ == "__main__":
     end_date = datetime.date.today()
     start_date = end_date - datetime.timedelta(days=days_back)
 
+    print("Syncing:", models)
     sync_nos_aws(models, start_date, end_date, num_parallel=NUM_PARALLEL)
 
-    print("Syncing:", models)
+    print("Purging old forecast files")
+    purge_forecast_files()
 
 
+USAGE = ("\nlg_build_cache num_days model_id1, model_id2\n\n"
+         "You need to pass in the number of days back, and\n"
+         "a list of models to cache, or 'all' for all models.\n"
+         f"Options are: {ALL_MODELS}\n"
+         "Example:\n\n"
+         "build_cache 3 cbofs\n\n"
+         "Will download the last three days of the CBOFS model"
+         "The path is set to the value of LIBGOODS_CACHE environment variable.\n"
+         "If LIBGOODS_CACHE doesn't exist, the cache is `./libgoods-cache`\n"
+         "in the current working directory.\n\n"
 
+         "NOTE: you can specify a start and end date if you call the code directly\n"
+         "      from libgoods: `libgoods.scripting.build_cache.sync_nos_aws()`"
+         )
+
+
+if __name__ == "__main__":
+    main()
 
 
 
