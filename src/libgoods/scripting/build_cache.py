@@ -87,17 +87,6 @@ def get_last_nowcast_date(model):
 
     return last_nowcast_date
 
-def get_forecast_files(model):
-    """
-    This will sync the forecast files -- going from
-    the last nowcast file forward 6? days
-    now to forward.
-    """
-    # first see how far the nowcast files go
-    model_dir = CACHE_DIR / model
-    last_nowcast_file = sorted(model_dir.rglob("*n0??.nc"))[-1]
-    year, month, day = (int(n) for n in str(last_nowcast_file).split("/")[-4:-1])
-    last_nowcast_date = datetime.date(year,  month, day)
 
 def build_aws_command(model, date, which_set, cast):
     """
@@ -170,7 +159,8 @@ def build_aws_sync_commands(MODEL, PATTERN, start_date, end_date):
 
     # nowcast files
     if end_date > today:
-        dates = [today + datetime.timedelta(days=1)] # extra to make sure -- could be the next day in UTC
+        # extra day to make sure -- could be the next day in UTC
+        dates = [today + datetime.timedelta(days=1)]
     else:
         dates = [end_date]
     while dates[-1] > start_date:
@@ -193,7 +183,7 @@ def build_aws_sync_commands(MODEL, PATTERN, start_date, end_date):
 def run_command(command):
     print("Starting Up:", command)
     try:
-        result = subprocess.run(command)
+        result = subprocess.run(command)  #noqa: F841
         return "aws sync command finished"
     except subprocess.CalledProcessError as e:
         return f"Command '{command}' failed with error: {e.stderr.decode()}"

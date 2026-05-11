@@ -155,11 +155,12 @@ class XSGBaseModel(BaseModel):
             self.ds = self.ds.assign_coords(**{lc: new_lon})
 
     def write_nc(self, ofn="test.nc", close_ds=True):
-        try:
-            self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
-       # fixme: what exception might be raised here??
-        except:
-            self.ds.to_netcdf(ofn)
+        """
+        write the netCDF file
+        """
+        # NOTE: we used to get an error on something with the unlimited_dims flag
+        #       it may crop up again, and could be wrapped in a try: except.
+        self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
         if close_ds:
             self.ds.close()
 
