@@ -1,7 +1,7 @@
-from libgoods import api, config, models
 import datetime
 from pathlib import Path
 
+from libgoods import api
 
 # need to add sfbofs in once we support that
 supported_models = ['wcofs', 'sscofs', 'ngofs2', 'cbofs', 'tbofs', 'dbofs', 'sfbofs',

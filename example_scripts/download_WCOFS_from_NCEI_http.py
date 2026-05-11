@@ -1,6 +1,7 @@
-from pathlib import Path
-import requests
 from datetime import datetime
+from pathlib import Path
+
+import requests
 
 base_url = "https://www.ncei.noaa.gov/data/operational-nowcast-and-forecast-hydrodynamic-model-systems-co-ops/access/west-coast-operational-forecast-system-wcofs/"
 

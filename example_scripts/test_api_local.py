@@ -1,6 +1,7 @@
-from libgoods import api, config, models
 import datetime
 from pathlib import Path
+
+from libgoods import api, config
 
 # Test uisng local version of libgoods archive
 local_archive_dir = Path.cwd().parent.parent / 'webgnomeapi' / 'libgoods-cache'

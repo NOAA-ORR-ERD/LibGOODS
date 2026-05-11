@@ -2,8 +2,9 @@
 #You'll need to point to the path for the shapefiles for this to work
 #I have't decided where they should go
 
-from libgoods import shoreline
 from pathlib import Path
+
+from libgoods import shoreline
 
 shpfile_path = Path(__file__).parents[1] / 'shoreline_data'
 shpfile = shpfile_path / "AK_CUSP" / "AK_CUSP_polygon_20240221.shp"

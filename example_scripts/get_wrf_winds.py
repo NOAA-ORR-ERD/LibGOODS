@@ -1,6 +1,7 @@
-from libgoods.file_processing import rect_model
 import datetime
 import os
+
+from libgoods.file_processing import rect_model
 
 url = 'https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/wrf_cnmi/WRF_CNMI_Regional_Atmospheric_Model_best.ncd'
 start = datetime.datetime.today()

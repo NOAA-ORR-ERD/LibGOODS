@@ -11,10 +11,9 @@ import os
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from libgoods import metdata
-
-import pytest
 
 HERE = Path(__file__).parent
 TestDataDir = HERE / "sample_metdata"
@@ -119,7 +118,7 @@ def test_months(DummyData):
                               ])
 
 
-def test_months(DummyData):
+def test_months2(DummyData):
     a = DummyData.GetFieldsMonthlyAsArray(
         (11,), ("WindSpeed", "WindDirection"), )
     assert np.array_equal(a, [[15, 340],
@@ -130,7 +129,6 @@ def test_ChangeTZ_None(DummyData):
     Shouldn't be able to change it if it's not set.
     """
     MD = DummyData
-    first_dt = MD.Times[0]
 
     shift = -5
     name = "Eastern Standard Time"
@@ -617,10 +615,13 @@ def test_BrokenPorts():
 #    def testRead1(self):
 #        self.assertEquals(self.Reader.DataArray.shape, (120, 14))
 #
-#    def testRead2(self):
-#        a = np.array([240., 2., 3., 1.3, 10., np.nan, np.nan, 1008.1, 16.8, 20.4, np.nan, np.nan, -0.5, np.nan])
-#        b =  self.Reader.DataArray[-5]
-#        self.assertTrue(np.alltrue(a[~np.isnan(a)] == b[~np.isnan(b)]) )
+   # def testRead2(self):
+   #     a = np.array([
+   #         240., 2., 3., 1.3, 10., np.nan, np.nan, 1008.1, 16.8, 20.4, np.nan, np.nan, -0.5,
+   #         np.nan
+   #     ])
+   #     b = self.Reader.DataArray[-5]
+   #     self.assertTrue(np.alltrue(a[~np.isnan(a)] == b[~np.isnan(b)]))
 #
 ### ["NDBC-Continuous-Wind", "46047_5day.cwind"]
 # class TestNDBC_Cont_Wind_Reader(unittest.TestCase):

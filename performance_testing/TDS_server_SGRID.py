@@ -4,10 +4,9 @@ example of hitting a TDS server for a structured grid
 To be used for experimenting with performance.
 
 """
-from datetime import datetime
-from libgoods.api import models
-
 from timer import Timer
+
+from libgoods.api import models
 
 start = "2025-06-23T00:00"
 end = "2025-07-23T00:00"

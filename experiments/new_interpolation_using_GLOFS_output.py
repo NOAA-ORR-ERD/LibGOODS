@@ -6,24 +6,22 @@
 # Email: soyang@umich.edu;
 # Date of completion: 06/12/2024
 
-import numpy as np
-import netCDF4 as nc
+import math
+
+import cartopy.crs as ccrs
+import gridded
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
-from datetime import datetime
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import detect_points as dp
-from matplotlib.path import Path
-import gridded
+import netCDF4 as nc
+import numpy as np
+import triangle
 from gridded.grids import UGrid
+from matplotlib.collections import LineCollection
+
 # from gridded.plotting.mpl_plotting import plot_ugrid
 from matplotlib.tri import Triangulation
-from matplotlib.collections import  LineCollection
-import triangle
-import math
-import matplotlib
+
 matplotlib.use('TKAgg') # Or 'Qt5Agg', 'Agg'，choose according to your requirements
 
 
@@ -69,7 +67,7 @@ def find_index(triangle_nodes, edges):
         for edge in edges:
             triangle_list = triangle.tolist()
             if edge[0] in triangle_list and edge[1] in triangle_list: # find the number of the triangle that contains boder_edges
-                triangle_rows.append((i))
+                triangle_rows.append(i)
                 node = [x for x in triangle_list if x != edge[0] and x != edge[1]]
                 three_nodes=[int(edge[0]),int(edge[1]),node[0]] # find the vertice number of the triangle that contains boder_edges
 
@@ -285,8 +283,8 @@ lat=ncfile.variables['lat'][:] # latitude at nodes
 lon=ncfile.variables['lon'][:] # longitude at nodes
 latc=ncfile.variables['latc'][:] # latitude at elements
 lonc=ncfile.variables['lonc'][:] # longitude at elements
-x=ncfile.variables['x'][:] 
-y=ncfile.variables['y'][:] 
+x=ncfile.variables['x'][:]
+y=ncfile.variables['y'][:]
 xc=ncfile.variables['xc'][:]
 yc=ncfile.variables['yc'][:]
 nvt=nv.transpose()

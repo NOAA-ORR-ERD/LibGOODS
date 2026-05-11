@@ -4,7 +4,8 @@ timer for performance testing
 
 from datetime import datetime
 
-class Timer():
+
+class Timer:
     """
     What to time mutiple steps in a process.
 

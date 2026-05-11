@@ -11,14 +11,13 @@ File type (fields or 2ds set to mirror what's in the libGOODS archive on servers
 """
 
 import datetime
-from pathlib import Path
 import os
 import subprocess
 import sys
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 from libgoods.utilities import asdate
-
-from concurrent.futures import ProcessPoolExecutor
 
 AWS_OFS_ENDPOINT = "s3://noaa-nos-ofs-pds/"
 

@@ -18,8 +18,8 @@ Takes a long time to run through them all linearly.
 
 
 import fiona
+from shapely import box
 from shapely.geometry import shape
-from shapely import  box
 
 # Near Seattle: Elliot Bay
 
@@ -94,7 +94,7 @@ def write_poly(bna_file, sub_poly):
     write_ring(bna_file, sub_poly.exterior.coords)
 
 
-with fiona.open(OSM_file, 'r') as source, open(outfilename, 'wt') as bna_file:
+with fiona.open(OSM_file, 'r') as source, open(outfilename, 'w') as bna_file:
     num_polys = 0
     for i, f in enumerate(source):
     # for i, f in [(87719, source[87719])]:

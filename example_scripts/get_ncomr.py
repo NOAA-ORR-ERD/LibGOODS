@@ -1,7 +1,8 @@
+import os
+
+import numpy as np
 import requests
 import xarray as xr
-import numpy as np
-import os
 
 #!!!!!This script requires cfgrib installed in your environment
 

@@ -11,8 +11,9 @@ WARNING: the surface case is not as robust and can take repeated times to
     returned.  Running the script repeatidly tends to eventually lead to a 
     good connection.     
 """
-from libgoods import api
 import datetime
+
+from libgoods import api
 
 # user specifications
 model_id = 'ESPC'
@@ -52,9 +53,9 @@ def make_netcdf_ocean_uvTS(model_id, start, end, bounds, env_params, location_ta
         The function writes the subset of model results to NetCDF files where 
         script is called.
     """
-    
+
     depth = "surface" if "surface currents" in env_params else "3D"
-        
+
     # Initialize an empty list to store the models that will be processed.
     models_to_process = []
 
