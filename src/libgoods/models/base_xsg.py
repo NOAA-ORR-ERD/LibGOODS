@@ -160,7 +160,10 @@ class XSGBaseModel(BaseModel):
         """
         # NOTE: we used to get an error on something with the unlimited_dims flag
         #       it may crop up again, and could be wrapped in a try: except.
-        self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+        try:
+            self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+        except ValueError: # GFS has something weird with unlimited dims that xarray barfs on
+            self.ds.to_netcdf(ofn)
         if close_ds:
             self.ds.close()
 
