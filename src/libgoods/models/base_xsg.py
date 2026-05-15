@@ -139,6 +139,7 @@ class XSGBaseModel(BaseModel):
         vars2include = [self.standard_names[v] for v in variable_list]
 
         self.ds = self.ds.xsg.subset_vars(vars2include)
+        self.parse_time_dim_coords()
 
     def normalize_longitude(self):
         """
