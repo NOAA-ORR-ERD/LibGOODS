@@ -9,6 +9,7 @@ stages:
   - test
   - test_multi_py
   - build
+  - test_op_servers
 
 # cache:
 #   paths:
@@ -36,6 +37,13 @@ test_multi_py:
     - pixi run -e test312 test
     - pixi run -e test313 test
     - pixi run -e test314 test
+
+test_operational_services:
+  stage: test_op_servers
+  allow_failure: false
+  image: $IMAGE_NAME
+  script:
+    - pixi run ops_tests
 
 build_wheel:
   stage: build

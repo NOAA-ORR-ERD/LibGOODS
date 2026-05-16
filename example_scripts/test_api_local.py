@@ -3,14 +3,14 @@ from pathlib import Path
 
 from libgoods import api, config
 
-# Test uisng local version of libgoods archive
+# Test using local version of libgoods archive
 local_archive_dir = Path.cwd().parent.parent / 'webgnomeapi' / 'libgoods-cache'
 
 config.archive_dir = local_archive_dir
 
 # need to add sfbofs in once we support that
 local_models = ['wcofs', 'sscofs', 'ngofs2', 'cbofs', 'tbofs', 'dbofs', 'sfbofs',
-                    'gomofs', 'ciofs',  'leofs', 'loofs', 'lmhofs', 'lsofs']
+                'gomofs', 'ciofs',  'leofs', 'loofs', 'lmhofs', 'lsofs']
 
 
 ep = ['surface currents']

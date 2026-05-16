@@ -63,6 +63,10 @@ test314 = [ "py314", "test", "build"]
 [tasks]
 install = { cmd = "pip install -v --no-deps --root-user-action=ignore ./", default-environment = "build"}
 build_wheel = {cmd = "python -m build ./", default-environment = "build"}
+
 test = { cmd = "pytest --pyargs libgoods", depends-on = ["install"] }
+
 lint = { cmd = "ruff check src/libgoods", default-environment = "dev"}
+
+ops_tests = { cmd = "operational_tests/run_all.py", depends-on = ["install"]}
 
