@@ -13,6 +13,7 @@ from . import (
     NonIntersectingSubsetError,
     NonIntersectingTimeIntervalError,
     NWS_point,
+    NDBC,
     config,
     models,
     shoreline,
@@ -287,3 +288,11 @@ def get_map(
     contents = open(filename).read()
 
     return filename, contents
+
+
+def get_NDBC_wind(station, tz_offset="00", number_days_ago=45):
+
+    wind_data = NDBC.get_recent_data_from_url(station, tz_offset, number_days_ago)
+    json_data = NDBC.format_JSON(wind_data)
+    json_data['buoy_id'] = station
+    return json_data

@@ -9,7 +9,7 @@ from netCDF4 import Dataset, num2date
 from . import metdata
 
 
-def get_recent_data_from_url(station, tz='00', number_days_ago=45):
+def get_recent_data_from_url(station, tz=0, number_days_ago=45):
     """
     This function retrieves recent NDBC data from a URL for a specified station,
     and uses metdata.MetData to truncate the time series to the specifed number of days ago,
@@ -35,10 +35,10 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
 
     Parameters
     ----------
-    station : str
+    station : int or str
         The NDBC station identifier or URL used to fetch the data.
-    tz : str
-        The timezone offset string (e.g., '-07') to apply for time conversion.
+    tz : int or str
+        The timezone offset (e.g., -7) to apply for time conversion.
     number_days_ago : int or str
         The number of days before present  to keep in the time series;
         data is truncated to the latest `time_period` days.
@@ -53,7 +53,7 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
     """
 
 
-    NDBC_url = "http://www.ndbc.noaa.gov/data/realtime2/" + station + ".txt"
+    NDBC_url = "http://www.ndbc.noaa.gov/data/realtime2/" + str(station) + ".txt"
     r = requests.get(NDBC_url)
 
     if r.status_code == 404:
@@ -71,11 +71,51 @@ def get_recent_data_from_url(station, tz='00', number_days_ago=45):
 
     sdate = data.Times[-1] - datetime.timedelta(days=int(number_days_ago))
     data.TruncateTimeSeries(sdate=sdate)
-    data.ChangeTZ(int(tz), tz)
+    data.ChangeTZ(int(tz), str(tz).zfill(2))
     data.Name = station
 
     return data
 
+def format_JSON(data):
+    """
+    formats the data dict into a JSON-compatible dict
+    This should possibly be handled by metdata
+
+    Parameters
+    ----------
+    data : MetData object
+
+    Returns
+    -------
+    json dict compatible with webgnome
+
+    """
+    webgnome = dict()
+
+    webgnome["latitude"] = 48.0
+    webgnome["longitude"] = -130.0
+    webgnome["name"] = data.Name
+    webgnome["units"] = data.Units['WindSpeed']
+    webgnome["tz"] = data.TimeZoneOffset
+    spd_idx = data.Fields["WindSpeed"]
+    dir_idx = data.Fields["WindDirection"]
+    spd = data.DataArray[:, (spd_idx)]
+    dir = data.DataArray[:, (dir_idx)]
+
+    ts = []
+    for i, t in enumerate(data.Times):
+        if np.isnan(spd[i]):
+            continue
+        if np.isnan(dir[i]):
+            if spd[i] == 0.0: # we can still use it if speed is zero
+                dir[i] = 0 # arbitrary
+            else:
+                continue
+        ts.append((t.isoformat(), (spd[i], dir[i])))
+    webgnome["timeseries"] = ts
+
+    # return json.dumps(webgnome)
+    return webgnome
 
 def write_osm_file(data,  out_file_name=None):
     """
