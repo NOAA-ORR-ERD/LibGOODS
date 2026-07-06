@@ -11,4 +11,4 @@ siphon
 fiona
 cfgrib
 zarr<3
-
+pynucos
