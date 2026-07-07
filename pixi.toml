@@ -1,4 +1,5 @@
 [workspace]
+name = "libgoods"
 authors = ["Chris Barker <Chris.Barker@noaa.gov>",
            "Amy MacFadyen <amy.macfadyen@noaa.gov>"]
 channels = ["https://prefix.dev/conda-forge"]
@@ -13,6 +14,7 @@ requests = "*"
 shapely = "*"
 pandas = "*"
 siphon = "*"
+dask = "*"
 fiona = "*"
 cfgrib = "*"
 pyyaml = "*"
