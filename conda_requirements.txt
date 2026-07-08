@@ -1,5 +1,6 @@
 python>=3.10,<3.15
 xarray-subset-grid
+dask
 netCDF4
 numpy
 requests

@@ -64,6 +64,7 @@ test314 = [ "py314", "test", "build"]
 
 [tasks]
 install = { cmd = "pip install -v --no-deps --root-user-action=ignore ./", default-environment = "build"}
+
 build_wheel = {cmd = "python -m build ./", default-environment = "build"}
 
 test = { cmd = "pytest --pyargs libgoods", depends-on = ["install"] }
