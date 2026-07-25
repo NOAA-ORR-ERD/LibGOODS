@@ -38,3 +38,5 @@ class BaseModel:
                 f"{self.metadata.long_name} "
                 )
 
+    def subset_time(self, start_time, end_time):
+        raise NotImplementedError("subset time not defined for this model class")

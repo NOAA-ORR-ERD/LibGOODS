@@ -1,9 +1,11 @@
+import warnings
+
 import fsspec
 import pandas as pd
 import xarray as xr
 import xarray_subset_grid
 
-from libgoods.utilities import convert_longitude
+from libgoods.utilities import asdatetime, convert_longitude, flatten_bbox
 
 from .base import BaseModel
 
@@ -12,7 +14,7 @@ class XSGBaseModel(BaseModel):
     '''
     Base class for all models that can be accessed/subset using xarray_subset_grid
     '''
-
+    time_dims = None  # just so it's there
     def open_ds_tds(self, url):
         ds = xr.open_dataset(
             url,
@@ -68,9 +70,14 @@ class XSGBaseModel(BaseModel):
 
         self.ds = ds
         self.parse_time_dim_coords()
-        t = self.ds[self.tdim[0]] # this assumes variable and dimension have same name
-        self.actual_start = pd.to_datetime(t.values[0]).to_pydatetime(t.values[0])
-        self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
+        t = self.ds[self.time_dims[0]] # this assumes variable and dimension have same name
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                action="ignore",
+                message=".*Discarding nonzero nanoseconds.*",
+                category=UserWarning)
+            self.actual_start = pd.to_datetime(t.values[0]).to_pydatetime(t.values[0])
+            self.actual_end = pd.to_datetime(t.values[-1]).to_pydatetime(t.values[-1])
 
     def size(self):
         return self.ds.nbytes
@@ -89,38 +96,85 @@ class XSGBaseModel(BaseModel):
         These are special, 1D coordinates that enable label-based indexing.
         Will be used in subset_time and to assign unlimited dimension when writing netcdf
 
-        Had to use both coords and dims list to ensure only getting dimension coordinates
+        Note: This assumes that any coord with the word "time"
+              in the name is a time coord.
+              It also checks for standard_name: 'time', though
+              that's not well tested.
+
         (see GFS dataset which has most complexity)
         '''
 
-        coords = list(self.ds.coords)
-        dims = list(self.ds.dims)
-        tdim = [d for d in dims if d.find('time')>=0 and d in coords]
+        # old code -- a bit klunkier
+        # # coords = list(self.ds.coords)
+        # coords = self.ds.coords
+        # dims = list(self.ds.dims)
+        # # tdim = [d for d in dims if d.find('time')>=0 and d in coords]
+        # tdim = [d for d in dims if 'time' in d and d in self.ds.coords]
 
-        self.tdim = tdim
+        tdim = [d for d in self.ds.xindexes
+                if ('time' in d)
+                or (self.ds[d].attrs.get('standard_name') == 'time')]
+
+        self.time_dims = tdim
 
     def subset_time(self, start_time, end_time):
-        # Should return time series inclusive of start and end dates
-        #
-        # self.tdim is a list as some datasets have more than one time variable
-        for tdim in self.tdim:
+        """
+        Subset the model results in time.
 
+        model results are restricted to the specified time bounds.
+
+        model changed in-place
+
+        Parameters
+        ----------
+        start_time : str or datetime
+            The start time for the subset window.
+        end_time : str or datetime
+            The end time for the subset window.
+
+        """
+        # Should include the time series inclusive of start and end dates
+        #
+        # self.time_dims is a list as some datasets have more than one time variable
+
+        start_time = asdatetime(start_time)
+        end_time = asdatetime(end_time)
+
+        if self.time_dims is None:
+            self.parse_time_dim_coords()
+
+        # loops through all the time dimensions
+        # and subsets them all, one by one.
+        for tdim in self.time_dims:
             if start_time is not None:
-                best_start = self.ds[tdim].sel({tdim: start_time}, method='ffill')
+                try:
+                    best_start = self.ds[tdim].sel({tdim: start_time}, method='ffill')
+                except KeyError as err:
+                    msg = (f"invalid start_time: {start_time}. Available range is: "
+                          f"{self.actual_start} {self.actual_end}")
+                    raise ValueError(msg) from err
             else:
                 best_start = None
 
             if end_time is not None:
-                best_end = self.ds[tdim].sel({tdim: end_time}, method='bfill')
+                try:
+                    best_end = self.ds[tdim].sel({tdim: end_time}, method='bfill')
+                except KeyError as err:
+                    msg = (f"invalid end_time: {end_time}. Available range is: "
+                          f"{self.actual_start} {self.actual_end}")
+                    raise ValueError(msg) from err
+
             else:
                 best_end = None
 
             self.ds = self.ds.sel({tdim: slice(best_start, best_end)})
 
+
     def subset_grid(self, bbox):
         # TODO: Add check on bbox and ds longitude to see if they are
         #       using same convention (0-->360 vs -180-180)
-        #  NOTE: XSG does somethign with this -- not sure what though ...
+        #  NOTE: XSG does something with this -- not sure what though ...
+        bbox = flatten_bbox(bbox)
         self.ds = self.ds.xsg.subset_bbox(bbox)
 
     def select_surface(self, level_depth=0):
@@ -162,7 +216,7 @@ class XSGBaseModel(BaseModel):
         # NOTE: we used to get an error on something with the unlimited_dims flag
         #       it may crop up again, and could be wrapped in a try: except.
         try:
-            self.ds.to_netcdf(ofn, unlimited_dims=self.tdim)
+            self.ds.to_netcdf(ofn, unlimited_dims=self.time_dims)
         except ValueError: # GFS has something weird with unlimited dims that xarray barfs on
             self.ds.to_netcdf(ofn)
         if close_ds:
