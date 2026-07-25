@@ -209,7 +209,7 @@ def get_model_subset(
 
             Default is ["surface_currents"]
 
-    :returns: libgoods model object, ready to be subset.
+    :returns: libgoods model object, subset and ready to be saved as netcdf or ...
 
     """
     # we use subset_bbox in xarray_subset_grid so we need to

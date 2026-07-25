@@ -7,6 +7,7 @@ import warnings
 
 import cftime
 import numpy as np
+import pandas as pd
 from dateutil.parser import parse as parsetime
 from shapely.geometry import MultiPoint, Polygon, mapping, shape
 
@@ -186,11 +187,19 @@ def asdatetime(dt):
     if dt is None:
         return dt
     # if not isinstance(dt, datetime):
-    if not isinstance(dt, (datetime.datetime, cftime.datetime)):
-        # assume it's an ISO string, or something that dateutils can parse.
-        return parsetime(dt, ignoretz=True)
-    else:
-        return dt
+
+    try:
+        if not isinstance(dt, (datetime.datetime, cftime.datetime)):
+            if isinstance(dt, str):
+                # assume it's an ISO string, or something that dateutils can parse.
+                return parsetime(dt, ignoretz=True)
+            else:
+                # Give pandas a try
+                return pd.to_datetime(dt)
+        else:
+            return dt
+    except Exception as err:
+        raise ValueError(f"Can't convert {dt!r} to a datetime") from err
 
 def asdate(date):
     """
@@ -298,15 +307,20 @@ def bbox2polygon(bbox):
 
 def flatten_bbox(bbox):
     """
-    converts (lower-left, upper-right) Boounding Box form to the previous
+    converts (lower-left, upper-right) Bounding Box form to the previous
     flattened form:
 
     (min_lon, min_lat, max_lon, max_lat)
+
+    if it's already in flattened form, it's a pass through.
     """
-    min_lon = bbox[0][0]
-    min_lat = bbox[0][1]
-    max_lon = bbox[1][0]
-    max_lat = bbox[1][1]
+    if len(bbox) == 4:
+        return bbox
+    else:
+        min_lon = bbox[0][0]
+        min_lat = bbox[0][1]
+        max_lon = bbox[1][0]
+        max_lat = bbox[1][1]
     return (min_lon, min_lat, max_lon, max_lat)
 
 
