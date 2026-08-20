@@ -27,6 +27,10 @@ pynucos = ">=3.4.1,<4"
 ipython = "*"
 matplotlib = "*"
 ruff = "*"
+sphinx = ">=7.3.7,<8"
+sphinx_rtd_theme = "*"
+nbsphinx = "*"
+
 
 [feature.dev.pypi-dependencies]
 libgoods = { path = ".", editable = true }
